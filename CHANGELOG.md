@@ -3,11 +3,37 @@
 All notable changes to this project are documented in this file.
 Entries are in reverse chronological order.
 
-For open bugs and improvement opportunities, see [docs/known-issues.md](docs/known-issues.md).
-
 ---
 
-## 2026-04-07 — Project Restructure & Sanitization
+## 2026-04-07 — Known Issues Fixed, Project Restructure & Sanitization
+
+### All 9 known issues from code review resolved
+
+- **BUG-1**: `BETWEEN...AND` no longer breaks when a comment separates
+  them. The outer AND handler now leaves `between=True` so the expression
+  collector consumes AND as a regular token.
+- **PERF-1**: `_last_line()` now searches `self.out` in reverse — O(k)
+  per call instead of O(n).
+- **INCON-1**: `format_delete` now uses `INDENT` (4 spaces) via
+  `self.nl()` instead of hardcoded `\t`.
+- **FEAT-1**: `EXCEPT`, `EXCEPT ALL`, `INTERSECT`, and `INTERSECT ALL`
+  are now supported as set operators. Added to keywords and all boundary
+  checks throughout the formatter.
+- **FRAG-1**: Alias detection exclusion list in `format_table_ref`
+  expanded with `NOT`, `OFFSET`, `FETCH`, `UNION`, `EXCEPT`, `INTERSECT`,
+  `RETURNING`, `LATERAL`, `INTO`.
+- **FRAG-2**: `check_on_has_and` now explicitly skips `COMMENT` and
+  `BLANK_LINE` tokens instead of relying on them not matching keywords.
+- **EDGE-1**: `_collect_in_values` now detects `(SELECT ...)` subqueries
+  within mixed value lists and collects them as complete value groups.
+- **EDGE-2**: Accepted as-is — only affects malformed SQL, and
+  `format_sql` already returns original SQL on error.
+- **EDGE-3**: `join_expr` now uses a regular space before `/* */` block
+  comments and tab-alignment only for `--` line comments.
+
+`docs/known-issues.md` removed — all issues resolved.
+
+### Renamed project from `pg_custom_formatter` to `psql_custom_formatter`
 
 ### Renamed project from `pg_custom_formatter` to `psql_custom_formatter`
 

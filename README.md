@@ -127,7 +127,6 @@ psql_custom_formatter/
     psql_custom_formatter.py      # The formatter (single file, no dependencies)
     docs/
         architecture.md         # Internal architecture and test pipeline
-        known-issues.md         # Open bugs and potential improvements
     tests/
         run_tests.py            # Test runner (edge cases, idempotency, round-trip)
         edge_cases.sql          # 20 edge case test inputs

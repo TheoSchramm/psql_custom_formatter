@@ -3,7 +3,6 @@
 This document covers the formatter's internal architecture and test pipeline.
 
 For fix history, see [CHANGELOG.md](../CHANGELOG.md).
-For open bugs and improvements, see [known-issues.md](known-issues.md).
 For formatting rules, see [CLAUDE.md](../CLAUDE.md).
 
 ---
