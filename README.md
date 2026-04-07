@@ -67,6 +67,28 @@ python3 psql_custom_formatter.py myquery.sql
 
 Formats the file in-place -- designed for DBeaver's temp file integration.
 
+### Check Mode
+
+```bash
+# Exit 0 if already formatted, exit 1 if not (no output either way)
+python3 psql_custom_formatter.py --check myquery.sql
+```
+
+Useful in CI pipelines to enforce formatting without modifying files.
+
+### Diff Mode
+
+```bash
+# Show unified diff of what would change
+python3 psql_custom_formatter.py --diff myquery.sql
+```
+
+Both `--check` and `--diff` also work with stdin:
+
+```bash
+cat myquery.sql | python3 psql_custom_formatter.py --diff
+```
+
 ### DBeaver Integration
 
 1. Go to **Preferences > Editors > SQL Editor > Formatting**

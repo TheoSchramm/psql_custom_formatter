@@ -1606,15 +1606,63 @@ def format_sql(sql):
 
 
 def main():
-    if len(sys.argv) > 1:
-        filepath = sys.argv[1]
-        with open(filepath, 'r') as f:
+    import argparse
+    import difflib
+
+    parser = argparse.ArgumentParser(
+        description='Custom PostgreSQL SQL formatter for DBeaver.')
+    parser.add_argument('file', nargs='?', default=None,
+                        help='SQL file to format (in-place unless --check or --diff)')
+    parser.add_argument('--check', action='store_true',
+                        help='Check if file is already formatted (exit 0=yes, 1=no)')
+    parser.add_argument('--diff', action='store_true',
+                        help='Show diff between original and formatted output')
+    args = parser.parse_args()
+
+    if args.file:
+        with open(args.file, 'r') as f:
             sql = f.read()
         result = format_sql(sql)
-        with open(filepath, 'w') as f:
+
+        if args.check:
+            sys.exit(0 if sql == result else 1)
+
+        if args.diff:
+            if sql == result:
+                sys.exit(0)
+            diff = difflib.unified_diff(
+                sql.splitlines(keepends=True),
+                result.splitlines(keepends=True),
+                fromfile=args.file,
+                tofile=args.file + ' (formatted)',
+            )
+            sys.stdout.writelines(diff)
+            sys.exit(1)
+
+        # Default: format in-place
+        with open(args.file, 'w') as f:
             f.write(result)
     else:
+        # Stdin/stdout mode (DBeaver default)
         sql = sys.stdin.read()
+
+        if args.check:
+            result = format_sql(sql)
+            sys.exit(0 if sql == result else 1)
+
+        if args.diff:
+            result = format_sql(sql)
+            if sql == result:
+                sys.exit(0)
+            diff = difflib.unified_diff(
+                sql.splitlines(keepends=True),
+                result.splitlines(keepends=True),
+                fromfile='stdin',
+                tofile='stdin (formatted)',
+            )
+            sys.stdout.writelines(diff)
+            sys.exit(1)
+
         result = format_sql(sql)
         sys.stdout.write(result)
 
