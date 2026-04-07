@@ -24,7 +24,7 @@ python3 tests/run_tests.py
 
 ## Key Documentation
 
-- [CHANGELOG.md](CHANGELOG.md) — All fix history and version changes
+- [docs/CHANGELOG.md](docs/CHANGELOG.md) — All fix history and version changes
 - [docs/known-issues.md](docs/known-issues.md) — Known issues, limitations, and improvements
 - [docs/architecture.md](docs/architecture.md) — Internal architecture and test pipeline
 

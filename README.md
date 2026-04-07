@@ -127,6 +127,7 @@ psql_custom_formatter/
     psql_custom_formatter.py      # The formatter (single file, no dependencies)
     docs/
         architecture.md         # Internal architecture and test pipeline
+        CHANGELOG.md            # All fix history and version changes
         known-issues.md         # Known issues, limitations, and improvements
     tests/
         run_tests.py            # Test runner (edge cases, idempotency, round-trip)
@@ -140,7 +141,6 @@ psql_custom_formatter/
         create_and_update.sql       # CREATE TABLE AS, UPDATE, templated message
         select_with_groupby.sql     # SELECT with GROUP BY, ORDER BY, IN subquery
         do_block_search.sql         # DO block with PL/pgSQL column search
-    CHANGELOG.md                # All fix history and version changes
     CLAUDE.md                   # Claude Code instructions and formatting rules
 ```
 

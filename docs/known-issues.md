@@ -2,7 +2,7 @@
 
 No open issues at this time.
 
-All 9 findings from the 2026-04-07 code review have been resolved — see [CHANGELOG.md](../CHANGELOG.md) for details.
+All 9 findings from the 2026-04-07 code review have been resolved — see [CHANGELOG.md](CHANGELOG.md) for details.
 
 ---
 
