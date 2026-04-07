@@ -7,6 +7,59 @@ For open bugs and improvement opportunities, see [docs/known-issues.md](docs/kno
 
 ---
 
+## 2026-04-07 — Project Restructure & Sanitization
+
+### Renamed project from `pg_custom_formatter` to `psql_custom_formatter`
+
+Renamed the Python file, GitHub repository, local directory, and all
+internal references across documentation and test runner.
+
+### Folder structure reorganized
+
+- Test fixtures (`example.sql`, `example_formatted.sql`) moved from
+  `examples/` to `tests/fixtures/` as `input.sql` and `expected.sql`
+- `examples/plain_sql/test_N.sql` flattened into `examples/` with
+  descriptive names (`select_join_where.sql`, `create_and_update.sql`, etc.)
+- `KNOWN_ISSUES.md` and `tests/TEST_DOCUMENTATION.md` moved to `docs/`
+  as `known-issues.md` and `architecture.md`
+- `fixes.md` deleted — content merged into `CHANGELOG.md`
+
+### Documentation consolidated
+
+Each `.md` file now has a single, non-overlapping responsibility:
+- `README.md` — public-facing intro, usage, examples
+- `CLAUDE.md` — AI assistant instructions, formatting rules
+- `CHANGELOG.md` — all fix history (absorbed `fixes.md`)
+- `docs/architecture.md` — internal architecture and test pipeline
+- `docs/known-issues.md` — open bugs and improvements
+
+Removed ~950 lines of duplicated content across files. Cross-references
+replace duplicated sections.
+
+### Sensitive data sanitized from all SQL files
+
+Replaced production-specific identifiers with generic names:
+- `erp.*`, `store.*`, `app.*`, `staging.*` schemas → `public.*`
+- Company names, person names, email addresses, CPF numbers removed
+- Real protocol/ticket IDs, login names, contract numbers replaced
+- Git history rewritten to remove all prior versions containing
+  sensitive data
+
+### Code review findings documented
+
+Created `docs/known-issues.md` with 9 findings from code review:
+- BUG-1: `BETWEEN...AND` broken when comment separates them
+- PERF-1: `_last_line()` O(n^2) performance
+- INCON-1: DELETE uses `\t` instead of `INDENT`
+- FEAT-1: No `EXCEPT`/`INTERSECT` support
+- FRAG-1: Alias detection keyword exclusion list
+- FRAG-2: `check_on_has_and` doesn't skip comments/blanks
+- EDGE-1: Nested SELECT inside IN value list
+- EDGE-2: Paren depth tracking with malformed SQL
+- EDGE-3: Block comments tab-separated in `join_expr`
+
+---
+
 ## 2026-04-06 — Comment Handling & Comma-Separated FROM
 
 ### Comment Handling Overhaul
