@@ -16,7 +16,7 @@ KEYWORDS = {
     'INSERT', 'INTO', 'VALUES', 'UPDATE', 'SET', 'DELETE',
     'AS', 'IS', 'NULL', 'BETWEEN', 'LIKE', 'EXISTS',
     'CASE', 'WHEN', 'THEN', 'ELSE', 'END',
-    'UNION', 'ALL', 'DISTINCT', 'ASC', 'DESC',
+    'UNION', 'EXCEPT', 'INTERSECT', 'ALL', 'DISTINCT', 'ASC', 'DESC',
     'SUM', 'COUNT', 'AVG', 'MIN', 'MAX',
     'COALESCE', 'NULLIF', 'CAST',
     'TRUE', 'FALSE',
@@ -211,9 +211,12 @@ def join_expr(toks):
             need_space = False
         elif cur_type == 'COMMA':
             need_space = False
-        # Tab-align inline comments
+        # Tab-align line comments; keep block comments inline with a space
         if cur_type == 'COMMENT':
-            parts.append('\t')
+            if cur_val.lstrip().startswith('--'):
+                parts.append('\t')
+            else:
+                parts.append(' ')
             parts.append(cur_val)
             continue
         if need_space:
@@ -297,7 +300,7 @@ class Formatter:
             return True
         if t[1] == 'ORDER' and self.pk(1)[1] == 'BY':
             return True
-        if t[1] == 'UNION':
+        if t[1] in ('UNION', 'EXCEPT', 'INTERSECT'):
             return True
         return False
 
@@ -326,8 +329,13 @@ class Formatter:
         j = 1
         while True:
             t = self.pk(j)
-            if t[0] == 'EOF' or t[1] in (';', 'WHERE', 'GROUP', 'ORDER',
-                                           'HAVING', 'LIMIT', 'SELECT', 'FROM'):
+            if t[0] in ('EOF', 'COMMENT', 'BLANK_LINE'):
+                if t[0] == 'EOF':
+                    return False
+                j += 1
+                continue
+            if t[1] in (';', 'WHERE', 'GROUP', 'ORDER',
+                        'HAVING', 'LIMIT', 'SELECT', 'FROM'):
                 return False
             if t[1] == 'JOIN':
                 return False
@@ -528,15 +536,15 @@ class Formatter:
             self.w(';')
             self.eat()
 
-        # Handle UNION / UNION ALL chaining
-        if self.pk()[1] == 'UNION':
+        # Handle UNION / EXCEPT / INTERSECT (with optional ALL) chaining
+        if self.pk()[1] in ('UNION', 'EXCEPT', 'INTERSECT'):
+            op = self.eat()[1]  # UNION, EXCEPT, or INTERSECT
             self.w('\n')
-            self.eat()  # UNION
             if self.pk()[1] == 'ALL':
-                self.w(self.ind(base) + 'UNION ALL')
+                self.w(self.ind(base) + op + ' ALL')
                 self.eat()
             else:
-                self.w(self.ind(base) + 'UNION')
+                self.w(self.ind(base) + op)
             self.w('\n')
             self.format_select(base, is_subquery=is_subquery)
 
@@ -549,7 +557,8 @@ class Formatter:
                 self.eat()
                 continue
             if t[1] in ('FROM', 'WHERE', 'GROUP', 'ORDER', 'HAVING',
-                         'LIMIT', 'UNION', ';', ')') or t[0] == 'EOF':
+                         'LIMIT', 'UNION', 'EXCEPT', 'INTERSECT',
+                         ';', ')') or t[0] == 'EOF':
                 break
 
             if t[1] == ',':
@@ -574,7 +583,8 @@ class Formatter:
                     j += 1
                 next_after = self.pk(j)
                 if next_after[1] in ('FROM', 'WHERE', 'GROUP', 'ORDER',
-                                     'HAVING', 'LIMIT', 'UNION', ';',
+                                     'HAVING', 'LIMIT', 'UNION',
+                                     'EXCEPT', 'INTERSECT', ';',
                                      ')') or next_after[0] == 'EOF':
                     break  # leave for outer handler
                 self.nl(ci)
@@ -603,10 +613,16 @@ class Formatter:
                 self.w(tabs + comment)
 
     def _last_line(self):
-        """Get the last line of output so far."""
-        text = ''.join(self.out)
-        last_nl = text.rfind('\n')
-        return text[last_nl + 1:] if last_nl >= 0 else text
+        """Get the last line of output so far (searches in reverse for efficiency)."""
+        for i in range(len(self.out) - 1, -1, -1):
+            chunk = self.out[i]
+            nl = chunk.rfind('\n')
+            if nl >= 0:
+                tail = chunk[nl + 1:]
+                for j in range(i + 1, len(self.out)):
+                    tail += self.out[j]
+                return tail
+        return ''.join(self.out)
 
     def _calc_comment_tabs(self, line):
         """Calculate tabs needed to align comment to column 32 (4-char tabs)."""
@@ -625,7 +641,7 @@ class Formatter:
             (t[0] == 'COMMENT' and t[1].lstrip().startswith('--')) or
             t[0] == 'EOF' or
             t[1] in ('FROM', 'WHERE', 'GROUP', 'ORDER', 'HAVING',
-                      'LIMIT', 'UNION', ';'))
+                      'LIMIT', 'UNION', 'EXCEPT', 'INTERSECT', ';'))
         self.w(join_expr(toks))
 
     def _collect_case_expr(self, stops):
@@ -752,7 +768,9 @@ class Formatter:
               self.pk()[1] not in (
                   'JOIN', 'LEFT', 'RIGHT', 'INNER', 'OUTER', 'FULL',
                   'CROSS', 'ON', 'WHERE', 'GROUP', 'ORDER', 'HAVING',
-                  'SET', 'SELECT', 'FROM', 'AND', 'OR', 'LIMIT', ';')):
+                  'SET', 'SELECT', 'FROM', 'AND', 'OR', 'NOT', 'LIMIT',
+                  'OFFSET', 'FETCH', 'UNION', 'EXCEPT', 'INTERSECT',
+                  'RETURNING', 'LATERAL', 'INTO', ';')):
             self.w(' ' + self.eat()[1])
 
     def format_join(self, ci):
@@ -909,7 +927,7 @@ class Formatter:
             if t[1] == 'ON' and self.pk(1)[1] == 'CONFLICT':
                 break
             if t[1] in ('GROUP', 'ORDER', 'HAVING', 'LIMIT', 'UNION',
-                         'RETURNING', ';') or t[0] == 'EOF':
+                         'EXCEPT', 'INTERSECT', 'RETURNING', ';') or t[0] == 'EOF':
                 break
             if t[1] == ')':
                 if cond_depth > 0:
@@ -927,7 +945,8 @@ class Formatter:
                     j += 1
                 next_after = self.pk(j)
                 if (next_after[1] in ('GROUP', 'ORDER', 'HAVING', 'LIMIT',
-                                      'UNION', 'RETURNING', ';') or
+                                      'UNION', 'EXCEPT', 'INTERSECT',
+                                      'RETURNING', ';') or
                         next_after[0] in ('EOF', 'BLANK_LINE') or
                         (next_after[1] == 'ON' and self.pk(j + 1)[1] == 'CONFLICT')):
                     break  # leave comment for outer handler
@@ -948,8 +967,10 @@ class Formatter:
             # AND handling
             if t[1] == 'AND':
                 if between:
-                    # AND is part of BETWEEN...AND, treat as regular token
-                    between = False
+                    # AND is part of BETWEEN...AND — don't treat as separator.
+                    # Keep between=True so the expression collector below
+                    # consumes this AND as a regular token.
+                    pass  # fall through to expression collector
                 elif inline_and and not after_comment:
                     self.w(' AND ')
                     self.eat()
@@ -1058,7 +1079,8 @@ class Formatter:
                     in_list_pending = False
                 if paren_depth == 0 and case_depth == 0:
                     if tt[1] in ('OR', 'GROUP', 'ORDER', 'HAVING',
-                                 'LIMIT', 'UNION', 'RETURNING', ';',
+                                 'LIMIT', 'UNION', 'EXCEPT', 'INTERSECT',
+                                 'RETURNING', ';',
                                  'SELECT') or tt[0] == 'EOF':
                         break
                     if tt[1] == 'ON' and self.pk(1)[1] == 'CONFLICT':
@@ -1098,7 +1120,12 @@ class Formatter:
                 after_comment = True
 
     def _collect_in_values(self):
-        """Collect value groups inside IN (...), returns list of token lists."""
+        """Collect value groups inside IN (...), returns list of token lists.
+
+        Handles nested (SELECT ...) subqueries within value lists by
+        collecting the subquery tokens (including parens) as a single
+        value group.
+        """
         vals = []
         current = []
         depth = 0
@@ -1107,7 +1134,24 @@ class Formatter:
             if t[0] == 'BLANK_LINE':
                 self.eat()
                 continue
-            if t[1] == '(' :
+            if t[1] == '(':
+                # Detect (SELECT ...) subquery inside the value list
+                if depth == 0 and self.pk(1)[1] == 'SELECT':
+                    if current:
+                        vals.append(current)
+                        current = []
+                    # Collect the entire subquery as one value group
+                    sub_toks = [self.eat()]  # (
+                    sub_depth = 1
+                    while not self.done() and sub_depth > 0:
+                        st = self.pk()
+                        if st[1] == '(':
+                            sub_depth += 1
+                        elif st[1] == ')':
+                            sub_depth -= 1
+                        sub_toks.append(self.eat())
+                    vals.append(sub_toks)
+                    continue
                 depth += 1
             elif t[1] == ')':
                 if depth == 0:
@@ -1143,9 +1187,9 @@ class Formatter:
         first = True
         while not self.done():
             t = self.pk()
-            if t[1] in ('HAVING', 'ORDER', 'LIMIT', 'UNION', ';',
-                         'WHERE', 'FROM', 'SELECT', ')',
-                         'INSERT', 'UPDATE', 'DELETE',
+            if t[1] in ('HAVING', 'ORDER', 'LIMIT', 'UNION', 'EXCEPT',
+                         'INTERSECT', ';', 'WHERE', 'FROM', 'SELECT',
+                         ')', 'INSERT', 'UPDATE', 'DELETE',
                          'RETURNING', 'CREATE') or t[0] == 'EOF':
                 break
             if t[1] == 'ON' and self.pk(1)[1] == 'CONFLICT':
@@ -1179,9 +1223,9 @@ class Formatter:
 
             def _item_stop(t):
                 if t[1] in (',', 'HAVING', 'ORDER', 'LIMIT', 'UNION',
-                             ';', 'WHERE', 'FROM', 'SELECT',
-                             'INSERT', 'UPDATE', 'DELETE',
-                             'RETURNING', 'CREATE'):
+                             'EXCEPT', 'INTERSECT', ';', 'WHERE',
+                             'FROM', 'SELECT', 'INSERT', 'UPDATE',
+                             'DELETE', 'RETURNING', 'CREATE'):
                     return True
                 if t[1] == 'ON' and self.pk(1)[1] == 'CONFLICT':
                     return True
@@ -1269,17 +1313,16 @@ class Formatter:
         if self.pk()[1] == 'FROM':
             self.w(' FROM')
             self.eat()
-        self.w(' ')
 
-        # Table (tab-indented for DELETE)
-        self.w('\n\t')
+        self.nl(1)
         if self.pk()[0] in ('ID', 'KW', 'QUOTED_ID'):
             self.w(self.eat()[1])
 
         if self.pk()[1] == 'WHERE':
-            self.w('\nWHERE ')
+            self.nl(0)
+            self.w('WHERE')
             self.eat()
-            self.w('\n\t')
+            self.nl(1)
             toks = self.collect_until(
                 lambda t: t[1] == ';' or t[0] == 'EOF')
             self.w(join_expr(toks))

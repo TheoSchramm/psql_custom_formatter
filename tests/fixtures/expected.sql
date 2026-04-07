@@ -36,10 +36,10 @@ WHERE
 
 
 
-DELETE FROM 
-	table1
-WHERE 
-	a = 1;
+DELETE FROM
+    table1
+WHERE
+    a = 1;
 
 
 
