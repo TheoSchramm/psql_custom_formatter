@@ -1650,51 +1650,36 @@ def main():
                         help='Show diff between original and formatted output')
     args = parser.parse_args()
 
+    # Read SQL from file or stdin
+    label = args.file or 'stdin'
     if args.file:
         with open(args.file, 'r') as f:
             sql = f.read()
-        result = format_sql(sql)
+    else:
+        sql = sys.stdin.read()
 
-        if args.check:
-            sys.exit(0 if sql == result else 1)
+    result = format_sql(sql)
 
-        if args.diff:
-            if sql == result:
-                sys.exit(0)
-            diff = difflib.unified_diff(
-                sql.splitlines(keepends=True),
-                result.splitlines(keepends=True),
-                fromfile=args.file,
-                tofile=args.file + ' (formatted)',
-            )
-            sys.stdout.writelines(diff)
-            sys.exit(1)
+    if args.check:
+        sys.exit(0 if sql == result else 1)
 
-        # Default: format in-place
+    if args.diff:
+        if sql == result:
+            sys.exit(0)
+        diff = difflib.unified_diff(
+            sql.splitlines(keepends=True),
+            result.splitlines(keepends=True),
+            fromfile=label,
+            tofile=label + ' (formatted)',
+        )
+        sys.stdout.writelines(diff)
+        sys.exit(1)
+
+    # Default: format in-place for files, stdout for stdin
+    if args.file:
         with open(args.file, 'w') as f:
             f.write(result)
     else:
-        # Stdin/stdout mode (DBeaver default)
-        sql = sys.stdin.read()
-
-        if args.check:
-            result = format_sql(sql)
-            sys.exit(0 if sql == result else 1)
-
-        if args.diff:
-            result = format_sql(sql)
-            if sql == result:
-                sys.exit(0)
-            diff = difflib.unified_diff(
-                sql.splitlines(keepends=True),
-                result.splitlines(keepends=True),
-                fromfile='stdin',
-                tofile='stdin (formatted)',
-            )
-            sys.stdout.writelines(diff)
-            sys.exit(1)
-
-        result = format_sql(sql)
         sys.stdout.write(result)
 
 
