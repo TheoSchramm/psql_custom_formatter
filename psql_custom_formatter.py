@@ -41,6 +41,11 @@ FUNCTION_KWS = {
 
 JOIN_MODIFIERS = frozenset({'LEFT', 'RIGHT', 'INNER', 'FULL', 'CROSS', 'OUTER'})
 
+SELECT_CLAUSE_KWS = frozenset({
+    'FROM', 'WHERE', 'GROUP', 'ORDER', 'HAVING',
+    'LIMIT', 'UNION', 'EXCEPT', 'INTERSECT',
+})
+
 
 def tokenize(sql):
     tokens = []
@@ -524,9 +529,7 @@ class Formatter:
             if t[0] == 'BLANK_LINE':
                 self.eat()
                 continue
-            if t[1] in ('FROM', 'WHERE', 'GROUP', 'ORDER', 'HAVING',
-                         'LIMIT', 'UNION', 'EXCEPT', 'INTERSECT',
-                         ';', ')') or t[0] == 'EOF':
+            if t[1] in SELECT_CLAUSE_KWS or t[1] in (';', ')') or t[0] == 'EOF':
                 break
 
             if t[1] == ',':
@@ -550,10 +553,7 @@ class Formatter:
                 while self.pk(j)[0] == 'COMMENT':
                     j += 1
                 next_after = self.pk(j)
-                if next_after[1] in ('FROM', 'WHERE', 'GROUP', 'ORDER',
-                                     'HAVING', 'LIMIT', 'UNION',
-                                     'EXCEPT', 'INTERSECT', ';',
-                                     ')') or next_after[0] == 'EOF':
+                if next_after[1] in SELECT_CLAUSE_KWS or next_after[1] in (';', ')') or next_after[0] == 'EOF':
                     break  # leave for outer handler
                 self.nl(ci)
                 self.w(self.eat()[1])
@@ -608,8 +608,7 @@ class Formatter:
             lambda t: t[1] in (',',) or
             (t[0] == 'COMMENT' and t[1].lstrip().startswith('--')) or
             t[0] == 'EOF' or
-            t[1] in ('FROM', 'WHERE', 'GROUP', 'ORDER', 'HAVING',
-                      'LIMIT', 'UNION', 'EXCEPT', 'INTERSECT', ';'))
+            t[1] in SELECT_CLAUSE_KWS or t[1] == ';')
         self.w(join_expr(toks))
 
     def _collect_case_expr(self, stops):
