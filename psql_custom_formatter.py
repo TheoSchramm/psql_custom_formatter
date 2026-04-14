@@ -207,6 +207,10 @@ def join_expr(toks):
             need_space = False
         elif prev_val == '::' or cur_val == '::':
             need_space = False
+        elif cur_val in ('[', ']'):
+            need_space = False
+        elif prev_val == '[':
+            need_space = False
         elif prev_type == 'SYM' and cur_type == 'SYM':
             need_space = False
         elif cur_type == 'COMMA':
