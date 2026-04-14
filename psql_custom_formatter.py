@@ -38,6 +38,8 @@ FUNCTION_KWS = {
     'CONCAT', 'LENGTH', 'REPLACE', 'ROUND', 'ABS', 'CEIL', 'FLOOR',
 }
 
+JOIN_MODIFIERS = frozenset({'LEFT', 'RIGHT', 'INNER', 'FULL', 'CROSS', 'OUTER'})
+
 
 def tokenize(sql):
     tokens = []
@@ -288,9 +290,9 @@ class Formatter:
         t = self.pk(off)
         if t[1] == 'JOIN':
             return True
-        if t[1] in ('LEFT', 'RIGHT', 'INNER', 'FULL', 'CROSS', 'OUTER'):
+        if t[1] in JOIN_MODIFIERS:
             j = off + 1
-            while self.pk(j)[1] in ('LEFT', 'RIGHT', 'INNER', 'FULL', 'CROSS', 'OUTER'):
+            while self.pk(j)[1] in JOIN_MODIFIERS:
                 j += 1
             return self.pk(j)[1] == 'JOIN'
         return False
@@ -343,10 +345,9 @@ class Formatter:
                 return False
             if t[1] == 'JOIN':
                 return False
-            if t[1] in ('LEFT', 'RIGHT', 'INNER', 'FULL', 'CROSS', 'OUTER', 'LATERAL'):
+            if t[1] in JOIN_MODIFIERS or t[1] == 'LATERAL':
                 k = j + 1
-                while self.pk(k)[1] in ('LEFT', 'RIGHT', 'INNER', 'FULL',
-                                         'CROSS', 'OUTER'):
+                while self.pk(k)[1] in JOIN_MODIFIERS:
                     k += 1
                 if self.pk(k)[1] == 'JOIN':
                     return False
@@ -472,68 +473,30 @@ class Formatter:
 
         self.format_select_list(base + 1)
 
-        self._skip_inter_clause(base)
-        if self.pk()[1] == 'FROM':
-            self.nl(base)
-            self.w('FROM')
-            self.eat()
-            self.format_from_clause(base)
+        clauses = [
+            ('FROM',   None, 'FROM',     lambda: self.format_from_clause(base)),
+            ('WHERE',  None, 'WHERE',    lambda: self.format_where(base, is_subquery=is_subquery)),
+            ('GROUP',  'BY', 'GROUP BY', lambda: self.format_item_list(base + 1)),
+            ('HAVING', None, 'HAVING',   lambda: self.format_where(base, is_subquery=is_subquery)),
+            ('ORDER',  'BY', 'ORDER BY', lambda: self.format_item_list(base + 1)),
+            ('LIMIT',  None, 'LIMIT ',   lambda: self.w(join_expr(self.collect_until(
+                                             lambda t: t[1] in (';', 'OFFSET') or t[0] == 'EOF')))),
+            ('OFFSET', None, 'OFFSET ',  lambda: self.w(join_expr(self.collect_until(
+                                             lambda t: t[1] in (';',) or t[0] == 'EOF')))),
+            # FETCH FIRST/NEXT ... ONLY (SQL standard alternative to LIMIT)
+            ('FETCH',  None, 'FETCH ',   lambda: self.w(join_expr(self.collect_until(
+                                             lambda t: t[1] in (';',) or t[0] == 'EOF')))),
+        ]
 
-        self._skip_inter_clause(base)
-        if self.pk()[1] == 'WHERE':
-            self.nl(base)
-            self.w('WHERE')
-            self.eat()
-            self.format_where(base, is_subquery=is_subquery)
-
-        self._skip_inter_clause(base)
-        if self.pk()[1] == 'GROUP' and self.pk(1)[1] == 'BY':
-            self.nl(base)
-            self.eat()  # GROUP
-            self.eat()  # BY
-            self.w('GROUP BY')
-            self.format_item_list(base + 1)
-
-        self._skip_inter_clause(base)
-        if self.pk()[1] == 'HAVING':
-            self.nl(base)
-            self.w('HAVING')
-            self.eat()
-            self.format_where(base, is_subquery=is_subquery)
-
-        self._skip_inter_clause(base)
-        if self.pk()[1] == 'ORDER' and self.pk(1)[1] == 'BY':
-            self.nl(base)
-            self.eat()  # ORDER
-            self.eat()  # BY
-            self.w('ORDER BY')
-            self.format_item_list(base + 1)
-
-        self._skip_inter_clause(base)
-        if self.pk()[1] == 'LIMIT':
-            self.nl(base)
-            self.w('LIMIT ')
-            self.eat()
-            toks = self.collect_until(
-                lambda t: t[1] in (';', 'OFFSET') or t[0] == 'EOF')
-            self.w(join_expr(toks))
-
-        self._skip_inter_clause(base)
-        if self.pk()[1] == 'OFFSET':
-            self.nl(base)
-            self.w('OFFSET ')
-            self.eat()
-            toks = self.collect_until(
-                lambda t: t[1] in (';',) or t[0] == 'EOF')
-            self.w(join_expr(toks))
-
-        # FETCH FIRST/NEXT ... ONLY (SQL standard alternative to LIMIT)
-        self._skip_inter_clause(base)
-        if self.pk()[1] == 'FETCH':
-            self.nl(base)
-            toks = self.collect_until(
-                lambda t: t[1] in (';',) or t[0] == 'EOF')
-            self.w(join_expr(toks))
+        for kw, kw2, emit, handler in clauses:
+            self._skip_inter_clause(base)
+            if self.pk()[1] == kw and (kw2 is None or self.pk(1)[1] == kw2):
+                self.nl(base)
+                self.eat()
+                if kw2:
+                    self.eat()
+                self.w(emit)
+                handler()
 
         self._skip_blank_lines()
         if self.pk()[1] == ';':
@@ -778,8 +741,7 @@ class Formatter:
             self.w(' ' + self.eat()[1])
 
     def format_join(self, ci):
-        while self.pk()[1] in ('LEFT', 'RIGHT', 'INNER', 'FULL', 'CROSS',
-                                'OUTER'):
+        while self.pk()[1] in JOIN_MODIFIERS:
             self.w(self.eat()[1] + ' ')
         self.w('JOIN ')
         self.eat()
@@ -1145,16 +1107,7 @@ class Formatter:
                         vals.append(current)
                         current = []
                     # Collect the entire subquery as one value group
-                    sub_toks = [self.eat()]  # (
-                    sub_depth = 1
-                    while not self.done() and sub_depth > 0:
-                        st = self.pk()
-                        if st[1] == '(':
-                            sub_depth += 1
-                        elif st[1] == ')':
-                            sub_depth -= 1
-                        sub_toks.append(self.eat())
-                    vals.append(sub_toks)
+                    vals.append(self._collect_balanced_parens())
                     continue
                 depth += 1
             elif t[1] == ')':
@@ -1521,6 +1474,31 @@ class Formatter:
             self.format_stmt()
 
 
+    # ── Shared helpers ──────────────────────────────────────────
+
+    def _eat_if_not_exists(self):
+        if self.pk()[1] == 'IF':
+            self.w(' IF')
+            self.eat()
+            if self.pk()[1] == 'NOT':
+                self.w(' NOT')
+                self.eat()
+            if self.pk()[1] == 'EXISTS':
+                self.w(' EXISTS')
+                self.eat()
+
+    def _collect_balanced_parens(self):
+        toks = [self.eat()]  # opening (
+        depth = 1
+        while not self.done() and depth > 0:
+            t = self.eat()
+            toks.append(t)
+            if t[0] == 'LPAR':
+                depth += 1
+            elif t[0] == 'RPAR':
+                depth -= 1
+        return toks
+
     # ── CREATE TABLE ... AS ─────────────────────────────────────
 
     def format_create(self):
@@ -1537,16 +1515,7 @@ class Formatter:
         if self.pk()[1] == 'TABLE':
             self.w(' TABLE')
             self.eat()
-        # Optional IF NOT EXISTS
-        if self.pk()[1] == 'IF':
-            self.w(' IF')
-            self.eat()
-            if self.pk()[1] == 'NOT':
-                self.w(' NOT')
-                self.eat()
-            if self.pk()[1] == 'EXISTS':
-                self.w(' EXISTS')
-                self.eat()
+        self._eat_if_not_exists()
 
         # Table name (indented, no alias parsing)
         self.nl(1)
@@ -1605,16 +1574,7 @@ class Formatter:
         if self.pk()[1] == 'concurrently':
             self.w(' CONCURRENTLY')
             self.eat()
-        # Optional IF NOT EXISTS
-        if self.pk()[1] == 'IF':
-            self.w(' IF')
-            self.eat()
-            if self.pk()[1] == 'NOT':
-                self.w(' NOT')
-                self.eat()
-            if self.pk()[1] == 'EXISTS':
-                self.w(' EXISTS')
-                self.eat()
+        self._eat_if_not_exists()
         # Index name
         if self.pk()[0] in ('ID', 'KW', 'QUOTED_ID'):
             self.w(' ' + self.eat()[1])
@@ -1637,16 +1597,7 @@ class Formatter:
                 self.w(self.eat()[1])
         # Column list in parens
         if not self.done() and self.pk()[0] == 'LPAR':
-            toks = [self.eat()]  # (
-            depth = 1
-            while not self.done() and depth > 0:
-                t = self.eat()
-                toks.append(t)
-                if t[0] == 'LPAR':
-                    depth += 1
-                elif t[0] == 'RPAR':
-                    depth -= 1
-            self.w(' ' + join_expr(toks))
+            self.w(' ' + join_expr(self._collect_balanced_parens()))
         # Optional WHERE clause (partial index)
         if not self.done() and self.pk()[1] == 'WHERE':
             self.nl(1)
