@@ -1524,9 +1524,16 @@ class Formatter:
     # ── CREATE TABLE ... AS ─────────────────────────────────────
 
     def format_create(self):
-        # CREATE TABLE
+        # CREATE [UNIQUE] INDEX / CREATE TABLE
         self.w('CREATE')
         self.eat()
+        # Detect CREATE [UNIQUE] INDEX
+        if self.pk()[1] == 'unique':
+            self.w(' UNIQUE')
+            self.eat()
+        if self.pk()[1] == 'index':
+            self.format_create_index()
+            return
         if self.pk()[1] == 'TABLE':
             self.w(' TABLE')
             self.eat()
@@ -1587,6 +1594,75 @@ class Formatter:
             self.w(';')
             self.eat()
 
+
+    # ── CREATE INDEX ────────────────────────────────────────────
+
+    def format_create_index(self):
+        # INDEX keyword (already peeked, value == 'index')
+        self.w(' INDEX')
+        self.eat()
+        # Optional CONCURRENTLY
+        if self.pk()[1] == 'concurrently':
+            self.w(' CONCURRENTLY')
+            self.eat()
+        # Optional IF NOT EXISTS
+        if self.pk()[1] == 'IF':
+            self.w(' IF')
+            self.eat()
+            if self.pk()[1] == 'NOT':
+                self.w(' NOT')
+                self.eat()
+            if self.pk()[1] == 'EXISTS':
+                self.w(' EXISTS')
+                self.eat()
+        # Index name
+        if self.pk()[0] in ('ID', 'KW', 'QUOTED_ID'):
+            self.w(' ' + self.eat()[1])
+        # ON clause — indented one level
+        self.nl(1)
+        if self.pk()[1] == 'ON':
+            self.w('ON')
+            self.eat()
+        # Optional ONLY
+        if self.pk()[1] == 'only':
+            self.w(' ONLY')
+            self.eat()
+        # Table name (schema.table)
+        if self.pk()[0] in ('ID', 'KW', 'QUOTED_ID'):
+            self.w(' ' + self.eat()[1])
+        while not self.done() and self.pk()[0] == 'DOT':
+            self.w('.')
+            self.eat()
+            if self.pk()[0] in ('ID', 'KW', 'QUOTED_ID'):
+                self.w(self.eat()[1])
+        # Column list in parens
+        if not self.done() and self.pk()[0] == 'LPAR':
+            toks = [self.eat()]  # (
+            depth = 1
+            while not self.done() and depth > 0:
+                t = self.eat()
+                toks.append(t)
+                if t[0] == 'LPAR':
+                    depth += 1
+                elif t[0] == 'RPAR':
+                    depth -= 1
+            self.w(' ' + join_expr(toks))
+        # Optional WHERE clause (partial index)
+        if not self.done() and self.pk()[1] == 'WHERE':
+            self.nl(1)
+            self.w('WHERE')
+            self.eat()
+            toks = []
+            while not self.done():
+                t = self.pk()
+                if t[0] in ('SEMI', 'EOF', 'BLANK_LINE'):
+                    break
+                toks.append(self.eat())
+            if toks:
+                self.w(' ' + join_expr(toks))
+        if not self.done() and self.pk()[0] == 'SEMI':
+            self.w(';')
+            self.eat()
 
     # ── DO $$ ... $$ (PL/pgSQL passthrough) ────────────────────
 
