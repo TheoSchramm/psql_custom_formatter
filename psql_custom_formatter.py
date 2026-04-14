@@ -25,6 +25,7 @@ KEYWORDS = {
     'FETCH', 'FIRST', 'NEXT', 'ONLY',
     'RETURNING', 'CONFLICT', 'DO', 'NOTHING',
     'CREATE', 'TABLE', 'IF', 'DROP', 'ALTER',
+    'INDEX', 'UNIQUE', 'CONCURRENTLY',
     'LATERAL',
 }
 
@@ -1506,10 +1507,10 @@ class Formatter:
         self.w('CREATE')
         self.eat()
         # Detect CREATE [UNIQUE] INDEX
-        if self.pk()[1] == 'unique':
+        if self.pk()[1] == 'UNIQUE':
             self.w(' UNIQUE')
             self.eat()
-        if self.pk()[1] == 'index':
+        if self.pk()[1] == 'INDEX':
             self.format_create_index()
             return
         if self.pk()[1] == 'TABLE':
@@ -1567,11 +1568,11 @@ class Formatter:
     # ── CREATE INDEX ────────────────────────────────────────────
 
     def format_create_index(self):
-        # INDEX keyword (already peeked, value == 'index')
+        # INDEX keyword (already peeked, value == 'INDEX')
         self.w(' INDEX')
         self.eat()
         # Optional CONCURRENTLY
-        if self.pk()[1] == 'concurrently':
+        if self.pk()[1] == 'CONCURRENTLY':
             self.w(' CONCURRENTLY')
             self.eat()
         self._eat_if_not_exists()
@@ -1584,7 +1585,7 @@ class Formatter:
             self.w('ON')
             self.eat()
         # Optional ONLY
-        if self.pk()[1] == 'only':
+        if self.pk()[1] == 'ONLY':
             self.w(' ONLY')
             self.eat()
         # Table name (schema.table)
