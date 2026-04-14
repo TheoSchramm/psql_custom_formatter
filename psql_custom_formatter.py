@@ -23,7 +23,7 @@ KEYWORDS = {
     'WITH', 'RECURSIVE',
     'OVER', 'PARTITION',
     'FETCH', 'FIRST', 'NEXT', 'ONLY',
-    'RETURNING', 'CONFLICT', 'DO', 'NOTHING',
+    'RETURNING', 'CONFLICT', 'DO', 'NOTHING', 'USING',
     'CREATE', 'TABLE', 'IF', 'DROP', 'ALTER',
     'INDEX', 'UNIQUE', 'CONCURRENTLY',
     'LATERAL',
@@ -1272,8 +1272,19 @@ class Formatter:
             self.eat()
 
         self.nl(1)
-        if self.pk()[0] in ('ID', 'KW', 'QUOTED_ID'):
-            self.w(self.eat()[1])
+        self.format_table_ref()
+
+        if self.pk()[1] == 'USING':
+            self.nl(0)
+            self.w('USING')
+            self.eat()
+            self.nl(1)
+            self.format_table_ref()
+            while self.pk()[1] == ',':
+                self.eat()
+                self.w(',')
+                self.nl(1)
+                self.format_table_ref()
 
         if self.pk()[1] == 'WHERE':
             self.nl(0)
