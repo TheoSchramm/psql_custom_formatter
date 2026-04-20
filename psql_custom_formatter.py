@@ -156,6 +156,21 @@ def tokenize(sql):
         elif i + 1 < n and sql[i:i+2] in ('<=', '>=', '<>', '!=', '::', '->', '#>'):
             tokens.append(('OP', sql[i:i+2]))
             i += 2
+        elif c == ':' and i + 1 < n and (sql[i+1].isalpha() or sql[i+1] == '_'):
+            # psql :variable — keep colon fused with identifier
+            j = i + 1
+            while j < n and (sql[j].isalnum() or sql[j] == '_'):
+                j += 1
+            tokens.append(('WORD', sql[i:j]))
+            i = j
+        elif c == ':' and i + 1 < n and sql[i+1] in ("'", '"'):
+            # psql :'variable' or :"variable" quoting forms
+            quote = sql[i+1]
+            j = i + 2
+            while j < n and sql[j] != quote:
+                j += 1
+            tokens.append(('WORD', sql[i:j+1]))
+            i = j + 1
         elif c in '<>=+-/%':
             tokens.append(('OP', c))
             i += 1
