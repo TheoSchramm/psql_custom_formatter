@@ -5,6 +5,12 @@ Entries are in reverse chronological order.
 
 ---
 
+## 2026-04-20 — psql Variable Template Support
+
+- **psql `:variable` syntax**: tokenizer now recognizes `:ident`, `:'quoted'`, and `:"quoted"` as single tokens. Previously the colon was emitted as a bare `SYM` and the identifier as a separate token, producing `SELECT : my_var` instead of `SELECT :my_var`. Combinations like `:x::INT` (variable + cast) also work correctly.
+
+---
+
 ## 2026-04-07 — Known Issues Fixed, Project Restructure & Sanitization
 
 ### All 9 known issues from code review resolved

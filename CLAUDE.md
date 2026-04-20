@@ -46,6 +46,7 @@ These rules define the formatter's output. Follow them exactly when modifying fo
 - **Keywords**: uppercased during formatting
 - **Identifiers**: preserved as lowercase (common column names like `name`, `value`, `type` are intentionally excluded from the keyword list)
 - **Cast operator** (`::`) : no spaces, type uppercased (e.g., `col::TEXT`)
+- **psql variables** (`:var`, `:'var'`, `:"var"`): tokenized as a single unit and preserved as-is (e.g., `:my_var`, `:my_var::INT`)
 - **Comments**: inline trailing comments (`--`) tab-aligned; standalone `--` comments on their own indented line within clauses; block comments (`/* */`) kept inline with the item they precede; the first comment after an expression is always treated as trailing (positional info is lost during tokenization)
 - **Statement separation**: 3 blank lines between code blocks
 - **Comment groups**: comments directly before a statement attach to it; blank lines in original source between comment groups are preserved as 3-blank-line gaps

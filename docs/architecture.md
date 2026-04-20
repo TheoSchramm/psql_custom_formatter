@@ -40,6 +40,7 @@ The public entry point is `format_sql(sql)`, which wraps the pipeline in a try/e
 | `DOT`         | `.`                                              | `.`                   |
 | `STAR`        | `*`                                              | `*`                   |
 | `OP`          | Operators: `<=`, `>=`, `<>`, `!=`, `::`, `+`, etc. | `::`               |
+| `WORD`        | psql variable: `:ident`, `:'quoted'`, `:"quoted"`  | `:my_var`          |
 | `DOLLAR_BODY` | Dollar-quoted block (`$$...$$` or `$tag$...$tag$`) | `$$BEGIN ... END$$` |
 | `SYM`         | Any other single character                       | `@`, `#`              |
 
@@ -48,6 +49,7 @@ Key tokenizer behaviors:
 - Words matching `KEYWORDS` are emitted as `KW` tokens **unless** the lowercase form is in `IDENTIFIER_WORDS` (`name`, `value`, `type`, `status`, `id`, `number`, `amount`), in which case they are emitted as `ID`.
 - `BLANK_LINE` tokens are synthesized when 2+ newlines appear in a row. These drive statement separation and comment group logic.
 - Escaped single quotes (`''`) inside string literals are handled correctly.
+- psql variable forms (`:ident`, `:'quoted'`, `:"quoted"`) are consumed as single `WORD` tokens so they are never split or space-padded.
 
 ### Formatter Class
 
