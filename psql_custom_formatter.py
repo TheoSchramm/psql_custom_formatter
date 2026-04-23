@@ -318,6 +318,37 @@ class Formatter:
             return self.pk(j)[1] == 'JOIN'
         return False
 
+    def _on_paren_is_wrapper(self):
+        """Check if the '(' at current pos wraps the entire ON condition.
+
+        Scans forward to find the matching ')' and checks whether what follows
+        is a clause boundary, AND/OR, or JOIN — meaning the parens enclose the
+        full condition rather than being part of an expression like
+        (regexp_match(col, pat))[1]::int = ...
+        """
+        depth = 0
+        j = 0
+        _ON_BOUNDARIES = {'WHERE', 'GROUP', 'ORDER', 'HAVING', 'LIMIT',
+                          'SELECT', 'FROM', ';'}
+        while True:
+            t = self.pk(j)
+            if t[0] == 'EOF':
+                return False
+            if t[1] == '(':
+                depth += 1
+            elif t[1] == ')':
+                depth -= 1
+                if depth == 0:
+                    nxt = self.pk(j + 1)
+                    if nxt[1] in ('AND', 'OR'):
+                        return True
+                    if nxt[1] in _ON_BOUNDARIES or nxt[0] in ('EOF', 'BLANK_LINE'):
+                        return True
+                    if self._is_join_at(j + 1):
+                        return True
+                    return False
+            j += 1
+
     def is_clause_boundary(self):
         t = self.pk()
         if t[1] in ('SELECT', 'FROM', 'WHERE', 'SET', 'HAVING', 'LIMIT',
@@ -794,7 +825,7 @@ class Formatter:
                 self.w(' ON')
             self.eat()
             # Handle parenthesized ON conditions: ON (cond AND cond)
-            has_parens = self.pk()[1] == '('
+            has_parens = self.pk()[1] == '(' and self._on_paren_is_wrapper()
             if has_parens:
                 self.eat()  # consume opening '('
             if not multi:
