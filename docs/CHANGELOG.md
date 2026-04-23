@@ -5,6 +5,13 @@ Entries are in reverse chronological order.
 
 ---
 
+## 2026-04-23 — Fix ON condition mangling with parenthesized function expressions
+
+- **Bug fix**: `JOIN ... ON (func(col, pat))[1]::int = ...` was being mangled — the formatter incorrectly treated the leading `(` as a syntactic wrapper around the entire ON condition, consumed it, then stopped collecting tokens at the first `)` at depth 0 (which was actually the close of the function call's outer paren). Everything after — the subscript `[1]`, the cast, and the right-hand side — was orphaned on its own line with spurious blank lines.
+- **Fix**: added `_on_paren_is_wrapper()` lookahead method. Before consuming a leading `(` after `ON`, it scans forward to the matching `)` and checks what follows. Only if the next token is `AND`/`OR`, a clause boundary, or a JOIN keyword is the `(` treated as a wrapper; otherwise it's left as part of the expression.
+
+---
+
 ## 2026-04-20 — psql Variable Template Support
 
 - **psql `:variable` syntax**: tokenizer now recognizes `:ident`, `:'quoted'`, and `:"quoted"` as single tokens. Previously the colon was emitted as a bare `SYM` and the identifier as a separate token, producing `SELECT : my_var` instead of `SELECT :my_var`. Combinations like `:x::INT` (variable + cast) also work correctly.

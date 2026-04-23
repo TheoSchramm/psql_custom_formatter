@@ -78,6 +78,7 @@ Key helper methods:
 | `is_clause_boundary()`     | Check if current token starts a major clause                  |
 | `collect_until(stop_fn)`   | Collect tokens into a list until `stop_fn` matches, respecting paren nesting |
 | `check_on_has_and()`       | Look ahead past ON to decide if conditions need multi-line layout |
+| `_on_paren_is_wrapper()`   | Look ahead to determine if the `(` after ON wraps the whole condition vs. being part of an expression (e.g. `(func(col))[1]::int`) |
 | `join_expr(toks)`          | (module-level) Join token list into a properly spaced string  |
 
 ### Formatting Pipeline
