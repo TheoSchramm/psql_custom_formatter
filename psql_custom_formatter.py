@@ -51,10 +51,12 @@ def tokenize(sql):
     tokens = []
     i = 0
     n = len(sql)
+    saw_newline = False
     while i < n:
         if sql[i] in ' \t\n\r':
             # Detect blank lines (2+ newlines) to preserve comment group gaps
             if sql[i] == '\n':
+                saw_newline = True
                 j = i + 1
                 newline_count = 1
                 while j < n and sql[j] in ' \t\n\r':
@@ -67,17 +69,22 @@ def tokenize(sql):
                     continue
             i += 1
             continue
+        # Capture whether this token is preceded by a newline, then reset.
+        # COMMENT tokens store this as a 3rd element to distinguish separator
+        # comments (on their own line) from inline trailing comments.
+        tok_preceded_by_newline = saw_newline
+        saw_newline = False
         if sql[i:i+2] == '--':
             end = sql.find('\n', i)
             if end == -1:
                 end = n
-            tokens.append(('COMMENT', sql[i:end].rstrip()))
+            tokens.append(('COMMENT', sql[i:end].rstrip(), tok_preceded_by_newline))
             i = end
             continue
         if sql[i:i+2] == '/*':
             end = sql.find('*/', i)
             end = n if end == -1 else end + 2
-            tokens.append(('COMMENT', sql[i:end]))
+            tokens.append(('COMMENT', sql[i:end], tok_preceded_by_newline))
             i = end
             continue
         # E'...' escaped string literals (keep E prefix attached)
@@ -213,8 +220,10 @@ def join_expr(toks):
         return ''
     parts = [toks[0][1]]
     for i in range(1, len(toks)):
-        prev_type, prev_val = toks[i - 1]
-        cur_type, cur_val = toks[i]
+        prev_type = toks[i - 1][0]
+        prev_val = toks[i - 1][1]
+        cur_type = toks[i][0]
+        cur_val = toks[i][1]
         need_space = True
         if prev_type == 'DOT' or cur_type == 'DOT':
             need_space = False
@@ -590,6 +599,7 @@ class Formatter:
                 self.nl(ci)
                 self.w(', ')
                 first = False
+                need_nl = False
                 continue
 
             # Standalone line comment (-- ...) before the next item
@@ -619,12 +629,27 @@ class Formatter:
             else:
                 self.format_select_item(ci)
 
-            # Trailing comment (first comment after item is always trailing)
+            # Trailing comment: inline (same-line) comments are always trailing.
+            # Standalone comments (own line) are separators unless the next real
+            # token is a clause boundary — in that case they are still trailing.
             if self.pk()[0] == 'COMMENT':
-                comment = self.eat()[1]
-                last_line = self._last_line()
-                tabs = self._calc_comment_tabs(last_line)
-                self.w(tabs + comment)
+                if not self.pk()[2]:
+                    comment = self.eat()[1]
+                    last_line = self._last_line()
+                    tabs = self._calc_comment_tabs(last_line)
+                    self.w(tabs + comment)
+                else:
+                    j = 0
+                    while self.pk(j)[0] == 'COMMENT':
+                        j += 1
+                    next_after = self.pk(j)
+                    if (next_after[1] in SELECT_CLAUSE_KWS or
+                            next_after[1] in (';', ')') or
+                            next_after[0] == 'EOF'):
+                        comment = self.eat()[1]
+                        last_line = self._last_line()
+                        tabs = self._calc_comment_tabs(last_line)
+                        self.w(tabs + comment)
 
     def _last_line(self):
         """Get the last line of output so far (searches in reverse for efficiency)."""

@@ -10,7 +10,8 @@ SELECT
         WHEN 1 THEN 'one'
         WHEN 2 THEN 'two'
         ELSE 'three'
-        END AS a_num			-- A value
+        END AS a_num
+    -- A value
     , b AS b_num				-- B value
 FROM
     table1 t
