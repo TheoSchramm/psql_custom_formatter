@@ -5,6 +5,13 @@ Entries are in reverse chronological order.
 
 ---
 
+## 2026-05-14 — Fix trailing inline comment on JOIN ON line merged with expression
+
+- **Bug fix**: A `--` comment placed on the same line as `ON` (e.g. `JOIN t ap ON -- comment`) was being concatenated directly with the ON condition expression. The comment fell through to `format_on_conditions`, which wrote it with tab-alignment but emitted no newline before the next expression, producing a fused line like `\t\t-- commentregexp_replace(...)`.
+- **Fix**: `format_join` now intercepts an inline trailing comment (COMMENT token with `preceded_by_newline = False`) immediately after the `ON` keyword, writes it tab-aligned on the `ON` line, then proceeds with the normal newline and `format_on_conditions` call.
+
+---
+
 ## 2026-04-23 — Fix ON condition mangling with parenthesized function expressions
 
 - **Bug fix**: `JOIN ... ON (func(col, pat))[1]::int = ...` was being mangled — the formatter incorrectly treated the leading `(` as a syntactic wrapper around the entire ON condition, consumed it, then stopped collecting tokens at the first `)` at depth 0 (which was actually the close of the function call's outer paren). Everything after — the subscript `[1]`, the cast, and the right-hand side — was orphaned on its own line with spurious blank lines.

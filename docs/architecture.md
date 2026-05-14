@@ -79,6 +79,7 @@ Key helper methods:
 | `collect_until(stop_fn)`   | Collect tokens into a list until `stop_fn` matches, respecting paren nesting |
 | `check_on_has_and()`       | Look ahead past ON to decide if conditions need multi-line layout |
 | `_on_paren_is_wrapper()`   | Look ahead to determine if the `(` after ON wraps the whole condition vs. being part of an expression (e.g. `(func(col))[1]::int`) |
+| *(inline comment after ON)* | `format_join` intercepts a `COMMENT` token with `preceded_by_newline=False` immediately after consuming `ON`, writes it tab-aligned on the `ON` line, then emits the newline before calling `format_on_conditions` — preventing the comment from being fused with the first condition expression |
 | `join_expr(toks)`          | (module-level) Join token list into a properly spaced string  |
 
 ### Formatting Pipeline
