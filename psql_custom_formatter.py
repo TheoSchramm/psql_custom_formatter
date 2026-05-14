@@ -857,6 +857,13 @@ class Formatter:
                 self.w(' ')
             if has_parens:
                 self.w(' (')
+            # Handle trailing inline comment on the same line as ON
+            if (self.pk()[0] == 'COMMENT' and
+                    len(self.pk()) > 2 and not self.pk()[2]):
+                comment = self.eat()[1]
+                last_line = self._last_line()
+                tabs = self._calc_comment_tabs(last_line)
+                self.w(tabs + comment)
             self.nl(ci + 1)
             self.format_on_conditions(ci + 1)
             if has_parens and self.pk()[1] == ')':
