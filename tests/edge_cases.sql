@@ -275,3 +275,18 @@ CREATE TABLE maintenance.protocol_aux AS
       AND REPLACE(upper(p.zip), '-', '') = REPLACE(upper(ap.old_zip), '-', '')
   -- WHERE p.name = 'test value'
   ;
+
+
+-- TEST 22: CREATE TABLE AS WITH (CTE before SELECT — no blank lines between AS and WITH)
+CREATE TABLE maintenance.ajuste_cep_test AS
+  WITH src AS (
+      SELECT * FROM maintenance.cep_a
+      UNION ALL
+      SELECT * FROM maintenance.cep_b
+  )
+  SELECT DISTINCT
+      s.cep AS new_postal_code,
+      p.*
+  FROM erp.people_addresses p
+  JOIN src s ON upper(trim(p.street)) = upper(trim(s.street))
+  ;

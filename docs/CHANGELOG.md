@@ -5,6 +5,13 @@ Entries are in reverse chronological order.
 
 ---
 
+## 2026-05-18 — Fix CREATE TABLE AS WITH producing spurious blank lines
+
+- **Bug fix**: `CREATE TABLE ... AS WITH cte AS (...) SELECT ...` emitted 3 blank lines between the `AS` keyword and `WITH`. `format_create` only checked for `SELECT` after consuming `AS` and returned without consuming `WITH`, so the main `format()` loop picked it up as a new top-level statement (inserting the inter-statement separator).
+- **Fix**: added a `WITH` branch in `format_create` immediately after the `AS` block. When the token after `AS` is `WITH`, it writes a single newline and delegates to `format_with()`, which handles the entire CTE + SELECT + `;` chain.
+
+---
+
 ## 2026-05-18 — Fix standalone comment before semicolon being merged with last expression
 
 - **Bug fix**: A `--` comment on its own line immediately before the statement terminator `;` was being incorrectly consumed as a trailing inline comment on the last expression. The comment was tab-aligned onto the same line as the preceding AND condition, and the `;` was then appended immediately after it with no newline, producing e.g. `AND expr\t-- comment;`.

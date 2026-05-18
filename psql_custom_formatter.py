@@ -1667,6 +1667,13 @@ class Formatter:
             self.w(' AS')
             self.eat()
 
+        # If followed by WITH (CTE), delegate — format_with handles the
+        # entire WITH ... SELECT ... ; block including the terminator.
+        if not self.done() and self.pk()[1] == 'WITH':
+            self.w('\n')
+            self.format_with()
+            return
+
         # If followed by SELECT, format it indented
         if not self.done() and self.pk()[1] == 'SELECT':
             self.w('\n')
