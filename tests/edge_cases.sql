@@ -255,3 +255,23 @@ WHERE (a.status = 'active' OR (a.status = 'suspended' AND (a.reason = 'payment' 
   AND (a.balance > 0 OR (a.credit_limit > 0 AND (a.type = 'premium' OR (a.type = 'standard' AND a.tenure > 365))))
   AND NOT (a.flagged = TRUE AND (a.flag_reason IN ('fraud', 'abuse', 'spam', 'bot') OR a.risk_score > 90))
   AND EXISTS (SELECT 1 FROM logins l WHERE l.account_id = a.id AND l.login_at > NOW() - INTERVAL '90 days');
+
+
+-- TEST 21: Standalone comment on own line immediately before semicolon
+CREATE TABLE maintenance.protocol_aux AS
+  WITH ajuste_ceps AS (
+      SELECT * FROM maintenance.cep_a
+      UNION ALL
+      SELECT * FROM maintenance.cep_b
+  )
+  SELECT DISTINCT
+      ap.postal_code AS new_postal_code,
+      p.*
+  FROM
+      erp.people p
+      JOIN ajuste_ceps ap ON
+          upper(trim(p.street)) = upper(trim(ap.old_street))
+      AND upper(trim(p.city))   = upper(trim(ap.old_city))
+      AND REPLACE(upper(p.zip), '-', '') = REPLACE(upper(ap.old_zip), '-', '')
+  -- WHERE p.name = 'test value'
+  ;

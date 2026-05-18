@@ -80,6 +80,7 @@ Key helper methods:
 | `check_on_has_and()`       | Look ahead past ON to decide if conditions need multi-line layout |
 | `_on_paren_is_wrapper()`   | Look ahead to determine if the `(` after ON wraps the whole condition vs. being part of an expression (e.g. `(func(col))[1]::int`) |
 | *(inline comment after ON)* | `format_join` intercepts a `COMMENT` token with `preceded_by_newline=False` immediately after consuming `ON`, writes it tab-aligned on the `ON` line, then emits the newline before calling `format_on_conditions` — preventing the comment from being fused with the first condition expression |
+| *(standalone comment before `;`)* | Both `format_on_conditions` and `format_conditions` check `tok_preceded_by_newline` on the comment after each expression. Standalone comments before a boundary (`is_on_boundary`, `)`, or JOIN) are output at `ci` indentation and stop condition processing; `format_select` then inserts a `\n` before `;` when the last output line is a comment, so the terminator always lands on its own line |
 | `join_expr(toks)`          | (module-level) Join token list into a properly spaced string  |
 
 ### Formatting Pipeline

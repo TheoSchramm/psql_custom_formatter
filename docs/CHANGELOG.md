@@ -5,6 +5,16 @@ Entries are in reverse chronological order.
 
 ---
 
+## 2026-05-18 — Fix standalone comment before semicolon being merged with last expression
+
+- **Bug fix**: A `--` comment on its own line immediately before the statement terminator `;` was being incorrectly consumed as a trailing inline comment on the last expression. The comment was tab-aligned onto the same line as the preceding AND condition, and the `;` was then appended immediately after it with no newline, producing e.g. `AND expr\t-- comment;`.
+- **Root cause**: `format_on_conditions` and `format_conditions` both had an unconditional "trailing inline comment" grab after each expression that ignored the `tok_preceded_by_newline` flag on COMMENT tokens.
+- **Fix 1**: `format_on_conditions` — when the comment after an expression is standalone (`tok_preceded_by_newline = True`) and precedes a boundary (`is_on_boundary`, `)`, or JOIN), all pending comments are output at `ci` indentation and the ON-conditions loop breaks cleanly.
+- **Fix 2**: `format_conditions` — standalone comments after an expression are left unconsumed so the loop's own COMMENT handler (which already checks for boundary and uses `self.nl(ci)`) processes them correctly.
+- **Fix 3**: `format_select` — before writing `;`, detects if the last output line is a comment and inserts a `\n` so the semicolon lands on its own line rather than being appended to the comment text.
+
+---
+
 ## 2026-05-14 — Fix trailing inline comment on JOIN ON line merged with expression
 
 - **Bug fix**: A `--` comment placed on the same line as `ON` (e.g. `JOIN t ap ON -- comment`) was being concatenated directly with the ON condition expression. The comment fell through to `format_on_conditions`, which wrote it with tab-alignment but emitted no newline before the next expression, producing a fused line like `\t\t-- commentregexp_replace(...)`.

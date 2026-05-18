@@ -561,6 +561,9 @@ class Formatter:
 
         self._skip_blank_lines()
         if self.pk()[1] == ';':
+            # If the last output line is a comment, put ; on its own line.
+            if self._last_line().lstrip().startswith('--'):
+                self.w('\n')
             self.w(';')
             self.eat()
 
@@ -928,12 +931,29 @@ class Formatter:
                         break
                 toks.append(self.eat())
             self.w(join_expr(toks))
-            # Trailing inline comment (first comment after expression)
+            # Trailing inline comment (first comment after expression).
+            # Standalone comments (own line) before a boundary are output at
+            # ci indentation and stop ON processing; inline comments are
+            # tab-aligned as trailing on the same line.
             if not self.done() and self.pk()[0] == 'COMMENT':
-                comment = self.eat()[1]
-                last_line = self._last_line()
-                tabs = self._calc_comment_tabs(last_line)
-                self.w(tabs + comment)
+                ct = self.pk()
+                if len(ct) > 2 and ct[2]:  # standalone comment
+                    j = 1
+                    while self.pk(j)[0] == 'COMMENT':
+                        j += 1
+                    next_after = self.pk(j)
+                    if (is_on_boundary(next_after) or next_after[1] == ')' or
+                            self._is_join_at(j)):
+                        while self.pk()[0] == 'COMMENT':
+                            self.nl(ci)
+                            self.w(self.eat()[1])
+                        break
+                    # standalone between conditions — leave for loop's handler
+                else:
+                    comment = self.eat()[1]
+                    last_line = self._last_line()
+                    tabs = self._calc_comment_tabs(last_line)
+                    self.w(tabs + comment)
 
     # ── WHERE ──────────────────────────────────────────────────
 
@@ -1155,13 +1175,17 @@ class Formatter:
             if expr_toks:
                 first_cond = False
 
-            # Trailing inline comment (first comment after expression)
+            # Trailing inline comment (first comment after expression).
+            # Standalone comments are left for the loop's COMMENT handler so
+            # they land on their own line; only inline comments are trailing.
             if not self.done() and self.pk()[0] == 'COMMENT':
-                comment = self.eat()[1]
-                last_line = self._last_line()
-                tabs = self._calc_comment_tabs(last_line)
-                self.w(tabs + comment)
-                after_comment = True
+                ct = self.pk()
+                if not (len(ct) > 2 and ct[2]):  # inline comment only
+                    comment = self.eat()[1]
+                    last_line = self._last_line()
+                    tabs = self._calc_comment_tabs(last_line)
+                    self.w(tabs + comment)
+                    after_comment = True
 
     def _collect_in_values(self):
         """Collect value groups inside IN (...), returns list of token lists.
