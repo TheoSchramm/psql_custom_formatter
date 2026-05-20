@@ -79,6 +79,8 @@ Key helper methods:
 | `collect_until(stop_fn)`   | Collect tokens into a list until `stop_fn` matches, respecting paren nesting |
 | `check_on_has_and()`       | Look ahead past ON to decide if conditions need multi-line layout |
 | `_on_paren_is_wrapper()`   | Look ahead to determine if the `(` after ON wraps the whole condition vs. being part of an expression (e.g. `(func(col))[1]::int`) |
+| `_lookahead_has_select_in_parens()` | Check if `(` is followed by `SELECT` (skipping blank lines); used by `format_join` to detect `JOIN (SELECT ...)` |
+| `_lookahead_has_values_in_parens()` | Check if `(` is followed by `VALUES` (skipping blank lines); used by `format_from_subquery` to detect `FROM (VALUES ...)` |
 | *(inline comment after ON)* | `format_join` intercepts a `COMMENT` token with `preceded_by_newline=False` immediately after consuming `ON`, writes it tab-aligned on the `ON` line, then emits the newline before calling `format_on_conditions` — preventing the comment from being fused with the first condition expression |
 | *(standalone comment before `;`)* | Both `format_on_conditions` and `format_conditions` check `tok_preceded_by_newline` on the comment after each expression. Standalone comments before a boundary (`is_on_boundary`, `)`, or JOIN) are output at `ci` indentation and stop condition processing; `format_select` then inserts a `\n` before `;` when the last output line is a comment, so the terminator always lands on its own line |
 | `join_expr(toks)`          | (module-level) Join token list into a properly spaced string  |
@@ -89,13 +91,20 @@ Key helper methods:
 format()                    -- top-level loop: separates statements, handles comment groups
   +-- format_stmt()         -- dispatches by first keyword
         +-- format_select()     -- SELECT ... FROM ... WHERE ... GROUP BY ... ORDER BY ...
-        +-- format_update()     -- UPDATE ... SET ... WHERE ...
+        +-- format_update()     -- UPDATE ... SET ... FROM ... WHERE ...
         +-- format_delete()     -- DELETE FROM ... WHERE ...
         +-- format_insert()     -- INSERT INTO ... VALUES / SELECT ... ON CONFLICT ...
         +-- format_with()       -- WITH cte AS ( SELECT ... ) SELECT ...
         +-- format_create()     -- CREATE TABLE ... AS SELECT/WITH ...
         +-- format_do_block()   -- DO $$ ... $$
         +-- format_raw_statement()  -- fallback: output tokens as-is
+
+format_from_clause()        -- FROM item list + JOINs
+  +-- format_from_subquery()    -- detects ( SELECT ... ) vs ( VALUES ... )
+        +-- format_select()         -- ( SELECT ... ) path
+        +-- format_from_values()    -- ( VALUES (...), ... ) AS alias(cols) path
+  +-- format_table_ref()        -- bare table reference with optional alias
+  +-- format_join()             -- JOIN ... ON ...
 ```
 
 `format()` is the entry point. It loops over the token stream, collects leading comment groups, inserts 3-blank-line separators between code blocks, and calls `format_stmt()` for each statement.
@@ -137,7 +146,7 @@ The test runner executes targeted edge case tests. It checks:
 - **Idempotency** -- formatting already-formatted SQL should produce identical output (format(format(sql)) == format(sql)).
 - **Token preservation** -- ensures all meaningful tokens from the input appear in the output (nothing silently dropped).
 
-Edge case test inputs live in `tests/edge_cases.sql` (20 test cases).
+Edge case test inputs live in `tests/edge_cases.sql` (23 test cases).
 
 ### Adding new tests
 

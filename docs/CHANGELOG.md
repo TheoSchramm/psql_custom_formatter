@@ -5,6 +5,14 @@ Entries are in reverse chronological order.
 
 ---
 
+## 2026-05-20 — Add FROM (VALUES ...) AS alias(cols) support
+
+- **New feature**: `FROM (VALUES (...), ...) AS alias(col1, col2)` table constructors are now formatted correctly. Previously the formatter treated any parenthesized `FROM` expression as a subquery, unconditionally calling `format_select()` on the contents. `VALUES` was misread as a SELECT column list, the column-list alias `(col1, col2)` was orphaned, and subsequent `JOIN`/`WHERE` clauses collapsed onto a single line.
+- **Fix**: added `_lookahead_has_values_in_parens()` (parallel to the existing `_lookahead_has_select_in_parens()`). `format_from_subquery()` now branches on this check before writing anything. The new `format_from_values()` method handles `VALUES` subqueries: it emits `(\nVALUES` at the current indent level, formats each row tuple at the next indent level with leading-comma style, writes the closing `)`, and then consumes the `AS alias(cols)` column-list alias.
+- **Output style**: consistent with the existing `(SELECT ...)` subquery layout — opening `(` on the `FROM` line, content indented, closing `) AS alias(cols)` at the FROM indent level.
+
+---
+
 ## 2026-05-18 — Fix CREATE TABLE AS WITH producing spurious blank lines
 
 - **Bug fix**: `CREATE TABLE ... AS WITH cte AS (...) SELECT ...` emitted 3 blank lines between the `AS` keyword and `WITH`. `format_create` only checked for `SELECT` after consuming `AS` and returned without consuming `WITH`, so the main `format()` loop picked it up as a new top-level statement (inserting the inter-statement separator).

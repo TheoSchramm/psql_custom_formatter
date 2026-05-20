@@ -290,3 +290,7 @@ CREATE TABLE maintenance.ajuste_cep_test AS
   FROM erp.people_addresses p
   JOIN src s ON upper(trim(p.street)) = upper(trim(s.street))
   ;
+
+
+-- TEST 23: FROM (VALUES ...) AS alias(cols) — table constructor with column-list alias
+UPDATE t SET a = v.a FROM (VALUES ('x', 1), ('y', 2)) AS v(a, b) WHERE t.id = v.b;

@@ -310,6 +310,13 @@ class Formatter:
             j += 1
         return self.pk(j)[1] == 'SELECT'
 
+    def _lookahead_has_values_in_parens(self):
+        """Check if ( is followed by VALUES (possibly after blank lines)."""
+        j = 1
+        while self.pk(j)[0] == 'BLANK_LINE':
+            j += 1
+        return self.pk(j)[1] == 'VALUES'
+
     def ind(self, level):
         return INDENT * level
 
@@ -774,7 +781,10 @@ class Formatter:
             self.format_join(ci)
 
     def format_from_subquery(self, base, ci):
-        """Handle subquery in FROM: ( SELECT ... ) alias"""
+        """Handle subquery in FROM: ( SELECT ... ) alias  OR  ( VALUES ... ) alias"""
+        if self._lookahead_has_values_in_parens():
+            self.format_from_values(base, ci)
+            return
         self.w('(\n')
         self.eat()  # (
         self.format_select(ci, is_subquery=True)
@@ -790,6 +800,56 @@ class Formatter:
                 self.w(self.eat()[1])
         elif self.pk()[0] in ('ID', 'QUOTED_ID'):
             self.w(' ' + self.eat()[1])
+
+    def format_from_values(self, base, ci):
+        """Handle VALUES table constructor in FROM: ( VALUES (...), ... ) AS alias(cols)"""
+        self.w('(\n')
+        self.eat()          # consume (
+        self._skip_blank_lines()
+        self.w(self.ind(ci) + 'VALUES')
+        self.eat()          # consume VALUES
+
+        first = True
+        while not self.done():
+            self._skip_blank_lines()
+            if self.pk()[1] == ',':
+                self.eat()  # consume row separator comma
+                self._skip_blank_lines()
+            if self.pk()[1] != '(':
+                break
+            self.eat()      # consume row (
+            row_toks = self.collect_until(lambda t: t[1] == ')')
+            if self.pk()[1] == ')':
+                self.eat()  # consume row )
+            row_str = '(' + join_expr(row_toks) + ')'
+            self.nl(ci + 1)
+            if first:
+                self.w(row_str)
+                first = False
+            else:
+                self.w(', ' + row_str)
+
+        # Closing outer )
+        self.w('\n' + self.ind(ci) + ')')
+        if self.pk()[1] == ')':
+            self.eat()
+
+        # Alias: AS name  OR  bare name
+        if self.pk()[1] == 'AS':
+            self.w(' AS ')
+            self.eat()
+            if self.pk()[0] in ('ID', 'KW', 'QUOTED_ID'):
+                self.w(self.eat()[1])
+        elif self.pk()[0] in ('ID', 'QUOTED_ID'):
+            self.w(' ' + self.eat()[1])
+
+        # Optional column list: (col1, col2)
+        if self.pk()[1] == '(':
+            self.eat()      # consume (
+            col_toks = self.collect_until(lambda t: t[1] == ')')
+            if self.pk()[1] == ')':
+                self.eat()
+            self.w('(' + join_expr(col_toks) + ')')
 
     def format_table_ref(self):
         if self.pk()[0] in ('ID', 'KW', 'QUOTED_ID'):
