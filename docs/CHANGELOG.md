@@ -5,6 +5,13 @@ Entries are in reverse chronological order.
 
 ---
 
+## 2026-05-29 — Add ILIKE, ANY, ARRAY to keyword uppercase list
+
+- **Enhancement**: `ILIKE`, `ANY`, and `ARRAY` are now uppercased during formatting, consistent with other SQL operators and keywords.
+- **Change**: added all three to the `KEYWORDS` set in `psql_custom_formatter.py`. No structural formatting changes — only casing is affected.
+
+---
+
 ## 2026-05-20 — Add FROM (VALUES ...) AS alias(cols) support
 
 - **New feature**: `FROM (VALUES (...), ...) AS alias(col1, col2)` table constructors are now formatted correctly. Previously the formatter treated any parenthesized `FROM` expression as a subquery, unconditionally calling `format_select()` on the contents. `VALUES` was misread as a SELECT column list, the column-list alias `(col1, col2)` was orphaned, and subsequent `JOIN`/`WHERE` clauses collapsed onto a single line.
