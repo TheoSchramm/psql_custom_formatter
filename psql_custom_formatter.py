@@ -1165,6 +1165,28 @@ class Formatter:
                     case_depth += 1
                 elif tt[1] == 'END' and case_depth > 0:
                     case_depth -= 1
+                # Detect ANY (ARRAY[...]) with multiple values
+                if (paren_depth == 0 and case_depth == 0 and tt[1] == 'ANY'
+                        and self.pk(1)[1] == '(' and self.pk(2)[1] == 'ARRAY'
+                        and self.pk(3)[1] == '['):
+                    self.w(join_expr(expr_toks))
+                    expr_toks = []
+                    self.eat()   # eat ANY
+                    self.eat()   # eat (
+                    self.eat()   # eat ARRAY
+                    self.eat()   # eat [
+                    vals = self._collect_bracket_values()
+                    if len(vals) > 3:
+                        self.w(' ANY')
+                        self.format_array_expanded(vals, ci)
+                    else:
+                        self.w(' ANY (ARRAY[')
+                        for vi, v in enumerate(vals):
+                            if vi > 0:
+                                self.w(', ')
+                            self.w(join_expr(v))
+                        self.w('])')
+                    continue
                 # Detect IN ( ... ) with multiple values
                 if paren_depth == 0 and case_depth == 0 and tt[1] == 'IN':
                     in_list_pending = True
@@ -1300,6 +1322,48 @@ class Formatter:
         self.w(')')
         if not self.done() and self.pk()[1] == ')':
             self.eat()
+
+    def _collect_bracket_values(self):
+        """Collect comma-separated values inside ARRAY[...], stopping at ]."""
+        vals = []
+        current = []
+        depth = 0
+        while not self.done():
+            t = self.pk()
+            if t[0] == 'BLANK_LINE':
+                self.eat()
+                continue
+            if t[1] == '[':
+                depth += 1
+            elif t[1] == ']':
+                if depth == 0:
+                    self.eat()  # eat closing ]
+                    break
+                depth -= 1
+            if t[1] == ',' and depth == 0:
+                self.eat()
+                if current:
+                    vals.append(current)
+                    current = []
+                continue
+            current.append(self.eat())
+        if current:
+            vals.append(current)
+        # eat closing ) of ANY(...)
+        if not self.done() and self.pk()[1] == ')':
+            self.eat()
+        return vals
+
+    def format_array_expanded(self, vals, ci):
+        """Format ANY (ARRAY[...]) values expanded one per line."""
+        self.w(' (ARRAY[')
+        for vi, v in enumerate(vals):
+            self.nl(ci + 1)
+            if vi > 0:
+                self.w(', ')
+            self.w(join_expr(v))
+        self.nl(ci)
+        self.w('])')
 
     # ── Item list (GROUP BY, ORDER BY) ─────────────────────────
 

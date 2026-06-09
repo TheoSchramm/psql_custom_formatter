@@ -5,6 +5,15 @@ Entries are in reverse chronological order.
 
 ---
 
+## 2026-06-09 — Expand ANY (ARRAY[...]) values across multiple lines
+
+- **Enhancement**: `ANY (ARRAY[val1, val2, ...])` expressions with more than 3 values are now expanded one value per line using leading-comma style, consistent with `IN (...)` list expansion.
+- **Implementation**: added `_collect_bracket_values()` to collect comma-separated tokens inside `[...]`, `format_array_expanded()` to write the expanded layout, and a detection block in the WHERE expression collector that looks ahead for the `ANY ( ARRAY [` token sequence before consuming it.
+- **Output style**: the `ARRAY[` opens on the same line as `ANY (`, values are indented at `ci + 1`, and `])` closes at the base indent level `ci`.
+- **Test**: idempotency and round-trip verified; all 75 tests pass.
+
+---
+
 ## 2026-06-09 — Fix simple CASE in UPDATE SET collapsing to one line
 
 - **Bug fix**: `CASE expr WHEN val THEN result ... END` in an `UPDATE SET` assignment was collapsed to a single line instead of being expanded with `WHEN`/`ELSE`/`END` each on their own indented line.
