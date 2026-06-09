@@ -5,6 +5,15 @@ Entries are in reverse chronological order.
 
 ---
 
+## 2026-06-09 — Fix simple CASE in UPDATE SET collapsing to one line
+
+- **Bug fix**: `CASE expr WHEN val THEN result ... END` in an `UPDATE SET` assignment was collapsed to a single line instead of being expanded with `WHEN`/`ELSE`/`END` each on their own indented line.
+- **Root cause**: `format_set_clause` used `collect_until` to consume the entire right-hand side of each assignment as a flat token list. It had no special handling for `CASE`, so the `CASE ... END` block was passed to `join_expr` and written inline.
+- **Fix**: the `collect_until` stop predicate in `format_set_clause` now also stops at a top-level `CASE` token. When the token after the collected LHS is `CASE`, `format_case(1)` is called directly, giving the same multi-line `WHEN`/`ELSE`/`END` expansion that `SELECT` items already produce. Both simple-CASE (`CASE expr WHEN ...`) and searched-CASE (`CASE WHEN condition ...`) forms are handled correctly.
+- **Test**: added edge case TEST 24.
+
+---
+
 ## 2026-05-29 — Add ILIKE, ANY, ARRAY to keyword uppercase list
 
 - **Enhancement**: `ILIKE`, `ANY`, and `ARRAY` are now uppercased during formatting, consistent with other SQL operators and keywords.

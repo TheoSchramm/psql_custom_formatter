@@ -1422,8 +1422,11 @@ class Formatter:
 
             toks = self.collect_until(
                 lambda t: t[1] in (',', 'WHERE', 'FROM', ';') or
-                t[0] in ('EOF', 'COMMENT'))
+                t[0] in ('EOF', 'COMMENT') or t[1] == 'CASE')
             self.w(join_expr(toks))
+            if self.pk()[1] == 'CASE':
+                self.w(' ')
+                self.format_case(1)
 
     # ── DELETE ─────────────────────────────────────────────────
 

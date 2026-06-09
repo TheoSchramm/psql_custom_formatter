@@ -294,3 +294,14 @@ CREATE TABLE maintenance.ajuste_cep_test AS
 
 -- TEST 23: FROM (VALUES ...) AS alias(cols) — table constructor with column-list alias
 UPDATE t SET a = v.a FROM (VALUES ('x', 1), ('y', 2)) AS v(a, b) WHERE t.id = v.b;
+
+
+-- TEST 24: Simple CASE (CASE expr WHEN val THEN result) in UPDATE SET clause
+UPDATE erp.companies_places cp
+SET
+    faktura_integration_code = CASE cp.code
+        WHEN '04' THEN 'XXXXXXX+Lqt6dfyTICTcPSFypuEvK57O'
+        WHEN '05' THEN 'XXXXXXX+nBmPqNp5byt0k+7y'
+        ELSE cp.faktura_integration_code END
+WHERE
+    code IN ('04', '05');
