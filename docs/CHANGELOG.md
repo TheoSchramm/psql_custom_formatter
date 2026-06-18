@@ -5,6 +5,25 @@ Entries are in reverse chronological order.
 
 ---
 
+## 2026-06-18 — Refactor: tokenize → parse (AST) → format pipeline
+
+- **Architecture overhaul**: replaced the monolithic streaming `Formatter` class with a proper three-layer pipeline: `tokenize() → Parser → ASTFormatter`.
+- **`Parser` class** (recursive-descent + Pratt expression parser): converts the token list into typed AST nodes. Each SQL construct is now a `@dataclass` with named fields (`SelectStatement`, `JoinClause`, `BinaryOp`, `CaseExpr`, `InExpr`, `BetweenExpr`, `FunctionCall`, `WindowSpec`, etc.). The parser handles all 8 supported statement types plus CTEs, subqueries, window functions, and `FROM (VALUES ...)`.
+- **`ASTFormatter` class**: walks the AST and produces formatted output. Formatting decisions are now structurally driven — `AND`/`OR` line-breaking walks a `BinaryOp` tree via `_flatten_conditions()`, `IN` list expansion reads `len(InExpr.values)`, subquery detection checks `TableRef.subquery is not None`, and `BETWEEN…AND` is a `BetweenExpr` node (no special-casing in the AND handler).
+- **Eliminated heuristics** that were fragile and hard to maintain:
+  - `check_on_has_and()` — replaced by `isinstance(on_condition, BinaryOp)`
+  - `_on_paren_is_wrapper()` — replaced by `SubqueryExpr` vs `Parenthesized` node types
+  - `_lookahead_has_select_in_parens()` / `_lookahead_has_values_in_parens()` — replaced by `TableRef.subquery` / `TableRef.values` fields
+  - `_collect_in_values()` — replaced by `InExpr.values` / `InExpr.subquery`
+  - `_collect_case_expr()` — replaced by `CaseExpr.branches` list
+  - `between_depth` counter — replaced by `BetweenExpr` structural node
+  - `paren_depth` tracking in `format_conditions` — implicit in AST nesting
+  - Alias-detection exclusion list in `format_table_ref` — replaced by `alias` field on `TableRef`
+- **No behavior changes**: all 75 tests continue to pass; fixture regression is identical.
+- **File size**: grew from 1,935 to 2,681 lines.
+
+---
+
 ## 2026-06-09 — Expand ANY (ARRAY[...]) values across multiple lines
 
 - **Enhancement**: `ANY (ARRAY[val1, val2, ...])` expressions with more than 3 values are now expanded one value per line using leading-comma style, consistent with `IN (...)` list expansion.
