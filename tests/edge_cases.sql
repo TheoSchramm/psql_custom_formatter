@@ -305,3 +305,20 @@ SET
         ELSE cp.faktura_integration_code END
 WHERE
     code IN ('04', '05');
+
+
+-- TEST 25: CREATE TABLE with column definitions (type alignment, constraints)
+--DROP TABLE IF EXISTS legado.phoenix_pedidos;
+CREATE TABLE legado.phoenix_pedidos (
+    protocolo       BIGINT,
+    ano_mes         INTEGER,
+    cliente         VARCHAR(200),
+    cidade          VARCHAR(100),
+    assunto         VARCHAR(500),
+    operador        VARCHAR(150),
+    anotacao        TEXT,
+    data_inclusao   TIMESTAMP,
+    data_fechamento VARCHAR(20),
+    obs_fechamento  TEXT,
+    tecnico         TEXT
+);

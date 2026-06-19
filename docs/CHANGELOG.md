@@ -5,6 +5,16 @@ Entries are in reverse chronological order.
 
 ---
 
+## 2026-06-19 — Add CREATE TABLE (column definitions) support
+
+- **New feature**: `CREATE TABLE schema.table (col TYPE, ...)` statements are now parsed and formatted properly instead of falling through to the `RawStatement` fallback (which collapsed everything to one line and lowercased type names).
+- **Parser**: `parse_create_table_columns()` reads column definitions and table-level constraints into `ColumnDef` and `CreateTableStatement` AST nodes. `parse_column_def()` consumes the column name, type tokens (including compound types like `TIMESTAMP WITH TIME ZONE`, `CHARACTER VARYING(n)`, `TEXT[]`), and any inline constraint tokens (`NOT NULL`, `DEFAULT expr`, `REFERENCES ...`, etc.). `_collect_until_col_sep()` handles nesting so commas inside type parameters (`NUMERIC(10, 2)`) are not treated as column separators.
+- **Formatter**: `format_create_table()` emits one column per line with type-aligned names using `str.ljust(max_name_len + 1)`. Table-level constraints (`PRIMARY KEY`, `UNIQUE`, `CHECK`, `CONSTRAINT ... PRIMARY KEY (...)`) are emitted as-is after the column list, inside the same parenthesised block. Trailing commas per column; no comma on the last item.
+- **Keyword spacing**: `_format_constraint_tokens()` now emits constraint keywords (`PRIMARY`, `KEY`, `CHECK`, `UNIQUE`, `REFERENCES`, etc.) as `KW` tokens so `join_expr` always inserts a space before `(`, giving `PRIMARY KEY (col)` and `CHECK (expr)` rather than `PRIMARY KEY(col)`.
+- **Test**: TEST 25 added to `tests/edge_cases.sql`.
+
+---
+
 ## 2026-06-18 — Refactor: tokenize → parse (AST) → format pipeline
 
 - **Architecture overhaul**: replaced the monolithic streaming `Formatter` class with a proper three-layer pipeline: `tokenize() → Parser → ASTFormatter`.

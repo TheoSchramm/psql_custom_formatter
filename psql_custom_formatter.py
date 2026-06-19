@@ -518,6 +518,22 @@ class CreateTableAsStatement:
     _has_semicolon: bool = False
 
 @dataclass
+class ColumnDef:
+    name: str
+    type_str: str            # e.g. 'BIGINT', 'VARCHAR(200)', 'TIMESTAMP WITH TIME ZONE'
+    constraint_tokens: list  # raw token tuples for column constraints (NOT NULL, DEFAULT ...)
+    trailing_comment: Optional['Comment'] = None
+
+@dataclass
+class CreateTableStatement:
+    table_name: str
+    schema: Optional[str] = None
+    if_not_exists: bool = False
+    columns: list = field(default_factory=list)            # List[ColumnDef]
+    table_constraints: list = field(default_factory=list)  # List[list] of raw token lists
+    _has_semicolon: bool = False
+
+@dataclass
 class CreateIndexStatement:
     unique: bool
     raw_rest: list
@@ -535,7 +551,8 @@ class RawStatement:
 
 Statement = Union[
     SelectStatement, InsertStatement, UpdateStatement, DeleteStatement,
-    WithStatement, CreateTableAsStatement, CreateIndexStatement, DoBlock, RawStatement,
+    WithStatement, CreateTableAsStatement, CreateTableStatement,
+    CreateIndexStatement, DoBlock, RawStatement,
 ]
 
 @dataclass
@@ -1887,8 +1904,11 @@ class Parser:
             self.eat()
             stmt.schema = stmt.table_name
             stmt.table_name = self.eat()[1] if self.pk()[0] in ('ID', 'KW') else stmt.table_name
-        # Check for unexpected tokens (raw fallback)
+        # Check for CREATE TABLE (col defs) vs CREATE TABLE ... AS SELECT
         self.skip_blanks()
+        if self.pk()[1] == '(':
+            return self.parse_create_table_columns(
+                stmt.table_name, stmt.schema, stmt.if_not_exists)
         if (not self.done() and self.pk()[1] not in ('AS', ';', 'SELECT') and
                 self.pk()[0] not in ('EOF', 'BLANK_LINE')):
             toks = []
@@ -1919,6 +1939,148 @@ class Parser:
             stmt._has_semicolon = True
             self.eat()
         return stmt
+
+    # Keywords that end a type name and start a column constraint
+    _CONSTRAINT_STARTERS = frozenset({
+        'DEFAULT', 'PRIMARY', 'FOREIGN', 'REFERENCES', 'UNIQUE',
+        'CHECK', 'CONSTRAINT', 'GENERATED', 'COLLATE',
+    })
+    # Table-constraint openers (first token of a table-level constraint entry)
+    _TABLE_CONSTRAINT_OPENERS = frozenset({
+        'PRIMARY', 'FOREIGN', 'UNIQUE', 'CHECK', 'CONSTRAINT', 'EXCLUDE',
+    })
+
+    def parse_create_table_columns(self, table_name, schema, if_not_exists):
+        """Parse CREATE TABLE name ( col defs ... ) [;]"""
+        stmt = CreateTableStatement(
+            table_name=table_name, schema=schema, if_not_exists=if_not_exists)
+        self.eat()  # consume '('
+        while not self.done():
+            self.skip_blanks()
+            t = self.pk()
+            if t[0] == 'COMMENT':
+                self.eat()  # drop standalone inter-column comments for now
+                continue
+            if t[1] == ')':
+                self.eat()
+                break
+            if t[1] == ',':
+                self.eat()
+                continue
+            if t[0] == 'EOF':
+                break
+            # Detect table-level constraint vs column definition
+            first_up = t[1].upper()
+            if first_up in self._TABLE_CONSTRAINT_OPENERS:
+                tc = self._collect_until_col_sep()
+                if tc:
+                    stmt.table_constraints.append(tc)
+            else:
+                col = self.parse_column_def()
+                if col is not None:
+                    stmt.columns.append(col)
+        self.skip_blanks()
+        if not self.done() and self.pk()[1] == ';':
+            stmt._has_semicolon = True
+            self.eat()
+        return stmt
+
+    def _collect_until_col_sep(self):
+        """Collect tokens until ',' or ')' at depth 0 (for table constraints)."""
+        toks = []
+        depth = 0
+        while not self.done():
+            t = self.pk()
+            if t[0] == 'BLANK_LINE':
+                self.eat()
+                continue
+            if depth == 0 and t[1] in (',', ')'):
+                break
+            if t[1] in ('(', '['):
+                depth += 1
+            elif t[1] in (')', ']'):
+                depth -= 1
+            toks.append(self.eat())
+        return toks
+
+    def parse_column_def(self):
+        """Parse one column definition: name type [constraints]."""
+        if self.pk()[0] not in ('ID', 'KW', 'QUOTED_ID'):
+            self.eat()  # skip unexpected token
+            return None
+        name = self.eat()[1]
+
+        # Parse type: tokens until a constraint-starting keyword or separator
+        type_toks = []
+        depth = 0
+        while not self.done():
+            t = self.pk()
+            if t[0] == 'BLANK_LINE':
+                self.eat()
+                continue
+            if depth == 0:
+                if t[1] in (',', ')') or t[0] in ('COMMENT', 'EOF'):
+                    break
+                # KW 'NOT' starts NOT NULL; 'NULL' alone can be a constraint
+                if t[0] == 'KW' and t[1] == 'NOT':
+                    break
+                if t[0] == 'KW' and t[1] == 'NULL':
+                    break
+                if t[0] == 'ID' and t[1].upper() in self._CONSTRAINT_STARTERS:
+                    break
+            if t[1] in ('(', '['):
+                depth += 1
+            elif t[1] in (')', ']'):
+                if depth == 0:
+                    break
+                depth -= 1
+            type_toks.append(self.eat())
+
+        type_str = self._format_type_tokens(type_toks)
+
+        # Parse optional column constraints: rest until ',' or ')' at depth 0
+        constraint_toks = []
+        depth = 0
+        while not self.done():
+            t = self.pk()
+            if t[0] == 'BLANK_LINE':
+                self.eat()
+                continue
+            if depth == 0 and t[1] in (',', ')') or t[0] == 'EOF':
+                break
+            if t[0] == 'COMMENT':
+                break
+            if t[1] in ('(', '['):
+                depth += 1
+            elif t[1] in (')', ']'):
+                if depth == 0:
+                    break
+                depth -= 1
+            constraint_toks.append(self.eat())
+
+        # Optional trailing inline comment (same line, not preceded by newline)
+        trailing = None
+        if not self.done() and self.pk()[0] == 'COMMENT':
+            c = self.pk()
+            if not (len(c) > 2 and c[2]):  # inline comment only
+                self.eat()
+                trailing = Comment(
+                    text=c[1], is_block=c[1].startswith('/*'), is_trailing=True)
+
+        return ColumnDef(name=name, type_str=type_str,
+                         constraint_tokens=constraint_toks,
+                         trailing_comment=trailing)
+
+    @staticmethod
+    def _format_type_tokens(toks):
+        """Return type token list as a properly spaced uppercase string."""
+        upcased = []
+        for t in toks:
+            if t[0] in ('ID', 'KW'):
+                upcased.append((t[0], t[1].upper()) + t[2:])
+            else:
+                upcased.append(t)
+        return join_expr(upcased)
 
     def parse_do_block(self):
         self.eat()  # DO
@@ -2030,6 +2192,8 @@ class ASTFormatter:
             self.format_insert(stmt)
         elif isinstance(stmt, WithStatement):
             self.format_with(stmt)
+        elif isinstance(stmt, CreateTableStatement):
+            self.format_create_table(stmt)
         elif isinstance(stmt, CreateTableAsStatement):
             self.format_create_table_as(stmt)
         elif isinstance(stmt, CreateIndexStatement):
@@ -2584,6 +2748,71 @@ class ASTFormatter:
                 self.w(',')
         self.w('\n')
         self.format_statement(stmt.main_statement)
+
+    # Keywords to uppercase inside column constraints and table constraints
+    _CONSTRAINT_KWS = frozenset({
+        'NULL', 'NOT', 'DEFAULT', 'PRIMARY', 'KEY', 'FOREIGN', 'REFERENCES',
+        'UNIQUE', 'CHECK', 'CONSTRAINT', 'ON', 'DELETE', 'UPDATE', 'CASCADE',
+        'RESTRICT', 'NO', 'ACTION', 'GENERATED', 'ALWAYS', 'IDENTITY',
+        'STORED', 'WITH', 'TIME', 'ZONE', 'WITHOUT', 'ONLY', 'MATCH',
+        'PARTIAL', 'SIMPLE', 'FULL', 'DEFERRED', 'IMMEDIATE', 'DEFERRABLE',
+        'INITIALLY', 'USING', 'INDEX', 'WHERE', 'COLLATE', 'NULLS',
+        'FIRST', 'LAST', 'ASC', 'DESC',
+    })
+
+    def _format_constraint_tokens(self, toks):
+        """Render constraint tokens with SQL keywords uppercased.
+
+        Constraint keywords are emitted as KW type so join_expr never
+        suppresses the space before '(' — which it would for ID tokens
+        (to handle function calls). This gives 'PRIMARY KEY (id)' and
+        'CHECK (expr)' instead of 'PRIMARY KEY(id)'.
+        """
+        result = []
+        for t in toks:
+            if t[0] == 'KW':
+                result.append(t)
+            elif t[0] == 'ID' and t[1].upper() in self._CONSTRAINT_KWS:
+                result.append(('KW', t[1].upper()) + t[2:])
+            else:
+                result.append(t)
+        return join_expr(result)
+
+    def format_create_table(self, stmt):
+        self.w('CREATE TABLE')
+        if stmt.if_not_exists:
+            self.w(' IF NOT EXISTS')
+        self.nl(1)
+        name = stmt.table_name
+        if stmt.schema:
+            name = stmt.schema + '.' + name
+        self.w(name)
+
+        # Column name padding: align type names to a consistent column
+        pad_to = max((len(col.name) for col in stmt.columns), default=0) + 1
+
+        all_items = (
+            [(True, col) for col in stmt.columns] +
+            [(False, tc) for tc in stmt.table_constraints]
+        )
+        self.w('\n(')
+        for i, (is_col, item) in enumerate(all_items):
+            self.w('\n' + INDENT)
+            if is_col:
+                self.w(item.name.ljust(pad_to))
+                self.w(item.type_str)
+                if item.constraint_tokens:
+                    self.w(' ' + self._format_constraint_tokens(item.constraint_tokens))
+            else:
+                self.w(self._format_constraint_tokens(item))
+            if i < len(all_items) - 1:
+                self.w(',')
+            if is_col and item.trailing_comment:
+                last_line = self._last_line()
+                self.w(self._comment_tabs(last_line) + item.trailing_comment.text)
+        self.w('\n)')
+        if stmt._has_semicolon:
+            self.w(';')
 
     def format_create_table_as(self, stmt):
         self.w('CREATE TABLE')

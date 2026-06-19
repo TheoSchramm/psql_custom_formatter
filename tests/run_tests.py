@@ -139,9 +139,29 @@ def check_no_fused_keywords(result, output):
 
 def check_no_double_spaces(result, output):
     """No double spaces in non-indentation areas."""
-    for lineno, line in enumerate(output.split("\n"), 1):
-        # Skip comment lines
+    in_create_table_cols = False  # True inside CREATE TABLE (...) column block
+    paren_depth = 0
+    lines = output.split("\n")
+    for lineno, line in enumerate(lines, 1):
         stripped = line.strip()
+        # Detect entry/exit of CREATE TABLE column definition block.
+        # The block opens on a line that is exactly '(' (after CREATE TABLE name)
+        # and closes when paren_depth returns to 0.
+        if in_create_table_cols:
+            paren_depth += stripped.count('(') - stripped.count(')')
+            if paren_depth <= 0:
+                in_create_table_cols = False
+            continue  # type-alignment spaces are intentional here
+        if stripped == '(':
+            # Look back to see if the previous non-empty lines were CREATE TABLE
+            prev_nonblank = [l.strip() for l in lines[:lineno - 1] if l.strip()]
+            if (len(prev_nonblank) >= 2
+                    and prev_nonblank[-2].upper().startswith('CREATE TABLE')
+                    and not prev_nonblank[-1].upper().startswith('AS')):
+                in_create_table_cols = True
+                paren_depth = 1
+                continue
+        # Skip comment lines
         if stripped.startswith("--") or stripped.startswith("/*"):
             continue
         if not stripped:
