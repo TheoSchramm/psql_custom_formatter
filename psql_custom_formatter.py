@@ -30,8 +30,6 @@ KEYWORDS = {
     'RETURNING', 'CONFLICT', 'DO', 'NOTHING', 'USING',
     'CREATE', 'TABLE', 'IF', 'DROP', 'ALTER',
     'INDEX', 'UNIQUE', 'CONCURRENTLY',
-    'REPLACE', 'FUNCTION', 'PROCEDURE', 'VIEW',
-    'RETURNS', 'LANGUAGE', 'IMMUTABLE', 'STABLE', 'VOLATILE', 'STRICT',
     'LATERAL',
     'ROLLUP', 'CUBE', 'GROUPING', 'SETS', 'FILTER',
     'ROWS', 'RANGE', 'GROUPS', 'PRECEDING', 'FOLLOWING', 'CURRENT', 'UNBOUNDED', 'ROW',
@@ -254,7 +252,7 @@ def join_expr(toks):
             need_space = False
         elif prev_type == 'SYM' and cur_type == 'SYM':
             need_space = False
-        elif cur_type in ('COMMA', 'SEMI'):
+        elif cur_type == 'COMMA':
             need_space = False
         # Tab-align line comments; keep block comments inline with a space
         if cur_type == 'COMMENT':
@@ -298,6 +296,7 @@ class BinaryOp:
     op: str
     left: Expression
     right: Expression
+    leading_comments: list = field(default_factory=list)  # standalone comments before the operator
 
 @dataclass
 class UnaryOp:
@@ -895,9 +894,22 @@ class Parser:
             # (those are expression terminators that the caller handles)
             if next_meaningful[1] in (',', ')') or next_meaningful[0] in ('COMMA', 'RPAR'):
                 should_continue = False
+            # Don't eat comments if the next operator has lower precedence than min_prec —
+            # in that case the loop will break anyway and the comment belongs to the outer call.
+            if (should_continue
+                    and next_meaningful[0] in ('OP', 'KW')
+                    and next_meaningful[1] in _INFIX_PREC
+                    and _INFIX_PREC[next_meaningful[1]] < min_prec):
+                should_continue = False
+            pending_leading = []
             if should_continue:
                 while self.pk()[0] in ('COMMENT', 'BLANK_LINE'):
-                    self.eat()
+                    tok = self.eat()
+                    if tok[0] == 'COMMENT' and len(tok) > 2 and tok[2]:
+                        # Standalone comment (preceded_by_newline=True) — keep for the operator
+                        pending_leading.append(
+                            Comment(tok[1], is_block=tok[1].startswith('/*'), is_trailing=False)
+                        )
             t = self.pk()
             if t[0] == 'EOF' or t[1] == ';':
                 break
@@ -1003,7 +1015,8 @@ class Parser:
                 left = BinaryOp(op, left, right)
                 continue
             right = self.parse_expression(stop_fn=stop_fn, min_prec=prec + 1)
-            left = BinaryOp(op, left, right)
+            lc = pending_leading if op in ('AND', 'OR') else []
+            left = BinaryOp(op, left, right, leading_comments=lc)
         return left
 
     def _parse_type_name(self):
@@ -1885,24 +1898,9 @@ class Parser:
                     break
                 raw.append(self.eat())
             return CreateIndexStatement(unique=unique, raw_rest=raw)
-        # CREATE TABLE — everything else (FUNCTION, VIEW, PROCEDURE, etc.) is raw
-        if self.pk()[1] != 'TABLE':
-            raw = [('KW', 'CREATE')]
-            if unique:
-                raw.append(('KW', 'UNIQUE'))
-            while not self.done():
-                t = self.pk()
-                if t[0] == 'BLANK_LINE':
-                    self.eat()
-                    continue
-                if t[1] == ';':
-                    raw.append(self.eat())
-                    break
-                if t[0] == 'EOF':
-                    break
-                raw.append(self.eat())
-            return RawStatement(raw)
-        self.eat()  # TABLE
+        # CREATE TABLE
+        if self.pk()[1] == 'TABLE':
+            self.eat()
         stmt = CreateTableAsStatement(table_name='')
         if self.pk()[1] == 'IF':
             self.eat()
@@ -2334,7 +2332,10 @@ class ASTFormatter:
                 if not inline and expr.op in ('AND', 'OR'):
                     parts = self._flatten_conditions(expr)
                     first = True
-                    for (op, part_expr) in parts:
+                    for (op, leading_comments, part_expr) in parts:
+                        for comm in leading_comments:
+                            self.nl(ci)
+                            self.w(comm.text)
                         if not first:
                             self.nl(ci)
                             self.w(op + ' ')
@@ -2402,11 +2403,11 @@ class ASTFormatter:
             self.w(join_expr(expr.tokens))
 
     def _flatten_conditions(self, expr):
-        """Flatten top-level AND/OR tree into [(op_or_None, sub_expr)] list."""
+        """Flatten top-level AND/OR tree into [(op_or_None, leading_comments, sub_expr)] list."""
         if isinstance(expr, BinaryOp) and expr.op in ('AND', 'OR'):
             left_parts = self._flatten_conditions(expr.left)
-            return left_parts + [(expr.op, expr.right)]
-        return [(None, expr)]
+            return left_parts + [(expr.op, expr.leading_comments, expr.right)]
+        return [(None, [], expr)]
 
     def format_where_expr(self, expr, ci, inline_and=False):
         if inline_and:
@@ -2414,7 +2415,10 @@ class ASTFormatter:
         else:
             parts = self._flatten_conditions(expr)
             first = True
-            for (op, part_expr) in parts:
+            for (op, leading_comments, part_expr) in parts:
+                for comm in leading_comments:
+                    self.nl(ci)
+                    self.w(comm.text)
                 if not first:
                     self.nl(ci)
                     self.w(op + ' ')

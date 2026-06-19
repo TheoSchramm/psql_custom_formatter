@@ -5,13 +5,13 @@ Entries are in reverse chronological order.
 
 ---
 
-## 2026-06-19 — Add CREATE OR REPLACE FUNCTION/VIEW/PROCEDURE passthrough
+## 2026-06-19 — Fix standalone comments between WHERE AND/OR conditions being dropped
 
-- **New feature**: `CREATE OR REPLACE FUNCTION`, `CREATE OR REPLACE VIEW`, `CREATE OR REPLACE PROCEDURE`, and any other `CREATE` variant that is not `CREATE TABLE` or `CREATE [UNIQUE] INDEX` is now routed to the `RawStatement` passthrough path instead of misidentifying as `CREATE TABLE`.
-- **Keywords added to `KEYWORDS`**: `REPLACE`, `FUNCTION`, `PROCEDURE`, `VIEW`, `RETURNS`, `LANGUAGE`, `IMMUTABLE`, `STABLE`, `VOLATILE`, `STRICT` — these are now uppercased in output. Previously they were treated as identifiers and left lowercase.
-- **Bug fix**: `join_expr` now suppresses the space before `;` (semicolons were gaining a leading space when a `RawStatement` was formatted through `join_expr`).
-- **Test**: TEST 26 added to `tests/edge_cases.sql` with a `CREATE OR REPLACE FUNCTION` containing a dollar-quoted body and `WHEN`/`THEN` alignment.
-- **Test runner**: `check_no_double_spaces` now skips lines inside `$$...$$` blocks, since the formatter preserves the body verbatim and users may align expressions inside it.
+- **Bug fix**: a standalone `--` comment on its own line between two `AND`/`OR` conditions in a `WHERE` clause was silently dropped from the output.
+- **Root cause**: in `parse_expression`, the code that scans ahead to determine whether to skip inter-token comments (`should_continue`) was eating the comment even in recursive inner calls where the next operator (`AND`, prec=20) had lower precedence than `min_prec` (e.g. 46 for the RHS of `=`). The inner call then broke out of its loop without ever attaching the comment, so it was lost.
+- **Fix**: added a guard — `should_continue = False` when the next meaningful token is an infix operator whose precedence is below `min_prec`. The comment stays in the token stream so the outer call can collect it.
+- **Attachment**: `BinaryOp` gains a `leading_comments` field. When `AND`/`OR` is parsed, any standalone comments that were skipped before the operator keyword are stored there. `_flatten_conditions` threads them through as a 3-tuple `(op, leading_comments, expr)`, and `format_where_expr` emits each comment on its own indented line before the condition it precedes.
+- **Test**: TEST 26 added to `tests/edge_cases.sql`.
 
 ---
 
