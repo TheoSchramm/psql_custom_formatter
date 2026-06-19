@@ -141,9 +141,24 @@ def check_no_double_spaces(result, output):
     """No double spaces in non-indentation areas."""
     in_create_table_cols = False  # True inside CREATE TABLE (...) column block
     paren_depth = 0
+    in_dollar_quote = False       # True inside $$...$$  or $tag$...$tag$ blocks
+    dollar_tag = None
     lines = output.split("\n")
     for lineno, line in enumerate(lines, 1):
         stripped = line.strip()
+        # Skip lines inside dollar-quoted blocks (formatter preserves them verbatim)
+        if in_dollar_quote:
+            if dollar_tag in stripped:
+                in_dollar_quote = False
+            continue
+        dq_match = re.search(r'\$([A-Za-z0-9_]*)\$', stripped)
+        if dq_match:
+            tag = dq_match.group(0)
+            rest = stripped[dq_match.end():]
+            if tag not in rest:  # opening tag with no matching close on same line
+                in_dollar_quote = True
+                dollar_tag = tag
+                continue
         # Detect entry/exit of CREATE TABLE column definition block.
         # The block opens on a line that is exactly '(' (after CREATE TABLE name)
         # and closes when paren_depth returns to 0.

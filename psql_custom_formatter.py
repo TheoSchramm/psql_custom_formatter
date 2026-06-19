@@ -30,6 +30,8 @@ KEYWORDS = {
     'RETURNING', 'CONFLICT', 'DO', 'NOTHING', 'USING',
     'CREATE', 'TABLE', 'IF', 'DROP', 'ALTER',
     'INDEX', 'UNIQUE', 'CONCURRENTLY',
+    'REPLACE', 'FUNCTION', 'PROCEDURE', 'VIEW',
+    'RETURNS', 'LANGUAGE', 'IMMUTABLE', 'STABLE', 'VOLATILE', 'STRICT',
     'LATERAL',
     'ROLLUP', 'CUBE', 'GROUPING', 'SETS', 'FILTER',
     'ROWS', 'RANGE', 'GROUPS', 'PRECEDING', 'FOLLOWING', 'CURRENT', 'UNBOUNDED', 'ROW',
@@ -252,7 +254,7 @@ def join_expr(toks):
             need_space = False
         elif prev_type == 'SYM' and cur_type == 'SYM':
             need_space = False
-        elif cur_type == 'COMMA':
+        elif cur_type in ('COMMA', 'SEMI'):
             need_space = False
         # Tab-align line comments; keep block comments inline with a space
         if cur_type == 'COMMENT':
@@ -1883,9 +1885,24 @@ class Parser:
                     break
                 raw.append(self.eat())
             return CreateIndexStatement(unique=unique, raw_rest=raw)
-        # CREATE TABLE
-        if self.pk()[1] == 'TABLE':
-            self.eat()
+        # CREATE TABLE — everything else (FUNCTION, VIEW, PROCEDURE, etc.) is raw
+        if self.pk()[1] != 'TABLE':
+            raw = [('KW', 'CREATE')]
+            if unique:
+                raw.append(('KW', 'UNIQUE'))
+            while not self.done():
+                t = self.pk()
+                if t[0] == 'BLANK_LINE':
+                    self.eat()
+                    continue
+                if t[1] == ';':
+                    raw.append(self.eat())
+                    break
+                if t[0] == 'EOF':
+                    break
+                raw.append(self.eat())
+            return RawStatement(raw)
+        self.eat()  # TABLE
         stmt = CreateTableAsStatement(table_name='')
         if self.pk()[1] == 'IF':
             self.eat()

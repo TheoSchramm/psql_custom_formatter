@@ -5,6 +5,16 @@ Entries are in reverse chronological order.
 
 ---
 
+## 2026-06-19 — Add CREATE OR REPLACE FUNCTION/VIEW/PROCEDURE passthrough
+
+- **New feature**: `CREATE OR REPLACE FUNCTION`, `CREATE OR REPLACE VIEW`, `CREATE OR REPLACE PROCEDURE`, and any other `CREATE` variant that is not `CREATE TABLE` or `CREATE [UNIQUE] INDEX` is now routed to the `RawStatement` passthrough path instead of misidentifying as `CREATE TABLE`.
+- **Keywords added to `KEYWORDS`**: `REPLACE`, `FUNCTION`, `PROCEDURE`, `VIEW`, `RETURNS`, `LANGUAGE`, `IMMUTABLE`, `STABLE`, `VOLATILE`, `STRICT` — these are now uppercased in output. Previously they were treated as identifiers and left lowercase.
+- **Bug fix**: `join_expr` now suppresses the space before `;` (semicolons were gaining a leading space when a `RawStatement` was formatted through `join_expr`).
+- **Test**: TEST 26 added to `tests/edge_cases.sql` with a `CREATE OR REPLACE FUNCTION` containing a dollar-quoted body and `WHEN`/`THEN` alignment.
+- **Test runner**: `check_no_double_spaces` now skips lines inside `$$...$$` blocks, since the formatter preserves the body verbatim and users may align expressions inside it.
+
+---
+
 ## 2026-06-19 — Add CREATE TABLE (column definitions) support
 
 - **New feature**: `CREATE TABLE schema.table (col TYPE, ...)` statements are now parsed and formatted properly instead of falling through to the `RawStatement` fallback (which collapsed everything to one line and lowercased type names).

@@ -307,6 +307,16 @@ WHERE
     code IN ('04', '05');
 
 
+-- TEST 26: CREATE OR REPLACE FUNCTION with dollar-quoted body
+CREATE OR REPLACE FUNCTION connector.excel_date(v text) RETURNS date AS $$
+  SELECT CASE
+    WHEN v IS NULL OR TRIM(v) = '' THEN NULL
+    WHEN TRIM(v) ~ '^\d+$'        THEN '1899-12-30'::date + TRIM(v)::integer
+    ELSE TRIM(v)::date
+  END;
+$$ LANGUAGE sql IMMUTABLE;
+
+
 -- TEST 25: CREATE TABLE with column definitions (type alignment, constraints)
 --DROP TABLE IF EXISTS legado.phoenix_pedidos;
 CREATE TABLE legado.phoenix_pedidos (
