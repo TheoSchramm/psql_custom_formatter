@@ -5,6 +5,14 @@ Entries are in reverse chronological order.
 
 ---
 
+## 2026-06-19 — Expand ANY(ARRAY[...]) values across multiple lines
+
+- **Enhancement**: `op ANY(ARRAY[val1, val2, ...])` expressions with more than 3 values are now expanded one value per line using leading-comma style, consistent with `IN (...)` list expansion. Applies to any operator: `= ANY(ARRAY[...])`, `ILIKE ANY(ARRAY[...])`, `!= ANY(ARRAY[...])`, etc.
+- **Implementation**: updated the `AnyAllExpr` branch in `format_expression`. When `expr.array` is an `ArrayExpr` with more than 3 elements, values are emitted one per line at `ci + 1` indent with leading-comma style, and `])` closes at `ci`.
+- **Test**: TEST 27 added to `tests/edge_cases.sql`.
+
+---
+
 ## 2026-06-19 — Fix standalone comments between WHERE AND/OR conditions being dropped
 
 - **Bug fix**: a standalone `--` comment on its own line between two `AND`/`OR` conditions in a `WHERE` clause was silently dropped from the output.

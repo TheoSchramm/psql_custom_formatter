@@ -2396,9 +2396,20 @@ class ASTFormatter:
                 self.format_expression(el, ci, inline=True)
             self.w(']')
         elif isinstance(expr, AnyAllExpr):
-            self.w(expr.quantifier + '(')
-            self.format_expression(expr.array, ci, inline=True)
-            self.w(')')
+            inner = expr.array
+            if isinstance(inner, ArrayExpr) and len(inner.elements) > 3:
+                self.w(expr.quantifier + '(ARRAY[')
+                for i, el in enumerate(inner.elements):
+                    self.nl(ci + 1)
+                    if i > 0:
+                        self.w(', ')
+                    self.format_expression(el, ci + 1, inline=True)
+                self.nl(ci)
+                self.w('])')
+            else:
+                self.w(expr.quantifier + '(')
+                self.format_expression(inner, ci, inline=True)
+                self.w(')')
         elif isinstance(expr, RawTokens):
             self.w(join_expr(expr.tokens))
 

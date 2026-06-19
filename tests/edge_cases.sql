@@ -307,6 +307,12 @@ WHERE
     code IN ('04', '05');
 
 
+-- TEST 27: ANY(ARRAY[...]) with >3 values expands one per line (= ANY and ILIKE ANY)
+SELECT * FROM t
+WHERE id = ANY(ARRAY[1, 2, 3, 4, 5])
+  AND label ILIKE ANY(ARRAY['alpha', 'beta', 'gamma', 'delta', 'epsilon']);
+
+
 -- TEST 26: Standalone comments between WHERE AND conditions are preserved
 SELECT a, b
 FROM t
