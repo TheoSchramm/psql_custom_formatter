@@ -11,6 +11,7 @@ from typing import List, Optional, Tuple, Union
 import sys
 
 INDENT = '    '  # 4 spaces
+INLINE_SUBQUERY_MAX_CHARS = 64  # subqueries whose one-line form fits within this length are kept on a single line
 
 KEYWORDS = {
     'SELECT', 'FROM', 'WHERE', 'AND', 'OR', 'NOT', 'IN', 'ON',
@@ -467,6 +468,7 @@ class SelectStatement:
     fetch_clause: Optional[RawTokens] = None
     for_clause: Optional[str] = None
     unions: List[UnionPart] = field(default_factory=list)
+    trailing_comments: List[str] = field(default_factory=list)
     _has_semicolon: bool = False
 
 @dataclass
@@ -719,7 +721,10 @@ class Parser:
         if self.pk()[1] == 'ORDER' and self.pk(1)[1] == 'BY':
             self.eat(); self.eat()
             stmt.order_by = self.parse_order_by_list()
-        self.skip_blanks_and_comments()
+        while self.pk()[0] in ('BLANK_LINE', 'COMMENT'):
+            tok = self.eat()
+            if tok[0] == 'COMMENT':
+                stmt.trailing_comments.append(tok[1])
         if self.pk()[1] == 'LIMIT':
             self.eat()
             toks = self.collect_raw(lambda t: t[1] in (';', 'OFFSET', 'FETCH') or t[0] == 'EOF')
@@ -1196,8 +1201,14 @@ class Parser:
             self.eat()
             return Literal('star', '*')
         if t[0] == 'QUOTED_ID':
-            val = self.eat()[1]
-            return Identifier([val])
+            schema = self.eat()[1]
+            if self.pk()[0] == 'DOT':
+                self.eat()
+                name = self.eat()[1] if self.pk()[0] in ('ID', 'KW', 'STAR', 'QUOTED_ID') else schema
+                if self.pk()[1] == '(':
+                    return self.parse_function_call(name, schema)
+                return Identifier([schema + '.' + name])
+            return Identifier([schema])
         if t[1] == '(':
             # subquery?
             j = 1
@@ -1240,7 +1251,7 @@ class Parser:
             if self.pk()[0] == 'DOT':
                 self.eat()
                 schema = name
-                name = self.eat()[1] if self.pk()[0] in ('ID', 'KW', 'STAR') else name
+                name = self.eat()[1] if self.pk()[0] in ('ID', 'KW', 'STAR', 'QUOTED_ID') else name
             # function call
             if self.pk()[1] == '(':
                 return self.parse_function_call(name, schema)
@@ -1381,6 +1392,8 @@ class Parser:
             if t[1] in ('HAVING', 'LIMIT', 'UNION', 'EXCEPT', 'INTERSECT', ';',
                          'WHERE', 'RETURNING', 'FETCH', 'OFFSET', 'FOR') or t[0] == 'EOF':
                 break
+            if t[0] == 'COMMENT':
+                break  # leave in stream for parse_select to collect
             if t[1] == ',':
                 self.eat()
                 continue
@@ -2133,6 +2146,15 @@ class ASTFormatter:
     def w(self, s):
         self.out.append(s)
 
+    def _inline_subquery(self, query, max_chars=INLINE_SUBQUERY_MAX_CHARS):
+        """Return one-line rendering of subquery if it fits within max_chars (incl. parens), else None."""
+        scratch = ASTFormatter()
+        scratch.format_select(query, base=0, is_subquery=True)
+        rendered = ''.join(scratch.out)
+        one_line = ' '.join(p for line in rendered.splitlines() for p in [line.strip()] if p)
+        full = '(' + one_line + ')'
+        return full if len(full) <= max_chars else None
+
     def nl(self, level):
         self.w('\n' + INDENT * level)
 
@@ -2274,6 +2296,9 @@ class ASTFormatter:
         if stmt.for_clause:
             self.nl(base)
             self.w(stmt.for_clause)
+        for comment in stmt.trailing_comments:
+            self.nl(base + 1)
+            self.w(comment)
         if stmt._has_semicolon:
             self.w(';')
         for u in stmt.unions:
@@ -2379,11 +2404,15 @@ class ASTFormatter:
             self.nl(ci)
             self.w(')')
         elif isinstance(expr, SubqueryExpr):
-            self.w('(')
-            self.w('\n')
-            self.format_select(expr.query, ci + 1, is_subquery=True)
-            self.nl(ci)
-            self.w(')')
+            inline = self._inline_subquery(expr.query)
+            if inline is not None:
+                self.w(inline)
+            else:
+                self.w('(')
+                self.w('\n')
+                self.format_select(expr.query, ci + 1, is_subquery=True)
+                self.nl(ci)
+                self.w(')')
         elif isinstance(expr, Parenthesized):
             self.w('(')
             self.format_expression(expr.expr, ci, inline=True)
@@ -2645,7 +2674,7 @@ class ASTFormatter:
                     self.nl(1)
                     first = False
                 else:
-                    self.nl(0)
+                    self.nl(1)
                     self.w(', ')
                 self.w(sc.target + ' = ')
                 self.format_expression(sc.value, 1, inline=True)

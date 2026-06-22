@@ -5,6 +5,24 @@ Entries are in reverse chronological order.
 
 ---
 
+## 2026-06-22 — Quoted identifiers, trailing comments, UPDATE SET indent, inline subqueries
+
+### Bug fixes
+
+- **Quoted column after dot** (`p."name"`): in `parse_primary`, when an `ID` was followed by `.`, `QUOTED_ID` was not in the accepted next-token types, so `p."name"` parsed as `Identifier(['p.p'])` and left `"name"` stranded in the token stream — mangling the rest of the statement. Fixed by adding `'QUOTED_ID'` to the check at the `ID DOT ?` branch.
+
+- **Quoted schema as leading part** (`"schema"."table"`): the `QUOTED_ID` primary branch returned immediately without looking ahead for a following `.`. Now checks for `DOT` and assembles the fully-qualified name the same way the `ID` branch does.
+
+- **Trailing standalone comments after ORDER BY dropped**: `parse_order_by_list` did not handle `COMMENT` tokens in its loop — they fell through to `parse_expression`, which ate them silently in `parse_primary` and returned `RawTokens([])`, producing a spurious trailing `,` ORDER BY item. Fixed in two parts: `parse_order_by_list` now `break`s (leaving comments in stream) when it sees a `COMMENT`; `parse_select` collects those comments into a new `SelectStatement.trailing_comments` list instead of dropping them via `skip_blanks_and_comments()`. `format_select` emits them as indented standalone lines after the last clause.
+
+- **UPDATE SET clause commas not indented**: `format_update` used `self.nl(0)` (column 0) before the leading `, ` of each SET item after the first. Changed to `self.nl(1)` for consistent 4-space indentation.
+
+### Enhancement
+
+- **Inline subquery compaction**: subqueries whose one-line rendering fits within `INLINE_SUBQUERY_MAX_CHARS` characters (default 64, including the surrounding parentheses) are now kept on a single line instead of being expanded. The `SubqueryExpr` branch in `format_expression` speculatively renders the subquery into a scratch `ASTFormatter`, flattens all lines into one by stripping indentation and joining with spaces, and emits the one-liner if it fits; otherwise falls back to the multi-line form. The threshold is a named constant at the top of the file for easy tuning.
+
+---
+
 ## 2026-06-19 — Expand ANY(ARRAY[...]) values across multiple lines
 
 - **Enhancement**: `op ANY(ARRAY[val1, val2, ...])` expressions with more than 3 values are now expanded one value per line using leading-comma style, consistent with `IN (...)` list expansion. Applies to any operator: `= ANY(ARRAY[...])`, `ILIKE ANY(ARRAY[...])`, `!= ANY(ARRAY[...])`, etc.
