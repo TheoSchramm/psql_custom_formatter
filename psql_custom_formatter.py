@@ -457,6 +457,7 @@ class ConflictClause:
 @dataclass
 class SelectStatement:
     distinct: bool = False
+    distinct_on: List[Expression] = field(default_factory=list)
     columns: List[SelectItem] = field(default_factory=list)
     from_clause: Optional[FromClause] = None
     where: Optional[Expression] = None
@@ -698,6 +699,16 @@ class Parser:
         if self.pk()[1] == 'DISTINCT':
             stmt.distinct = True
             self.eat()
+            self.skip_blanks()
+            if self.pk()[1] == 'ON':
+                self.eat()
+                self.skip_blanks()
+                if self.pk()[1] == '(':
+                    self.eat()
+                    stmt.distinct_on = self.parse_expr_list(lambda t: t[1] == ')')
+                    self.skip_blanks()
+                    if self.pk()[1] == ')':
+                        self.eat()
         stmt.columns = self.parse_select_list()
         self.skip_blanks_and_comments()
         if self.pk()[1] == 'FROM':
@@ -2244,6 +2255,15 @@ class ASTFormatter:
         self.w(self.ind(base) + 'SELECT')
         if stmt.distinct:
             self.w(' DISTINCT')
+        if stmt.distinct_on:
+            self.w(' ON (')
+            first_on = True
+            for e in stmt.distinct_on:
+                if not first_on:
+                    self.w(', ')
+                first_on = False
+                self.format_expression(e, base, inline=True)
+            self.w(')')
         ci = base + 1
         first = True
         for item in stmt.columns:

@@ -339,3 +339,16 @@ CREATE TABLE legado.phoenix_pedidos (
     obs_fechamento  TEXT,
     tecnico         TEXT
 );
+
+
+-- TEST 28: SELECT DISTINCT ON (...) with single and multiple columns
+SELECT DISTINCT ON (p.id)
+    p.name, p.tx_id, a.created
+FROM person p
+LEFT JOIN assignments a ON a.created_by = p.id
+ORDER BY p.id, a.created DESC;
+
+SELECT DISTINCT ON (a.id, b.category) a.id, b.category, b.total
+FROM items a
+JOIN categories b ON b.id = a.category_id
+ORDER BY a.id, b.category, b.total DESC;

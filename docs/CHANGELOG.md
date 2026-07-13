@@ -5,6 +5,14 @@ Entries are in reverse chronological order.
 
 ---
 
+## 2026-07-13 — Fix SELECT DISTINCT ON (...) parsing
+
+- **Bug fix**: `SELECT DISTINCT ON (col1, col2)` was mangled — `parse_select` only recognized bare `DISTINCT` and had no handling for the `ON (...)` clause, so `ON` and the parenthesized column list were parsed as part of the select list, scrambling the entire column output.
+- **Fix**: `parse_select` now checks for `ON` immediately after `DISTINCT` and, if present, parses the parenthesized expression list into a new `SelectStatement.distinct_on` field via `parse_expr_list`. `format_select` renders it inline as `DISTINCT ON (expr, expr)` right after the `SELECT` keyword.
+- **Test**: TEST 28 added to `tests/edge_cases.sql` (single-column and multi-column `DISTINCT ON`).
+
+---
+
 ## 2026-06-22 — Quoted identifiers, trailing comments, UPDATE SET indent, inline subqueries
 
 ### Bug fixes
