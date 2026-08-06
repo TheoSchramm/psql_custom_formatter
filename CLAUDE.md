@@ -40,7 +40,7 @@ These rules define the formatter's output. Follow them exactly when modifying fo
 - **AND/OR in ON conditions**: each on new line, double-indented under the JOIN
 - **AND/OR in WHERE**: each on new line, indented under WHERE
 - **CASE expressions**: WHEN/ELSE indented, THEN result on next line further indented
-- **Subqueries**: wrapped in parens with increased indent level; AND/OR inlined in subquery WHERE clauses
+- **Subqueries**: wrapped in parens with increased indent level; AND/OR inlined in subquery WHERE/HAVING clauses, unless the inlined line would exceed `INLINE_WHERE_MAX_CHARS` (100 chars including indentation), in which case each AND/OR condition breaks onto its own line like a top-level WHERE clause
 - **CREATE TABLE ... AS SELECT**: table name indented under CREATE TABLE, entire SELECT block indented one level
 - **IN (...) lists**: expanded one per line with leading commas when more than 3 values; `IN (SELECT ...)` formats the subquery indented inside the parens
 - **Keywords**: uppercased during formatting

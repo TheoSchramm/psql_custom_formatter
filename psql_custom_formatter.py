@@ -12,6 +12,7 @@ import sys
 
 INDENT = '    '  # 4 spaces
 INLINE_SUBQUERY_MAX_CHARS = 64  # subqueries whose one-line form fits within this length are kept on a single line
+INLINE_WHERE_MAX_CHARS = 100  # subquery WHERE/HAVING AND/OR chains longer than this break onto separate lines
 
 KEYWORDS = {
     'SELECT', 'FROM', 'WHERE', 'AND', 'OR', 'NOT', 'IN', 'ON',
@@ -48,6 +49,27 @@ FUNCTION_KWS = {
 }
 
 JOIN_MODIFIERS = frozenset({'LEFT', 'RIGHT', 'INNER', 'FULL', 'CROSS', 'OUTER'})
+
+# Reserved keywords that can never stand in for an identifier/value in expression
+# position. If parse_primary sees one of these, the input isn't valid SQL and we'd
+# otherwise silently misparse it (e.g. treating a stray WHERE's condition as the
+# literal identifier "FROM"). Keywords that are also legitimate function names
+# (LEFT, RIGHT, ...) are intentionally excluded.
+_NEVER_PRIMARY_KWS = frozenset({
+    'SELECT', 'FROM', 'WHERE', 'GROUP', 'HAVING', 'ORDER', 'JOIN', 'ON',
+    'INTO', 'VALUES', 'SET', 'RETURNING', 'WITH',
+    'UNION', 'EXCEPT', 'INTERSECT',
+    'INSERT', 'UPDATE', 'DELETE', 'CREATE',
+    'WHEN', 'THEN', 'ELSE', 'END', 'AS',
+})
+
+
+class SqlSyntaxError(Exception):
+    """Raised when the token stream can't be a valid SQL statement.
+
+    Caught by format_sql(), which returns the original input unchanged rather
+    than emit a mangled best-effort parse.
+    """
 
 SELECT_CLAUSE_KWS = frozenset({
     'FROM', 'WHERE', 'GROUP', 'ORDER', 'HAVING',
@@ -438,6 +460,7 @@ class CteClause:
     name: str
     columns: List[str]
     body: SelectStatement
+    leading_comments: List[str] = field(default_factory=list)
 
 @dataclass
 class UnionPart:
@@ -510,6 +533,7 @@ class WithStatement:
     ctes: List[CteClause]
     main_statement: Statement
     _has_semicolon: bool = False
+    main_leading_comments: List[str] = field(default_factory=list)
 
 @dataclass
 class CreateTableAsStatement:
@@ -710,6 +734,8 @@ class Parser:
                     if self.pk()[1] == ')':
                         self.eat()
         stmt.columns = self.parse_select_list()
+        if not stmt.columns:
+            raise SqlSyntaxError("SELECT with no columns")
         self.skip_blanks_and_comments()
         if self.pk()[1] == 'FROM':
             self.eat()
@@ -1245,6 +1271,8 @@ class Parser:
         if t[0] == 'OP' and t[1] == '+':
             self.eat()
             return self.parse_expression(stop_fn=stop_fn, min_prec=65)
+        if t[0] == 'KW' and t[1] in _NEVER_PRIMARY_KWS:
+            raise SqlSyntaxError(f"Unexpected keyword '{t[1]}' where an expression was expected")
         # ID or KW (identifier or function call)
         if t[0] in ('ID', 'KW'):
             name = self.eat()[1]
@@ -1843,13 +1871,15 @@ class Parser:
         first_cte = True
         while not self.done():
             self.skip_blanks()
-            if self.pk()[1] in ('SELECT', 'INSERT', 'UPDATE', 'DELETE', ';') or self.pk()[0] == 'EOF':
-                break
+            pending_comments = []
             if not first_cte:
-                # skip comments between CTEs
+                # comments between CTEs (or before the main statement)
                 while self.pk()[0] == 'COMMENT':
-                    self.eat()
+                    pending_comments.append(self.eat()[1])
                     self.skip_blanks()
+            if self.pk()[1] in ('SELECT', 'INSERT', 'UPDATE', 'DELETE', ';') or self.pk()[0] == 'EOF':
+                stmt.main_leading_comments = pending_comments
+                break
             first_cte = False
             cte_name = ''
             if self.pk()[0] in ('ID', 'KW', 'QUOTED_ID'):
@@ -1891,7 +1921,7 @@ class Parser:
                     self.eat()
             else:
                 body = SelectStatement()
-            stmt.ctes.append(CteClause(name=cte_name, columns=columns, body=body))
+            stmt.ctes.append(CteClause(name=cte_name, columns=columns, body=body, leading_comments=pending_comments))
             self.skip_blanks()
             if self.pk()[1] == ',':
                 self.eat()
@@ -2166,6 +2196,15 @@ class ASTFormatter:
         full = '(' + one_line + ')'
         return full if len(full) <= max_chars else None
 
+    def _fits_inline(self, expr, ci, max_chars=INLINE_WHERE_MAX_CHARS):
+        """Whether expr's one-line rendering (at indent level ci) fits within max_chars."""
+        scratch = ASTFormatter()
+        scratch.format_expression(expr, ci, inline=True)
+        rendered = ''.join(scratch.out)
+        if '\n' in rendered:
+            return False
+        return len(INDENT) * ci + len(rendered) <= max_chars
+
     def nl(self, level):
         self.w('\n' + INDENT * level)
 
@@ -2287,7 +2326,8 @@ class ASTFormatter:
             self.nl(base)
             self.w('WHERE')
             self.nl(base + 1)
-            self.format_where_expr(stmt.where, base + 1, inline_and=is_subquery)
+            where_inline = is_subquery and self._fits_inline(stmt.where, base + 1)
+            self.format_where_expr(stmt.where, base + 1, inline_and=where_inline)
         if stmt.group_by:
             self.nl(base)
             self.w('GROUP BY')
@@ -2296,7 +2336,8 @@ class ASTFormatter:
             self.nl(base)
             self.w('HAVING')
             self.nl(base + 1)
-            self.format_where_expr(stmt.having, base + 1, inline_and=is_subquery)
+            having_inline = is_subquery and self._fits_inline(stmt.having, base + 1)
+            self.format_where_expr(stmt.having, base + 1, inline_and=having_inline)
         if stmt.order_by:
             self.nl(base)
             self.w('ORDER BY')
@@ -2818,6 +2859,9 @@ class ASTFormatter:
                 first_cte = False
             else:
                 self.w('\n')
+            for comm in cte.leading_comments:
+                self.w(comm)
+                self.w('\n')
             self.w(cte.name)
             if cte.columns:
                 self.w(' (' + ', '.join(cte.columns) + ')')
@@ -2828,6 +2872,9 @@ class ASTFormatter:
             if cte is not stmt.ctes[-1]:
                 self.w(',')
         self.w('\n')
+        for comm in stmt.main_leading_comments:
+            self.w(comm)
+            self.w('\n')
         self.format_statement(stmt.main_statement)
 
     # Keywords to uppercase inside column constraints and table constraints

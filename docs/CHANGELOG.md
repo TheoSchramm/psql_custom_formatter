@@ -5,6 +5,30 @@ Entries are in reverse chronological order.
 
 ---
 
+## 2026-08-06 — Fix WITH/CTE parser eating the main statement when a comment follows a CTE
+
+- **Bug fix**: in `parse_with`, the CTE-list loop checked its stop condition (`SELECT`/`INSERT`/`UPDATE`/`DELETE`/`;`/EOF`) *before* skipping standalone comments between CTEs. When a comment sat between a CTE's closing `)` and the main statement (e.g. `) \n --old query \n SELECT ...`), the stop-condition check saw the `COMMENT` token, not `SELECT`, and failed to break. The loop then skipped the comment and barged ahead into "parse another CTE" logic, treating the main statement's `SELECT` keyword as a CTE name and devouring the entire outer select list — each comma in the column list was misread as the CTE-list separator — turning the query into dozens of bogus empty CTEs.
+- **Fix**: moved the comment-skipping block before the stop-condition check in the loop, so the check always sees the real next keyword.
+- **Also fixed**: comments in that position were previously discarded entirely (even once the mis-parse above is fixed, the comment itself vanished from output). `CteClause` gained `leading_comments` and `WithStatement` gained `main_leading_comments`; `parse_with` now attaches skipped comments to the following CTE or to the main statement instead of dropping them, and `format_with` renders them back out.
+- **Test**: TEST 31 added to `tests/edge_cases.sql`.
+
+---
+
+## 2026-08-06 — Reject structurally invalid SQL instead of silently mangling it
+
+- **Bug fix**: the parser was too permissive — `parse_primary`'s generic identifier fallback (`if t[0] in ('ID', 'KW')`) accepted *any* keyword token as a bare identifier, and `parse_select` accepted an empty column list. Malformed input like `SELECT WHERE FROM 1 WHEN 2;` parsed "successfully" (no exception), so the existing `except Exception: return sql` safety net in `format_sql()` never triggered, and the formatter emitted a nonsense best-effort reformat instead of leaving the input untouched.
+- **Fix**: added `_NEVER_PRIMARY_KWS` (structural keywords — `SELECT`, `FROM`, `WHERE`, `GROUP`, `JOIN`, `ON`, `WHEN`, `THEN`, ..., but *not* keywords that double as function names like `LEFT`/`RIGHT`) — `parse_primary` now raises `SqlSyntaxError` if one appears where an expression was expected. `parse_select` now raises `SqlSyntaxError` if the column list comes back empty. Both are plain `Exception` subclasses, so they're caught by the existing safety net with no new fallback path needed — invalid input now reliably returns unchanged.
+- **Test**: TEST 30 added to `tests/edge_cases.sql`.
+
+---
+
+## 2026-08-05 — Break long inlined subquery WHERE/HAVING chains onto separate lines
+
+- **Improvement**: subquery `WHERE`/`HAVING` AND/OR chains were always rendered inline on a single line, regardless of length — a subquery with several conditions (e.g. multiple `AND`s with function calls) could produce an unreadably long line.
+- **Fix**: added `INLINE_WHERE_MAX_CHARS` (100) and `ASTFormatter._fits_inline`, which renders the condition to a scratch buffer to measure its length before deciding. `format_select` now only inlines a subquery's `WHERE`/`HAVING` when the rendered line (including indentation) fits within the limit; otherwise it falls back to the standard one-condition-per-line format used for top-level `WHERE` clauses.
+
+---
+
 ## 2026-07-13 — Fix SELECT DISTINCT ON (...) parsing
 
 - **Bug fix**: `SELECT DISTINCT ON (col1, col2)` was mangled — `parse_select` only recognized bare `DISTINCT` and had no handling for the `ON (...)` clause, so `ON` and the parenthesized column list were parsed as part of the select list, scrambling the entire column output.

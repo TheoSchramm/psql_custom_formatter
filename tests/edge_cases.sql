@@ -352,3 +352,25 @@ SELECT DISTINCT ON (a.id, b.category) a.id, b.category, b.total
 FROM items a
 JOIN categories b ON b.id = a.category_id
 ORDER BY a.id, b.category, b.total DESC;
+
+
+-- TEST 29: Long inlined subquery WHERE breaks AND conditions onto separate lines
+SELECT
+    *
+    , (
+        SELECT COUNT(*) FROM erp.people_addresses tmp WHERE tmp.city = aux.cidade AND tmp.neighborhood = aux.bairro_cliente AND tmp.street IN (aux.rua_cliente, aux.somente_rua) AND REGEXP_REPLACE(aux.cep_novo, '[^0-9-]', '', 'g') != REGEXP_REPLACE(tmp.postal_code, '[^0-9-]', '', 'g')
+    )
+FROM
+    maintenance.aux_protocol_1439457_enderecos aux;
+
+
+-- TEST 30: Structurally invalid SQL is returned unchanged, not mangled
+SELECT WHERE FROM 1 WHEN 2;
+
+
+-- TEST 31: Standalone comment between a CTE's closing paren and the main SELECT
+WITH cte AS (
+    SELECT 1 AS x
+)
+-- note about the main query
+SELECT x FROM cte;
