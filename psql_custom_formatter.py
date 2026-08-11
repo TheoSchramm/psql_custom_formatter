@@ -187,12 +187,15 @@ def tokenize(sql):
         elif c == '*':
             tokens.append(('STAR', '*'))
             i += 1
-        elif i + 2 < n and sql[i:i+3] in ('->>', '#>>'):
+        elif i + 2 < n and sql[i:i+3] in ('->>', '#>>', '!~*'):
             tokens.append(('OP', sql[i:i+3]))
             i += 3
-        elif i + 1 < n and sql[i:i+2] in ('<=', '>=', '<>', '!=', '::', '->', '#>', '||'):
+        elif i + 1 < n and sql[i:i+2] in ('<=', '>=', '<>', '!=', '::', '->', '#>', '||', '~*', '!~'):
             tokens.append(('OP', sql[i:i+2]))
             i += 2
+        elif c == '~':
+            tokens.append(('OP', '~'))
+            i += 1
         elif c == ':' and i + 1 < n and (sql[i+1].isalpha() or sql[i+1] == '_'):
             # psql :variable — keep colon fused with identifier
             j = i + 1
@@ -609,6 +612,7 @@ _JOIN_START_KWS = frozenset({'JOIN', 'LEFT', 'RIGHT', 'INNER', 'FULL', 'CROSS', 
 _INFIX_PREC = {
     'OR': 10, 'AND': 20,
     '=': 45, '<': 45, '>': 45, '<=': 45, '>=': 45, '<>': 45, '!=': 45,
+    '~': 45, '~*': 45, '!~': 45, '!~*': 45,
     'LIKE': 40, 'ILIKE': 40,
     '+': 55, '-': 55, '||': 55,
     '->': 58, '->>': 58, '#>': 58, '#>>': 58,
