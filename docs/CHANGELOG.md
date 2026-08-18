@@ -5,6 +5,21 @@ Entries are in reverse chronological order.
 
 ---
 
+## 2026-08-18 — Fix comments silently dropped at SELECT/WHERE/JOIN clause boundaries
+
+- **Bug fix**: several spots discarded comment tokens instead of preserving them, with no test coverage catching the loss (the round-trip check strips comments before comparing, so a dropped comment was invisible to the suite):
+  - `parse_select_list`: when more than one standalone comment sat between the last column and `FROM`, only the first was kept (glued onto the last column as a trailing comment); the rest were eaten and discarded.
+  - `skip_blanks_and_comments()`, called right after `WHERE`/`HAVING` and before each of `GROUP BY`/`HAVING`/`ORDER BY`, unconditionally discarded any standalone comment it passed over.
+  - `parse_expression`'s AND/OR loop only kept *standalone* comments between conditions (as `BinaryOp.leading_comments`); an *inline* trailing comment on a condition (e.g. `a = 1  -- note` before `AND ...`) was eaten and discarded.
+  - A trailing comment after a single-condition (no AND/OR) expression — e.g. after a `JOIN ... ON cond` — was left unconsumed by `parse_expression` and then swept up and discarded by the next `skip_blanks_and_comments()` call.
+  - `parse_from_clause`'s "skip standalone comments" loop between tables/joins ate comments unconditionally, including ones that actually belonged to the following `WHERE` (not to another table/JOIN).
+- **Fix**: `SelectStatement` gained `select_list_trailing_comments`, `where_leading_comments`/`where_trailing_comment`, `group_by_leading_comments`, `having_leading_comments`/`having_trailing_comment`, `order_by_leading_comments`; `BinaryOp` gained `left_trailing_comment` for inline comments trailing an AND/OR operand; `JoinClause` gained `on_trailing_comment`. `_flatten_conditions`/`format_where_expr` now carry a per-part trailing comment plus an optional final one supplied by the caller (WHERE/HAVING/ON all reuse this). `parse_from_clause` now peeks past comments to check whether they precede another table/JOIN before consuming them, otherwise leaves them for the next clause.
+- **Also fixed**: a comment rendered as the last thing on a line just before a statement's `;` caused the `;` to be appended directly onto the comment's line — which, being a `--` comment, silently swallowed the semicolon from a naive line-based reading of the output (and would misparse if fed back through as SQL). `ASTFormatter` now tracks whether the last thing written was a trailing comment and forces the `;` onto its own line when so.
+- **Deferred** (see `docs/known-issues.md`): standalone comment before `JOIN`, standalone comment before `ON`, leading comment on the very first SELECT-list item, and the same WHERE-comment handling for `UPDATE`/`DELETE`.
+- **Test**: TEST 33 added to `tests/edge_cases.sql`; new dedicated `test_comment_preservation()` suite added to `tests/run_tests.py` (the existing checks don't compare comment text, so these assert specific comments/positions survive).
+
+---
+
 ## 2026-08-06 — Fix WITH/CTE parser eating the main statement when a comment follows a CTE
 
 - **Bug fix**: in `parse_with`, the CTE-list loop checked its stop condition (`SELECT`/`INSERT`/`UPDATE`/`DELETE`/`;`/EOF`) *before* skipping standalone comments between CTEs. When a comment sat between a CTE's closing `)` and the main statement (e.g. `) \n --old query \n SELECT ...`), the stop-condition check saw the `COMMENT` token, not `SELECT`, and failed to break. The loop then skipped the comment and barged ahead into "parse another CTE" logic, treating the main statement's `SELECT` keyword as a CTE name and devouring the entire outer select list — each comma in the column list was misread as the CTE-list separator — turning the query into dozens of bogus empty CTEs.

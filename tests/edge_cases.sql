@@ -382,3 +382,21 @@ SELECT
     , SUBSTRING(vs.name FROM 1 FOR 3) AS ddd
     , SUBSTRING(vs.name, 1, 3) AS ddd_commas
 FROM legado.voip_sippeers vs;
+
+
+-- TEST 33: Multiple standalone comments at clause boundaries (select list, ON, WHERE, ORDER BY)
+SELECT c.id, c.description
+    --, fat.title
+    --, tit.title
+    --, ccb.financial_operation_id
+FROM
+    erp.people p
+    JOIN erp.contracts c ON
+        c.client_id = p.id  -- join condition
+-- another standalone before WHERE
+WHERE
+    -- first condition group
+    c.amount > 0  -- only positive amounts
+    AND c.status = 1
+-- final comment
+ORDER BY c.id;

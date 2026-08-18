@@ -329,6 +329,7 @@ class BinaryOp:
     left: Expression
     right: Expression
     leading_comments: list = field(default_factory=list)  # standalone comments before the operator
+    left_trailing_comment: Optional[str] = None  # inline comment trailing the left operand
 
 @dataclass
 class UnaryOp:
@@ -458,6 +459,7 @@ class JoinClause:
     table: TableRef
     on_condition: Optional[Expression] = None
     using_columns: Optional[List[str]] = None
+    on_trailing_comment: Optional[str] = None  # inline comment after the ON condition
 
 @dataclass
 class FromClause:
@@ -502,6 +504,13 @@ class SelectStatement:
     for_clause: Optional[str] = None
     unions: List[UnionPart] = field(default_factory=list)
     trailing_comments: List[str] = field(default_factory=list)
+    select_list_trailing_comments: List[str] = field(default_factory=list)
+    where_leading_comments: List[str] = field(default_factory=list)
+    where_trailing_comment: Optional[str] = None
+    group_by_leading_comments: List[str] = field(default_factory=list)
+    having_leading_comments: List[str] = field(default_factory=list)
+    having_trailing_comment: Optional[str] = None
+    order_by_leading_comments: List[str] = field(default_factory=list)
     _has_semicolon: bool = False
 
 @dataclass
@@ -654,6 +663,15 @@ class Parser:
         while not self.done() and self.pk()[0] in ('BLANK_LINE', 'COMMENT'):
             self.eat()
 
+    def _collect_comments(self):
+        """Consume blank lines and comments between clauses, returning comment texts in order."""
+        out = []
+        while not self.done() and self.pk()[0] in ('BLANK_LINE', 'COMMENT'):
+            tok = self.eat()
+            if tok[0] == 'COMMENT':
+                out.append(tok[1])
+        return out
+
     def _is_join(self, off=0):
         t = self.pk(off)
         if t[1] == 'JOIN':
@@ -748,28 +766,43 @@ class Parser:
         stmt.columns = self.parse_select_list()
         if not stmt.columns:
             raise SqlSyntaxError("SELECT with no columns")
-        self.skip_blanks_and_comments()
+        stmt.select_list_trailing_comments = getattr(self, '_select_list_extra_comments', [])
+        pending_comments = self._collect_comments()
         if self.pk()[1] == 'FROM':
             self.eat()
             stmt.from_clause = self.parse_from_clause()
-        self.skip_blanks_and_comments()
+        pending_comments += self._collect_comments()
         if self.pk()[1] == 'WHERE':
+            stmt.where_leading_comments = pending_comments
+            pending_comments = []
             self.eat()
-            self.skip_blanks_and_comments()
+            stmt.where_leading_comments += self._collect_comments()
             stmt.where = self.parse_expression(stop_fn=self._where_stop)
-        self.skip_blanks_and_comments()
+            if self.pk()[0] == 'COMMENT' and not self.pk()[2]:
+                stmt.where_trailing_comment = self.eat()[1]
+        pending_comments += self._collect_comments()
         if self.pk()[1] == 'GROUP' and self.pk(1)[1] == 'BY':
+            stmt.group_by_leading_comments = pending_comments
+            pending_comments = []
             self.eat(); self.eat()
             stmt.group_by = self.parse_expr_list(self._group_stop)
-        self.skip_blanks_and_comments()
+        pending_comments += self._collect_comments()
         if self.pk()[1] == 'HAVING':
+            stmt.having_leading_comments = pending_comments
+            pending_comments = []
             self.eat()
-            self.skip_blanks_and_comments()
+            stmt.having_leading_comments += self._collect_comments()
             stmt.having = self.parse_expression(stop_fn=self._group_stop)
-        self.skip_blanks_and_comments()
+            if self.pk()[0] == 'COMMENT' and not self.pk()[2]:
+                stmt.having_trailing_comment = self.eat()[1]
+        pending_comments += self._collect_comments()
         if self.pk()[1] == 'ORDER' and self.pk(1)[1] == 'BY':
+            stmt.order_by_leading_comments = pending_comments
+            pending_comments = []
             self.eat(); self.eat()
             stmt.order_by = self.parse_order_by_list()
+        pending_comments += self._collect_comments()
+        stmt.trailing_comments = pending_comments
         while self.pk()[0] in ('BLANK_LINE', 'COMMENT'):
             tok = self.eat()
             if tok[0] == 'COMMENT':
@@ -832,6 +865,7 @@ class Parser:
     def parse_select_list(self):
         items = []
         pending_leading_comment = None
+        self._select_list_extra_comments = []
         while not self.done():
             self.skip_blanks()
             t = self.pk()
@@ -853,11 +887,15 @@ class Parser:
                     j += 1
                 nxt = self.pk(j)
                 if nxt[1] in _CLAUSE_KWS or nxt[1] == ')' or nxt[0] == 'EOF':
-                    # Comments before clause end — attach as trailing to last item
+                    # Comments before clause end — first one attaches as trailing to
+                    # the last item; any additional ones get their own line before
+                    # the next clause so they aren't silently dropped.
                     while self.pk()[0] == 'COMMENT':
                         c = self.eat()[1]
                         if items and items[-1].trailing_comment is None:
                             items[-1].trailing_comment = c
+                        else:
+                            self._select_list_extra_comments.append(c)
                     break
                 # Between-column comment — store as leading comment of next item
                 pending_leading_comment = self.eat()[1]
@@ -956,14 +994,19 @@ class Parser:
                     and _INFIX_PREC[next_meaningful[1]] < min_prec):
                 should_continue = False
             pending_leading = []
+            pending_trailing_inline = None
             if should_continue:
                 while self.pk()[0] in ('COMMENT', 'BLANK_LINE'):
                     tok = self.eat()
-                    if tok[0] == 'COMMENT' and len(tok) > 2 and tok[2]:
-                        # Standalone comment (preceded_by_newline=True) — keep for the operator
-                        pending_leading.append(
-                            Comment(tok[1], is_block=tok[1].startswith('/*'), is_trailing=False)
-                        )
+                    if tok[0] == 'COMMENT':
+                        if len(tok) > 2 and tok[2]:
+                            # Standalone comment (preceded_by_newline=True) — keep for the operator
+                            pending_leading.append(
+                                Comment(tok[1], is_block=tok[1].startswith('/*'), is_trailing=False)
+                            )
+                        elif pending_trailing_inline is None:
+                            # Inline comment trailing the left operand (e.g. "cond  -- note")
+                            pending_trailing_inline = tok[1]
             t = self.pk()
             if t[0] == 'EOF' or t[1] == ';':
                 break
@@ -1070,7 +1113,8 @@ class Parser:
                 continue
             right = self.parse_expression(stop_fn=stop_fn, min_prec=prec + 1)
             lc = pending_leading if op in ('AND', 'OR') else []
-            left = BinaryOp(op, left, right, leading_comments=lc)
+            ltc = pending_trailing_inline if op in ('AND', 'OR') else None
+            left = BinaryOp(op, left, right, leading_comments=lc, left_trailing_comment=ltc)
         return left
 
     def _parse_type_name(self):
@@ -1525,10 +1569,15 @@ class Parser:
         tables.append(t)
         while not self.done():
             self.skip_blanks()
-            # Skip standalone comments
-            while self.pk()[0] == 'COMMENT':
-                self.eat()
-                self.skip_blanks()
+            # Only consume standalone comments here if they precede another
+            # table/JOIN — otherwise leave them for the next clause (e.g. WHERE)
+            # to pick up, instead of discarding them.
+            j = 0
+            while self.pk(j)[0] in ('COMMENT', 'BLANK_LINE'):
+                j += 1
+            if self.pk(j)[1] == ',' or self._is_join(j):
+                while self.pk()[0] in ('COMMENT', 'BLANK_LINE'):
+                    self.eat()
             if self.pk()[1] == ',':
                 self.eat()
                 self.skip_blanks()
@@ -1669,6 +1718,7 @@ class Parser:
         table = self.parse_table_ref()
         on_cond = None
         using_cols = None
+        on_trailing_comment = None
         self.skip_blanks()
         # skip standalone comments before ON
         while self.pk()[0] == 'COMMENT':
@@ -1683,6 +1733,8 @@ class Parser:
                 table.trailing_comment = self.eat()[1]
                 self.skip_blanks()
             on_cond = self.parse_expression(stop_fn=self._join_on_stop)
+            if self.pk()[0] == 'COMMENT' and not self.pk()[2]:
+                on_trailing_comment = self.eat()[1]
         elif self.pk()[1] == 'USING':
             self.eat()
             if self.pk()[1] == '(':
@@ -1695,7 +1747,7 @@ class Parser:
                     using_cols.append(self.eat()[1])
                 if self.pk()[1] == ')':
                     self.eat()
-        return JoinClause(join_type, table, on_cond, using_cols)
+        return JoinClause(join_type, table, on_cond, using_cols, on_trailing_comment)
 
     def _join_on_stop(self, t):
         if t[1] in ('WHERE', 'GROUP', 'ORDER', 'HAVING', 'LIMIT', 'SELECT', 'FROM', ';'):
@@ -2201,6 +2253,7 @@ class Parser:
 class ASTFormatter:
     def __init__(self):
         self.out = []
+        self._last_was_comment = False
 
     def w(self, s):
         self.out.append(s)
@@ -2225,6 +2278,7 @@ class ASTFormatter:
 
     def nl(self, level):
         self.w('\n' + INDENT * level)
+        self._last_was_comment = False
 
     def ind(self, level):
         return INDENT * level
@@ -2252,6 +2306,7 @@ class ASTFormatter:
     def _emit_trailing_comment(self, text):
         last_line = self._last_line()
         self.w(self._comment_tabs(last_line) + text)
+        self._last_was_comment = True
 
     def format_all(self, results):
         # Track whether we need a 3-blank-line separator before the next item.
@@ -2336,27 +2391,44 @@ class ASTFormatter:
                 self.w(', ')
                 self.format_select_item(item, ci)
             continue
+        for comment in stmt.select_list_trailing_comments:
+            self.nl(ci)
+            self.w(comment)
         if stmt.from_clause:
             self.nl(base)
             self.w('FROM')
             self.format_from_clause(stmt.from_clause, base)
         if stmt.where is not None:
+            for comment in stmt.where_leading_comments:
+                self.nl(base)
+                self.w(comment)
             self.nl(base)
             self.w('WHERE')
             self.nl(base + 1)
             where_inline = is_subquery and self._fits_inline(stmt.where, base + 1)
-            self.format_where_expr(stmt.where, base + 1, inline_and=where_inline)
+            self.format_where_expr(stmt.where, base + 1, inline_and=where_inline,
+                                    final_trailing_comment=stmt.where_trailing_comment)
         if stmt.group_by:
+            for comment in stmt.group_by_leading_comments:
+                self.nl(base)
+                self.w(comment)
             self.nl(base)
             self.w('GROUP BY')
             self._format_expr_list_leading_comma(stmt.group_by, base + 1)
         if stmt.having is not None:
+            for comment in stmt.having_leading_comments:
+                self.nl(base)
+                self.w(comment)
             self.nl(base)
             self.w('HAVING')
             self.nl(base + 1)
             having_inline = is_subquery and self._fits_inline(stmt.having, base + 1)
-            self.format_where_expr(stmt.having, base + 1, inline_and=having_inline)
+            self.format_where_expr(stmt.having, base + 1, inline_and=having_inline,
+                                    final_trailing_comment=stmt.having_trailing_comment)
         if stmt.order_by:
+            for comment in stmt.order_by_leading_comments:
+                self.nl(base)
+                self.w(comment)
             self.nl(base)
             self.w('ORDER BY')
             self._format_order_by_list(stmt.order_by, base + 1)
@@ -2379,6 +2451,8 @@ class ASTFormatter:
             self.nl(base + 1)
             self.w(comment)
         if stmt._has_semicolon:
+            if stmt.trailing_comments or self._last_was_comment:
+                self.nl(base)
             self.w(';')
         for u in stmt.unions:
             self.w('\n')
@@ -2435,16 +2509,16 @@ class ASTFormatter:
             else:
                 if not inline and expr.op in ('AND', 'OR'):
                     parts = self._flatten_conditions(expr)
-                    first = True
-                    for (op, leading_comments, part_expr) in parts:
+                    for i, (op, leading_comments, part_expr, trailing_comment) in enumerate(parts):
                         for comm in leading_comments:
                             self.nl(ci)
                             self.w(comm.text)
-                        if not first:
+                        if i > 0:
                             self.nl(ci)
                             self.w(op + ' ')
                         self.format_expression(part_expr, ci, inline=True)
-                        first = False
+                        if trailing_comment:
+                            self._emit_trailing_comment(trailing_comment)
                 else:
                     self.format_expression(expr.left, ci, inline)
                     if expr.op:
@@ -2522,27 +2596,35 @@ class ASTFormatter:
             self.w(join_expr(expr.tokens))
 
     def _flatten_conditions(self, expr):
-        """Flatten top-level AND/OR tree into [(op_or_None, leading_comments, sub_expr)] list."""
+        """Flatten top-level AND/OR tree into [(op_or_None, leading_comments, sub_expr, trailing_comment)] list."""
         if isinstance(expr, BinaryOp) and expr.op in ('AND', 'OR'):
             left_parts = self._flatten_conditions(expr.left)
-            return left_parts + [(expr.op, expr.leading_comments, expr.right)]
-        return [(None, [], expr)]
+            if expr.left_trailing_comment and left_parts:
+                op0, lc0, pe0, _ = left_parts[-1]
+                left_parts[-1] = (op0, lc0, pe0, expr.left_trailing_comment)
+            return left_parts + [(expr.op, expr.leading_comments, expr.right, None)]
+        return [(None, [], expr, None)]
 
-    def format_where_expr(self, expr, ci, inline_and=False):
+    def format_where_expr(self, expr, ci, inline_and=False, final_trailing_comment=None):
         if inline_and:
             self.format_expression(expr, ci, inline=True)
+            if final_trailing_comment:
+                self._emit_trailing_comment(final_trailing_comment)
         else:
             parts = self._flatten_conditions(expr)
-            first = True
-            for (op, leading_comments, part_expr) in parts:
+            for i, (op, leading_comments, part_expr, trailing_comment) in enumerate(parts):
                 for comm in leading_comments:
                     self.nl(ci)
                     self.w(comm.text)
-                if not first:
+                if i > 0:
                     self.nl(ci)
                     self.w(op + ' ')
                 self.format_expression(part_expr, ci, inline=True)
-                first = False
+                tc = trailing_comment
+                if i == len(parts) - 1 and not tc:
+                    tc = final_trailing_comment
+                if tc:
+                    self._emit_trailing_comment(tc)
 
     def format_in_expr(self, expr, ci):
         self.format_expression(expr.expr, ci, inline=True)
@@ -2725,7 +2807,8 @@ class ASTFormatter:
             if saved_comment:
                 self._emit_trailing_comment(saved_comment)
             self.nl(ci + 1)
-            self.format_where_expr(join.on_condition, ci + 1, inline_and=False)
+            self.format_where_expr(join.on_condition, ci + 1, inline_and=False,
+                                    final_trailing_comment=join.on_trailing_comment)
         else:
             if saved_comment:
                 self._emit_trailing_comment(saved_comment)

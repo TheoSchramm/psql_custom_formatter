@@ -505,6 +505,93 @@ def test_round_trip():
 
 
 # ---------------------------------------------------------------------------
+# Targeted comment-preservation regressions
+#
+# The generic checks above strip comments before comparing (see
+# extract_tokens), so they can't catch a formatter change that silently
+# drops a comment. These cases pin specific comments that were previously
+# lost to clause-boundary comment handling.
+# ---------------------------------------------------------------------------
+
+COMMENT_PRESERVATION_CASES = [
+    (
+        "Multiple standalone comments before FROM",
+        "SELECT a, b\n"
+        "    --, c\n"
+        "    --, d\n"
+        "    --, e\n"
+        "FROM t;\n",
+        ["--, c", "--, d", "--, e"],
+    ),
+    (
+        "Standalone comment before WHERE and after the WHERE keyword",
+        "SELECT a\n"
+        "FROM t\n"
+        "-- before where\n"
+        "WHERE\n"
+        "    -- first condition\n"
+        "    a = 1;\n",
+        ["-- before where", "-- first condition"],
+    ),
+    (
+        "Inline trailing comment on the first WHERE condition",
+        "SELECT a\n"
+        "FROM t\n"
+        "WHERE a = 1  -- only active\n"
+        "    AND b = 2;\n",
+        ["-- only active"],
+    ),
+    (
+        "Trailing comment after a JOIN...ON condition",
+        "SELECT a\n"
+        "FROM t\n"
+        "    JOIN u ON\n"
+        "        t.id = u.id  -- join condition\n"
+        "WHERE a = 1;\n",
+        ["-- join condition"],
+    ),
+    (
+        "Standalone comment before ORDER BY",
+        "SELECT a\n"
+        "FROM t\n"
+        "WHERE a = 1\n"
+        "-- final comment\n"
+        "ORDER BY a;\n",
+        ["-- final comment"],
+    ),
+    (
+        "Semicolon stays off a trailing-comment line",
+        "SELECT a\n"
+        "FROM t\n"
+        "WHERE a = 1  -- note\n"
+        ";\n",
+        ["-- note"],
+    ),
+]
+
+
+def test_comment_preservation():
+    """Test 5: Comments at clause boundaries must survive formatting, on their own line."""
+    results = []
+    for name, sql_input, must_contain in COMMENT_PRESERVATION_CASES:
+        result = TestResult(f"Comment preservation: {name}")
+        output, stderr, rc = run_formatter(sql_input)
+        if rc != 0:
+            result.fail(f"Formatter crashed (exit code {rc}): {stderr}")
+            results.append(result)
+            continue
+        for snippet in must_contain:
+            if snippet not in output:
+                result.fail(f"Expected comment {snippet!r} missing from output:\n{output}")
+        # The comment text must never be glued onto the same line as a ';'
+        for line in output.splitlines():
+            if "--" in line and ";" in line and line.strip().startswith("--"):
+                result.fail(f"Semicolon appended to a comment line: {line!r}")
+        results.append(result)
+    return results
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -540,6 +627,13 @@ def main():
     rt_results = test_round_trip()
     all_results.extend(rt_results)
     for r in rt_results:
+        print_result(r)
+
+    # 5. Comment preservation tests
+    print("\n--- 5. Comment Preservation Tests ---")
+    cp_results = test_comment_preservation()
+    all_results.extend(cp_results)
+    for r in cp_results:
         print_result(r)
 
     # Summary
