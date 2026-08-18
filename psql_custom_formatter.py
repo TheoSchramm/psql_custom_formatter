@@ -1383,6 +1383,12 @@ class Parser:
                         toks = self.collect_raw(lambda t: t[1] == ')')
                         args.append(RawTokens(toks))
                         break
+                    # SUBSTRING special: SUBSTRING(str FROM start FOR len) — FROM/FOR
+                    # are not clause keywords here, so parse as raw tokens
+                    if name.upper() == 'SUBSTRING' and not args:
+                        toks = self.collect_raw(lambda t: t[1] == ')')
+                        args.append(RawTokens(toks))
+                        break
                     arg = self.parse_expression(stop_fn=lambda t: t[1] in (',', ')') or
                                                  (t[1] == 'ORDER' and self.pk(1)[1] == 'BY'))
                     args.append(arg)

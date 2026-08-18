@@ -374,3 +374,11 @@ WITH cte AS (
 )
 -- note about the main query
 SELECT x FROM cte;
+
+
+-- TEST 32: SUBSTRING(str FROM start FOR len) SQL-standard syntax (FROM/FOR are not clause keywords here)
+SELECT
+    SUBSTRING(vs.name FROM LENGTH(vs.ddd::VARCHAR) + 1) AS telefone
+    , SUBSTRING(vs.name FROM 1 FOR 3) AS ddd
+    , SUBSTRING(vs.name, 1, 3) AS ddd_commas
+FROM legado.voip_sippeers vs;
