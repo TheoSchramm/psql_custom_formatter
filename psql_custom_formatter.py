@@ -460,6 +460,7 @@ class JoinClause:
     on_condition: Optional[Expression] = None
     using_columns: Optional[List[str]] = None
     on_trailing_comment: Optional[str] = None  # inline comment after the ON condition
+    on_leading_comments: List[str] = field(default_factory=list)  # standalone comments between ON and its condition
 
 @dataclass
 class FromClause:
@@ -483,6 +484,7 @@ class SetClause:
     target: str
     value: Expression
     trailing_comment: Optional[str] = None
+    leading_comment: Optional[str] = None  # standalone comment before this item
 
 @dataclass
 class ConflictClause:
@@ -505,9 +507,15 @@ class SelectStatement:
     unions: List[UnionPart] = field(default_factory=list)
     trailing_comments: List[str] = field(default_factory=list)
     select_list_trailing_comments: List[str] = field(default_factory=list)
+    # comments between FROM and the WHERE keyword itself (render before WHERE)
+    pre_where_comments: List[str] = field(default_factory=list)
+    # comments between WHERE and its first condition (render after WHERE)
     where_leading_comments: List[str] = field(default_factory=list)
     where_trailing_comment: Optional[str] = None
     group_by_leading_comments: List[str] = field(default_factory=list)
+    # comments between WHERE/GROUP BY and the HAVING keyword itself
+    pre_having_comments: List[str] = field(default_factory=list)
+    # comments between HAVING and its first condition (render after HAVING)
     having_leading_comments: List[str] = field(default_factory=list)
     having_trailing_comment: Optional[str] = None
     order_by_leading_comments: List[str] = field(default_factory=list)
@@ -532,6 +540,11 @@ class UpdateStatement:
     set_clauses: List[SetClause] = field(default_factory=list)
     from_clause: Optional[FromClause] = None
     where: Optional[Expression] = None
+    # comments between FROM (or SET) and the WHERE keyword itself
+    pre_where_comments: List[str] = field(default_factory=list)
+    # comments between WHERE and its first condition
+    where_leading_comments: List[str] = field(default_factory=list)
+    where_trailing_comment: Optional[str] = None
     returning: List[SelectItem] = field(default_factory=list)
     _has_semicolon: bool = False
 
@@ -773,10 +786,10 @@ class Parser:
             stmt.from_clause = self.parse_from_clause()
         pending_comments += self._collect_comments()
         if self.pk()[1] == 'WHERE':
-            stmt.where_leading_comments = pending_comments
+            stmt.pre_where_comments = pending_comments
             pending_comments = []
             self.eat()
-            stmt.where_leading_comments += self._collect_comments()
+            stmt.where_leading_comments = self._collect_comments()
             stmt.where = self.parse_expression(stop_fn=self._where_stop)
             if self.pk()[0] == 'COMMENT' and not self.pk()[2]:
                 stmt.where_trailing_comment = self.eat()[1]
@@ -788,10 +801,10 @@ class Parser:
             stmt.group_by = self.parse_expr_list(self._group_stop)
         pending_comments += self._collect_comments()
         if self.pk()[1] == 'HAVING':
-            stmt.having_leading_comments = pending_comments
+            stmt.pre_having_comments = pending_comments
             pending_comments = []
             self.eat()
-            stmt.having_leading_comments += self._collect_comments()
+            stmt.having_leading_comments = self._collect_comments()
             stmt.having = self.parse_expression(stop_fn=self._group_stop)
             if self.pk()[0] == 'COMMENT' and not self.pk()[2]:
                 stmt.having_trailing_comment = self.eat()[1]
@@ -1719,6 +1732,7 @@ class Parser:
         on_cond = None
         using_cols = None
         on_trailing_comment = None
+        on_leading_comments = []
         self.skip_blanks()
         # skip standalone comments before ON
         while self.pk()[0] == 'COMMENT':
@@ -1732,6 +1746,9 @@ class Parser:
             if self.pk()[0] == 'COMMENT' and not self.pk()[2]:
                 table.trailing_comment = self.eat()[1]
                 self.skip_blanks()
+            # Standalone comment(s) between ON and its condition — preserve
+            # them instead of letting parse_expression silently swallow them.
+            on_leading_comments = self._collect_comments()
             on_cond = self.parse_expression(stop_fn=self._join_on_stop)
             if self.pk()[0] == 'COMMENT' and not self.pk()[2]:
                 on_trailing_comment = self.eat()[1]
@@ -1747,7 +1764,7 @@ class Parser:
                     using_cols.append(self.eat()[1])
                 if self.pk()[1] == ')':
                     self.eat()
-        return JoinClause(join_type, table, on_cond, using_cols, on_trailing_comment)
+        return JoinClause(join_type, table, on_cond, using_cols, on_trailing_comment, on_leading_comments)
 
     def _join_on_stop(self, t):
         if t[1] in ('WHERE', 'GROUP', 'ORDER', 'HAVING', 'LIMIT', 'SELECT', 'FROM', ';'):
@@ -1773,16 +1790,20 @@ class Parser:
         if self.pk()[1] == 'SET':
             self.eat()
             stmt.set_clauses = self.parse_set_clauses()
-        self.skip_blanks()
+        pending_comments = self._collect_comments()
         if self.pk()[1] == 'FROM':
             self.eat()
             stmt.from_clause = self.parse_from_clause()
-        self.skip_blanks()
+        pending_comments += self._collect_comments()
         if self.pk()[1] == 'WHERE':
+            stmt.pre_where_comments = pending_comments
+            pending_comments = []
             self.eat()
-            self.skip_blanks()
+            stmt.where_leading_comments = self._collect_comments()
             stmt.where = self.parse_expression(stop_fn=self._where_stop)
-        self.skip_blanks()
+            if self.pk()[0] == 'COMMENT' and not self.pk()[2]:
+                stmt.where_trailing_comment = self.eat()[1]
+        self.skip_blanks_and_comments()
         if self.pk()[1] == 'RETURNING':
             self.eat()
             stmt.returning = self.parse_returning_list()
@@ -1794,13 +1815,16 @@ class Parser:
 
     def parse_set_clauses(self):
         clauses = []
+        pending_leading_comment = None
         while not self.done():
             self.skip_blanks()
             t = self.pk()
             if t[1] in ('WHERE', 'FROM', ';') or t[0] in ('EOF', 'BLANK_LINE'):
                 break
             if t[0] == 'COMMENT':
-                self.eat()
+                # standalone comment between SET items — attach as the
+                # leading comment of the next item instead of discarding it.
+                pending_leading_comment = self.eat()[1]
                 continue
             if t[1] == ',':
                 self.eat()
@@ -1816,6 +1840,9 @@ class Parser:
             target = join_expr(target_toks)
             val = self.parse_expression(stop_fn=lambda t: t[1] in (',', 'WHERE', 'FROM', ';') or t[0] == 'EOF')
             sc = SetClause(target=target, value=val)
+            if pending_leading_comment is not None:
+                sc.leading_comment = pending_leading_comment
+                pending_leading_comment = None
             # trailing comment
             if self.pk()[0] == 'COMMENT' and not self.pk()[2]:
                 sc.trailing_comment = self.eat()[1]
@@ -2399,11 +2426,14 @@ class ASTFormatter:
             self.w('FROM')
             self.format_from_clause(stmt.from_clause, base)
         if stmt.where is not None:
-            for comment in stmt.where_leading_comments:
+            for comment in stmt.pre_where_comments:
                 self.nl(base)
                 self.w(comment)
             self.nl(base)
             self.w('WHERE')
+            for comment in stmt.where_leading_comments:
+                self.nl(base + 1)
+                self.w(comment)
             self.nl(base + 1)
             where_inline = is_subquery and self._fits_inline(stmt.where, base + 1)
             self.format_where_expr(stmt.where, base + 1, inline_and=where_inline,
@@ -2416,11 +2446,14 @@ class ASTFormatter:
             self.w('GROUP BY')
             self._format_expr_list_leading_comma(stmt.group_by, base + 1)
         if stmt.having is not None:
-            for comment in stmt.having_leading_comments:
+            for comment in stmt.pre_having_comments:
                 self.nl(base)
                 self.w(comment)
             self.nl(base)
             self.w('HAVING')
+            for comment in stmt.having_leading_comments:
+                self.nl(base + 1)
+                self.w(comment)
             self.nl(base + 1)
             having_inline = is_subquery and self._fits_inline(stmt.having, base + 1)
             self.format_where_expr(stmt.having, base + 1, inline_and=having_inline,
@@ -2806,6 +2839,9 @@ class ASTFormatter:
             self.w(' ON')
             if saved_comment:
                 self._emit_trailing_comment(saved_comment)
+            for comment in join.on_leading_comments:
+                self.nl(ci + 1)
+                self.w(comment)
             self.nl(ci + 1)
             self.format_where_expr(join.on_condition, ci + 1, inline_and=False,
                                     final_trailing_comment=join.on_trailing_comment)
@@ -2836,6 +2872,9 @@ class ASTFormatter:
                     self.nl(1)
                     first = False
                 else:
+                    if sc.leading_comment:
+                        self.nl(1)
+                        self.w(sc.leading_comment)
                     self.nl(1)
                     self.w(', ')
                 self.w(sc.target + ' = ')
@@ -2847,10 +2886,17 @@ class ASTFormatter:
             self.w('FROM')
             self.format_from_clause(stmt.from_clause, 0)
         if stmt.where is not None:
+            for comment in stmt.pre_where_comments:
+                self.nl(0)
+                self.w(comment)
             self.nl(0)
             self.w('WHERE')
+            for comment in stmt.where_leading_comments:
+                self.nl(1)
+                self.w(comment)
             self.nl(1)
-            self.format_where_expr(stmt.where, 1, inline_and=False)
+            self.format_where_expr(stmt.where, 1, inline_and=False,
+                                    final_trailing_comment=stmt.where_trailing_comment)
         if stmt.returning:
             self.nl(0)
             self.w('RETURNING')
@@ -2901,7 +2947,7 @@ class ASTFormatter:
                 self.nl(ci)
                 first = False
             else:
-                self.nl(ci - 1)
+                self.nl(ci)
                 self.w(', ')
             self.w(col)
 
@@ -2912,7 +2958,7 @@ class ASTFormatter:
                 self.nl(ci)
                 first = False
             else:
-                self.nl(ci - 1)
+                self.nl(ci)
                 self.w(', ')
             self.format_select_item(item, ci)
 

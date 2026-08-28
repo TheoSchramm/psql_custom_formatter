@@ -5,6 +5,53 @@ Entries are in reverse chronological order.
 
 ---
 
+## 2026-08-28 — Fix WHERE/HAVING comment misplacement, UPDATE SET/WHERE comment loss, JOIN...ON leading comment loss, INSERT/RETURNING list indentation
+
+Found while formatting a real set of DBeaver SQL editor templates and diffing
+every output against its input by hand — the round-trip/idempotency checks
+alone don't catch a comment landing in the *wrong* place (only whether it's
+present *somewhere*), so these slipped past the existing suite.
+
+- **Bug fix — WHERE/HAVING leading comments rendered before the keyword instead
+  of after it**: `SelectStatement.where_leading_comments` conflated two
+  different things — comments between `FROM` and the `WHERE` keyword, and
+  comments between `WHERE` and its first condition — into one list, always
+  rendered before `WHERE`. A comment written directly after `WHERE` (e.g.
+  `WHERE\n    -- schema\n    table_schema = 'erp'`) was hoisted above the
+  `WHERE` line instead of staying indented under it, changing what it reads as
+  commenting on. Split into `pre_where_comments` (before the keyword, unchanged
+  position) and `where_leading_comments` (after the keyword, now rendered
+  after it). Same fix applied to `HAVING`/`pre_having_comments`.
+- **Bug fix — `UPDATE`'s `SET` clause silently dropped a standalone comment**
+  between two assignments (e.g. `SET\n    a = 1\n    -- note\n    , b = 2`):
+  `parse_set_clauses` unconditionally ate any `COMMENT` token at the top of its
+  loop. `SetClause` gained a `leading_comment` field; the comment is now
+  attached to the following assignment and rendered on its own line before it,
+  mirroring how `SelectItem.leading_comment` already works for SELECT columns.
+- **Bug fix — `JOIN ... ON` silently dropped a standalone comment** between
+  `ON` and its condition (e.g. `JOIN u ON\n    -- note\n    t.id = u.id`) —
+  `parse_expression` has no way to preserve a comment leading its first token,
+  so it was swallowed while parsing the condition. `JoinClause` gained an
+  `on_leading_comments` list, collected right after `ON` (before calling
+  `parse_expression`) and rendered before the condition.
+- **Bug fix — `UPDATE` gained the same `WHERE` leading/trailing comment
+  handling `SELECT` already had** (previously deferred, see known-issues.md):
+  `UpdateStatement` gained `pre_where_comments`/`where_leading_comments`/
+  `where_trailing_comment`, wired the same way as `SelectStatement`'s.
+- **Bug fix — `INSERT`'s column list and `RETURNING`'s column list lost their
+  indentation on continuation lines**: `_format_raw_column_list` and
+  `_format_returning` both used `self.nl(ci - 1)` for every line after the
+  first, an off-by-one that put leading-comma continuation lines at column 0
+  instead of matching the first line's indent. Both now use `self.nl(ci)`,
+  consistent with every other leading-comma list in the formatter (SELECT
+  columns, SET clauses, etc.).
+- **Test**: TESTS 34–36 added to `tests/edge_cases.sql`; `COMMENT_PRESERVATION_CASES`
+  extended with 3 new cases; a new `test_comment_positioning()` suite (exact-output
+  assertions, not just substring `in` checks) added to `tests/run_tests.py` to catch
+  the "present but in the wrong place" class of bug the existing checks missed.
+
+---
+
 ## 2026-08-18 — Fix comments silently dropped at SELECT/WHERE/JOIN clause boundaries
 
 - **Bug fix**: several spots discarded comment tokens instead of preserving them, with no test coverage catching the loss (the round-trip check strips comments before comparing, so a dropped comment was invisible to the suite):

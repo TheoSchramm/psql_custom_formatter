@@ -400,3 +400,43 @@ WHERE
     AND c.status = 1
 -- final comment
 ORDER BY c.id;
+
+
+-- TEST 34: Standalone comment between UPDATE SET items is preserved, not dropped
+UPDATE erp.users xx
+SET
+    yy = 1
+    -- fill in the real value above
+    , modified = now()
+    , modified_by = (SELECT id FROM erp.users WHERE login = 'syntesis')
+FROM
+    maintenance.tmp man
+WHERE
+    xx.id = man.id;
+
+
+-- TEST 35: Standalone comment between JOIN...ON and its condition is preserved, not dropped
+INSERT INTO erp.companies_modules (
+    id,
+    company_id
+)
+SELECT
+    id,
+    company_id
+FROM
+    erp.companies c
+    JOIN erp.modules m ON
+        -- pick the module id to insert
+        m.id = 1
+WHERE
+    c.id = 1;
+
+
+-- TEST 36: UPDATE's WHERE gets the same leading/trailing comment handling as SELECT's WHERE
+UPDATE erp.patrimonies p
+SET
+    active = TRUE
+WHERE
+    -- only rows still checked out
+    p.deleted = FALSE  -- redundant safety check
+    AND p.contract_id IS NULL;

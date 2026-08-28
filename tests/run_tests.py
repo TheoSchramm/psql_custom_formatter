@@ -567,7 +567,89 @@ COMMENT_PRESERVATION_CASES = [
         ";\n",
         ["-- note"],
     ),
+    (
+        "Standalone comment between UPDATE SET items",
+        "UPDATE t\n"
+        "SET\n"
+        "    a = 1\n"
+        "    -- fill in the real value above\n"
+        "    , b = 2\n"
+        "WHERE id = 1;\n",
+        ["-- fill in the real value above"],
+    ),
+    (
+        "Standalone comment between JOIN...ON and its condition",
+        "SELECT a\n"
+        "FROM t\n"
+        "    JOIN u ON\n"
+        "        -- match on the natural key\n"
+        "        t.id = u.id\n"
+        "WHERE a = 1;\n",
+        ["-- match on the natural key"],
+    ),
+    (
+        "Standalone comment right after UPDATE's WHERE keyword",
+        "UPDATE t\n"
+        "SET a = 1\n"
+        "WHERE\n"
+        "    -- only active rows\n"
+        "    id = 1;\n",
+        ["-- only active rows"],
+    ),
 ]
+
+
+EXACT_OUTPUT_CASES = [
+    (
+        "WHERE-leading comment renders after WHERE, not before it",
+        "SELECT a\nFROM t\nWHERE\n    -- only active\n    a = 1;\n",
+        "SELECT\n    a\nFROM\n    t\nWHERE\n    -- only active\n    a = 1;\n",
+    ),
+    (
+        "HAVING-leading comment renders after HAVING, not before it",
+        "SELECT a, COUNT(*)\nFROM t\nGROUP BY a\nHAVING\n    -- only large groups\n    COUNT(*) > 1;\n",
+        "SELECT\n    a\n    , COUNT(*)\nFROM\n    t\nGROUP BY\n    a\nHAVING\n    -- only large groups\n    COUNT(*) > 1;\n",
+    ),
+    (
+        "Comment between FROM and WHERE still renders before WHERE (unaffected by the leading-comment fix)",
+        "SELECT a\nFROM t\n-- note before where\nWHERE a = 1;\n",
+        "SELECT\n    a\nFROM\n    t\n-- note before where\nWHERE\n    a = 1;\n",
+    ),
+    (
+        "UPDATE's WHERE-leading comment renders after WHERE, not before it",
+        "UPDATE t\nSET a = 1\nWHERE\n    -- only active\n    id = 1;\n",
+        "UPDATE\n    t\nSET\n    a = 1\nWHERE\n    -- only active\n    id = 1;\n",
+    ),
+    (
+        "INSERT column list: continuation lines indented, not flush left",
+        "INSERT INTO t (\n    a,\n    b,\n    c\n)\nVALUES (1, 2, 3);\n",
+        "INSERT INTO t (\n    a\n    , b\n    , c\n)\nVALUES (1, 2, 3);\n",
+    ),
+    (
+        "RETURNING list: continuation lines indented, not flush left",
+        "INSERT INTO t (a)\nVALUES (1)\nRETURNING a, b, c;\n",
+        "INSERT INTO t (\n    a\n)\nVALUES (1)\nRETURNING\n    a\n    , b\n    , c;\n",
+    ),
+]
+
+
+def test_comment_positioning():
+    """Test 6: Comments/continuation-lines that ARE preserved must land in the
+    right place — not just anywhere in the output (exact-output checks, since
+    substring-only checks can't catch a comment being on the wrong line)."""
+    results = []
+    for name, sql_input, expected in EXACT_OUTPUT_CASES:
+        result = TestResult(f"Comment/list positioning: {name}")
+        output, stderr, rc = run_formatter(sql_input)
+        if rc != 0:
+            result.fail(f"Formatter crashed (exit code {rc}): {stderr}")
+        elif output != expected:
+            diff = "\n".join(difflib.unified_diff(
+                expected.splitlines(), output.splitlines(),
+                fromfile="expected", tofile="actual", lineterm=""))
+            result.fail(f"Output mismatch:\n{diff}")
+        results.append(result)
+    return results
 
 
 def test_comment_preservation():
@@ -634,6 +716,13 @@ def main():
     cp_results = test_comment_preservation()
     all_results.extend(cp_results)
     for r in cp_results:
+        print_result(r)
+
+    # 6. Comment/list positioning tests (exact output)
+    print("\n--- 6. Comment/List Positioning Tests ---")
+    pos_results = test_comment_positioning()
+    all_results.extend(pos_results)
+    for r in pos_results:
         print_result(r)
 
     # Summary
