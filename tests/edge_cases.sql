@@ -478,3 +478,79 @@ INSERT INTO maintenance."bkp_protocol_GV-35731_item_integrations" (
     a
 )
 VALUES (1);
+
+
+-- TEST 40: '*' as multiplication and unary +/- (previously `a*b` was split into two columns
+-- with `* AS b`, and a unary `+` was silently dropped)
+SELECT a*b, a * -b, -a, +a, - -a, 2*(3+4), COUNT(*)*2, t.*, a%3, a/b
+FROM t;
+
+
+-- TEST 41: Positional parameters ($1) — previously the `$` was silently dropped
+SELECT $1, $12::INT, a
+FROM t
+WHERE b = $2 AND c = ANY($3);
+
+
+-- TEST 42: Array subscripts and slices — previously each bracket became its own select column
+SELECT arr[1], arr[1:3], arr[:3], arr[2:], m[1][2], (f(x))[1], arr[i + 1], x::INT[]
+FROM t
+WHERE tags[1] = 'a';
+
+
+-- TEST 43: Row-level locking clauses — previously `for` was swallowed as a table alias
+SELECT a FROM t WHERE b = 1 FOR UPDATE;
+
+SELECT a FROM t ORDER BY a LIMIT 1 FOR NO KEY UPDATE OF t SKIP LOCKED;
+
+SELECT a FROM t FOR SHARE OF t NOWAIT;
+
+SELECT * FROM (SELECT a FROM t FOR UPDATE) x WHERE a IN (SELECT b FROM u FOR SHARE);
+
+
+-- TEST 44: Row constructors and multi-column UPDATE SET (previously `(a, b) = (1, 2)`
+-- became `(a, b) = (1)` / `, 2 = )`)
+UPDATE t SET (a, b) = (1, 2) WHERE c = 1;
+
+UPDATE t SET (a, b) = (SELECT x, y FROM u WHERE u.id = t.id), c = 3 WHERE c = 1;
+
+SELECT a FROM t WHERE (a, b) = (1, 2) AND (a, b) IN ((1, 2), (3, 4));
+
+
+-- TEST 45: MATERIALIZED / NOT MATERIALIZED CTEs
+WITH x AS MATERIALIZED (SELECT 1 AS a), y AS NOT MATERIALIZED (SELECT 2 AS b), z AS (SELECT 3 AS c)
+SELECT * FROM x, y, z;
+
+
+-- TEST 46: SIMILAR TO / NOT SIMILAR TO
+SELECT a FROM t WHERE p SIMILAR TO 'x%' AND q NOT SIMILAR TO 'y%' AND r NOT LIKE 'z%';
+
+
+-- TEST 47: = ALL / <> ANY with a subquery — previously the whole statement came back unformatted
+SELECT a FROM t WHERE y = ALL (SELECT 1) AND z <> ANY (SELECT b FROM u WHERE c = 1);
+
+
+-- TEST 48: UPDATE ... SET ... RETURNING (previously RETURNING was parsed as another SET target)
+UPDATE t SET a = 1, b = 2 WHERE c = 3 RETURNING a, b;
+
+UPDATE t SET a = 1, b = 2 RETURNING a, b;
+
+
+-- TEST 49: ON CONFLICT DO UPDATE / DO NOTHING in all shapes
+INSERT INTO t (a) VALUES (1)
+ON CONFLICT (a) DO UPDATE SET a = EXCLUDED.a, b = t.b + 1 WHERE t.a = 1 AND t.b = 2
+RETURNING a;
+
+INSERT INTO t (a) VALUES (1) ON CONFLICT (a) DO NOTHING;
+
+INSERT INTO t (a) VALUES (1) ON CONFLICT ON CONSTRAINT t_pk DO NOTHING RETURNING a;
+
+INSERT INTO t (a) SELECT 1 ON CONFLICT (a) WHERE b > 0 DO UPDATE SET a = 1;
+
+INSERT INTO t (a) SELECT a FROM u ON CONFLICT (a) DO UPDATE SET a = EXCLUDED.a;
+
+
+-- TEST 50: Comma-separated FROM tables, DEFAULT keyword, SUBSTRING ... FOR
+SELECT SUBSTRING(s FROM 1 FOR 3) FROM t1, t2 x WHERE t1.id = x.id;
+
+UPDATE t SET a = DEFAULT WHERE b = 1;

@@ -19,12 +19,12 @@ A lightweight, zero-dependency PostgreSQL SQL formatter written in Python. Desig
 
 | Statement | Features |
 |-----------|----------|
-| `SELECT` | DISTINCT, subqueries, UNION/UNION ALL, HAVING, LIMIT/OFFSET |
-| `INSERT` | Column lists, VALUES, SELECT body, ON CONFLICT, RETURNING |
-| `UPDATE` | SET clause, FROM with JOINs, WHERE, RETURNING |
+| `SELECT` | DISTINCT, subqueries, UNION/UNION ALL, HAVING, LIMIT/OFFSET, FOR UPDATE/SHARE, array subscripts, row constructors |
+| `INSERT` | Column lists, VALUES, SELECT body, ON CONFLICT (DO NOTHING / DO UPDATE SET ... WHERE), RETURNING |
+| `UPDATE` | SET clause (incl. `(a, b) = (...)`), FROM with JOINs, WHERE, RETURNING |
 | `DELETE` | FROM, WHERE |
 | `CREATE TABLE ... AS SELECT` | IF NOT EXISTS, schema-qualified names |
-| `WITH` (CTE) | Multiple CTEs, RECURSIVE, column lists |
+| `WITH` (CTE) | Multiple CTEs, RECURSIVE, column lists, MATERIALIZED / NOT MATERIALIZED |
 | `DO $$ ... $$` | PL/pgSQL passthrough |
 
 ## Installation
@@ -138,7 +138,7 @@ ORDER BY
 # Regression test against expected output
 cat tests/fixtures/input.sql | python3 psql_custom_formatter.py | diff - tests/fixtures/expected.sql
 
-# Full test suite (63 tests: edge cases, idempotency, round-trip tokens)
+# Full test suite (187 tests: edge cases, idempotency, round-trip tokens, exact output)
 python3 tests/run_tests.py
 ```
 

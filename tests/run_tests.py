@@ -335,7 +335,7 @@ def extract_tokens(sql):
     cleaned = re.sub(r"--[^\n]*", "", sql)
     cleaned = re.sub(r"/\*.*?\*/", "", cleaned, flags=re.DOTALL)
     # Extract words, numbers, string literals, operators
-    tokens = re.findall(r"'[^']*'|\"[^\"]*\"|\b\w+\b|[(),;.*<>=!:+\-/%]", cleaned)
+    tokens = re.findall(r"'[^']*'|\"[^\"]*\"|\$\d+|\b\w+\b|[(),;.*<>=!:+\-/%\[\]|&^~@#?$]", cleaned)
     # Lowercase everything for comparison
     return sorted(t.lower() for t in tokens)
 
@@ -633,13 +633,109 @@ EXACT_OUTPUT_CASES = [
 ]
 
 
-def test_comment_positioning():
-    """Test 6: Comments/continuation-lines that ARE preserved must land in the
-    right place — not just anywhere in the output (exact-output checks, since
-    substring-only checks can't catch a comment being on the wrong line)."""
+SYNTAX_EXACT_OUTPUT_CASES = [
+    (
+        'multiplication is not a wildcard',
+        'SELECT a*b, 2*(3+4), COUNT(*)*2, t.* FROM t;\n',
+        'SELECT\n    a * b\n    , 2 * (3 + 4)\n    , COUNT(*) * 2\n    , t.*\nFROM\n    t;\n',
+    ),
+    (
+        'unary plus/minus are kept and bind tight',
+        'SELECT -a, +a, - -a, a - -b FROM t;\n',
+        'SELECT\n    -a\n    , +a\n    , - -a\n    , a - -b\nFROM\n    t;\n',
+    ),
+    (
+        'positional parameters keep the dollar sign',
+        'SELECT $1, $12::INT FROM t WHERE b = $2;\n',
+        'SELECT\n    $1\n    , $12::INT\nFROM\n    t\nWHERE\n    b = $2;\n',
+    ),
+    (
+        'array subscripts and slices',
+        'SELECT arr[1], arr[1:3], arr[:3], arr[2:], m[1][2] FROM t;\n',
+        'SELECT\n    arr[1]\n    , arr[1:3]\n    , arr[:3]\n    , arr[2:]\n    , m[1][2]\nFROM\n    t;\n',
+    ),
+    (
+        'FOR UPDATE is a clause, not a table alias',
+        'SELECT a FROM t WHERE b = 1 FOR UPDATE;\n',
+        'SELECT\n    a\nFROM\n    t\nWHERE\n    b = 1\nFOR UPDATE;\n',
+    ),
+    (
+        'FOR lock options are uppercased',
+        'SELECT a FROM t ORDER BY a LIMIT 1 FOR NO KEY UPDATE OF t SKIP LOCKED;\n',
+        'SELECT\n    a\nFROM\n    t\nORDER BY\n    a\nLIMIT 1\nFOR NO KEY UPDATE OF t SKIP LOCKED;\n',
+    ),
+    (
+        'multi-column UPDATE SET row assignment',
+        'UPDATE t SET (a, b) = (1, 2) WHERE c = 1;\n',
+        'UPDATE\n    t\nSET\n    (a, b) = (1, 2)\nWHERE\n    c = 1;\n',
+    ),
+    (
+        'row constructors in WHERE ... IN',
+        'SELECT a FROM t WHERE (a, b) IN ((1, 2), (3, 4));\n',
+        'SELECT\n    a\nFROM\n    t\nWHERE\n    (a, b) IN ((1, 2), (3, 4));\n',
+    ),
+    (
+        'MATERIALIZED / NOT MATERIALIZED CTEs',
+        'WITH x AS MATERIALIZED (SELECT 1 AS a), y AS NOT MATERIALIZED (SELECT 2 AS b) SELECT * FROM x, y;\n',
+        'WITH x AS MATERIALIZED (\n    SELECT\n        1 AS a\n),\ny AS NOT MATERIALIZED (\n    SELECT\n        2 AS b\n)\nSELECT\n    *\nFROM\n    x\n    , y;\n',
+    ),
+    (
+        'SIMILAR TO / NOT SIMILAR TO',
+        "SELECT a FROM t WHERE p SIMILAR TO 'x%' AND q NOT SIMILAR TO 'y%';\n",
+        "SELECT\n    a\nFROM\n    t\nWHERE\n    p SIMILAR TO 'x%'\n    AND q NOT SIMILAR TO 'y%';\n",
+    ),
+    (
+        '= ALL (subquery) is formatted, not passed through raw',
+        'SELECT a FROM t WHERE y = ALL (SELECT 1);\n',
+        'SELECT\n    a\nFROM\n    t\nWHERE\n    y = ALL (SELECT 1);\n',
+    ),
+    (
+        'UPDATE ... SET ... RETURNING',
+        'UPDATE t SET a = 1, b = 2 RETURNING a, b;\n',
+        'UPDATE\n    t\nSET\n    a = 1\n    , b = 2\nRETURNING\n    a\n    , b;\n',
+    ),
+    (
+        'ON CONFLICT DO UPDATE SET ... WHERE',
+        'INSERT INTO t (a) VALUES (1) ON CONFLICT (a) DO UPDATE SET a = EXCLUDED.a, b = t.b + 1 WHERE t.a = 1 RETURNING a;\n',
+        'INSERT INTO t (\n    a\n)\nVALUES (1)\nON CONFLICT (a) DO UPDATE\nSET\n    a = excluded.a\n    , b = t.b + 1\nWHERE\n    t.a = 1\nRETURNING\n    a;\n',
+    ),
+    (
+        'ON CONFLICT ON CONSTRAINT ... DO NOTHING',
+        'INSERT INTO t (a) VALUES (1) ON CONFLICT ON CONSTRAINT t_pk DO NOTHING;\n',
+        'INSERT INTO t (\n    a\n)\nVALUES (1)\nON CONFLICT ON CONSTRAINT t_pk DO NOTHING;\n',
+    ),
+    (
+        'ON CONFLICT right after a FROM-less SELECT',
+        'INSERT INTO t (a) SELECT 1 ON CONFLICT (a) DO NOTHING;\n',
+        'INSERT INTO t (\n    a\n)\nSELECT\n    1\nON CONFLICT (a) DO NOTHING;\n',
+    ),
+    (
+        'comma-separated FROM tables are indented',
+        'SELECT a FROM t1, t2 x WHERE t1.id = x.id;\n',
+        'SELECT\n    a\nFROM\n    t1\n    , t2 x\nWHERE\n    t1.id = x.id;\n',
+    ),
+    (
+        'DEFAULT is uppercased',
+        'UPDATE t SET a = DEFAULT WHERE b = 1;\n',
+        'UPDATE\n    t\nSET\n    a = DEFAULT\nWHERE\n    b = 1;\n',
+    ),
+    (
+        'SUBSTRING ... FROM ... FOR keeps FOR uppercase',
+        'SELECT SUBSTRING(s FROM 1 FOR 3) FROM t;\n',
+        'SELECT\n    SUBSTRING(s FROM 1 FOR 3)\nFROM\n    t;\n',
+    ),
+    (
+        'inline subquery has no space before commas',
+        'UPDATE t SET c = (SELECT x, y FROM u) WHERE c = 1;\n',
+        'UPDATE\n    t\nSET\n    c = (SELECT x, y FROM u)\nWHERE\n    c = 1;\n',
+    ),
+]
+
+
+def _run_exact_output_cases(prefix, cases):
     results = []
-    for name, sql_input, expected in EXACT_OUTPUT_CASES:
-        result = TestResult(f"Comment/list positioning: {name}")
+    for name, sql_input, expected in cases:
+        result = TestResult(f"{prefix}: {name}")
         output, stderr, rc = run_formatter(sql_input)
         if rc != 0:
             result.fail(f"Formatter crashed (exit code {rc}): {stderr}")
@@ -648,8 +744,28 @@ def test_comment_positioning():
                 expected.splitlines(), output.splitlines(),
                 fromfile="expected", tofile="actual", lineterm=""))
             result.fail(f"Output mismatch:\n{diff}")
+        else:
+            # The expected output must itself be a fixed point of the formatter
+            again, _, rc2 = run_formatter(output)
+            if rc2 != 0 or again != output:
+                result.fail(f"Output is not idempotent:\n{again}")
         results.append(result)
     return results
+
+
+def test_comment_positioning():
+    """Test 6: Comments/continuation-lines that ARE preserved must land in the
+    right place — not just anywhere in the output (exact-output checks, since
+    substring-only checks can't catch a comment being on the wrong line)."""
+    return _run_exact_output_cases("Comment/list positioning", EXACT_OUTPUT_CASES)
+
+
+def test_syntax_exact_output():
+    """Test 7: Exact formatted output for syntax that used to be mangled or
+    silently dropped (operators, subscripts, locking clauses, ON CONFLICT...).
+    Round-trip checks alone miss cases where the formatter returns the input
+    untouched or reshuffles tokens, so these pin the exact result."""
+    return _run_exact_output_cases("Syntax", SYNTAX_EXACT_OUTPUT_CASES)
 
 
 def test_comment_preservation():
@@ -723,6 +839,13 @@ def main():
     pos_results = test_comment_positioning()
     all_results.extend(pos_results)
     for r in pos_results:
+        print_result(r)
+
+    # 7. Exact output for previously-mangled syntax
+    print("\n--- 7. Syntax Exact-Output Tests ---")
+    syn_results = test_syntax_exact_output()
+    all_results.extend(syn_results)
+    for r in syn_results:
         print_result(r)
 
     # Summary

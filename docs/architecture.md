@@ -102,7 +102,7 @@ Operator precedence levels used:
 
 **Clauses**: `SelectItem`, `FromClause`, `TableRef`, `JoinClause`, `CteClause`, `SetClause`, `OrderItem`, `WindowSpec`, `ValuesClause`, `UnionPart`, `ConflictClause`
 
-**Expressions**: `Literal`, `Identifier`, `BinaryOp`, `UnaryOp`, `IsNullOp`, `FunctionCall`, `CaseExpr`, `CastExpr`, `TypeCastOp`, `InExpr`, `BetweenExpr`, `ExistsExpr`, `SubqueryExpr`, `Parenthesized`, `ArrayExpr`, `AnyAllExpr`, `RawTokens`
+**Expressions**: `Literal`, `Identifier`, `BinaryOp`, `UnaryOp`, `IsNullOp`, `FunctionCall`, `CaseExpr`, `CastExpr`, `TypeCastOp`, `InExpr`, `BetweenExpr`, `ExistsExpr`, `SubqueryExpr`, `Parenthesized`, `RowExpr`, `ArrayExpr`, `SubscriptExpr`, `AnyAllExpr`, `RawTokens`
 
 `RawTokens` / `RawStatement` are fallback nodes that hold raw token tuples. `join_expr()` formats them on output, preserving the formatter's behavior for unsupported constructs.
 
@@ -181,12 +181,15 @@ cat tests/fixtures/input.sql | python3 psql_custom_formatter.py | diff - tests/f
 python3 tests/run_tests.py
 ```
 
-75 tests across four suites:
+187 tests across seven suites:
 
 1. **Regression** — compares fixture input/expected output.
-2. **Edge cases** — 24 targeted test blocks in `tests/edge_cases.sql`; each starts with `-- TEST N:`.
+2. **Edge cases** — targeted blocks in `tests/edge_cases.sql` (TEST 1–50); each starts with `-- TEST N:`.
 3. **Idempotency** — `format(format(sql)) == format(sql)` for every test case.
-4. **Round-trip tokens** — verifies no tokens are silently dropped.
+4. **Round-trip tokens** — verifies no tokens are silently dropped or added (including `$n`, `[ ]` and operator characters).
+5. **Comment preservation** — comments at clause boundaries survive, on their own line.
+6. **Comment/list positioning** — exact output for comment placement and list indentation.
+7. **Syntax exact output** — exact formatted output (and idempotency) for syntax that used to be mangled: operators, subscripts, locking clauses, row constructors, `ON CONFLICT`, ...
 
 Plus 7 automated quality checks on every output: no exceptions, no empty output, no fused keywords, no double spaces, correct semicolon spacing, keyword uppercasing, balanced parentheses.
 
@@ -198,3 +201,4 @@ To add a regression test:
 2. Add it to `tests/edge_cases.sql` with a `-- TEST N:` header.
 3. Run the formatter and verify the output is correct.
 4. The test runner picks up new blocks automatically.
+5. If the bug is one where the formatter changes tokens or returns the input untouched, also add a case to `SYNTAX_EXACT_OUTPUT_CASES` in `tests/run_tests.py` — round-trip checks alone can pass on those.

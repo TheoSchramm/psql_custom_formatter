@@ -18,7 +18,7 @@ python3 psql_custom_formatter.py ${file}
 # Regression test
 cat tests/fixtures/input.sql | python3 psql_custom_formatter.py | diff - tests/fixtures/expected.sql
 
-# Full test suite (63 tests)
+# Full test suite (187 tests)
 python3 tests/run_tests.py
 ```
 
@@ -35,7 +35,7 @@ These rules define the formatter's output. Follow them exactly when modifying fo
 - **Indentation**: 4 spaces
 - **Major clauses** (SELECT, FROM, WHERE, etc.): left-aligned on their own line
 - **Column lists**: indented under clause, leading comma style (`, column`)
-- **Comma-separated FROM tables**: each table on its own line with leading comma style (`, table_b`)
+- **Comma-separated FROM tables**: each table on its own line, indented under FROM, with leading comma style (`, table_b`)
 - **JOINs**: indented under FROM, ON conditions double-indented
 - **AND/OR in ON conditions**: each on new line, double-indented under the JOIN
 - **AND/OR in WHERE**: each on new line, indented under WHERE
@@ -51,4 +51,7 @@ These rules define the formatter's output. Follow them exactly when modifying fo
 - **Statement separation**: 3 blank lines between code blocks
 - **Comment groups**: comments directly before a statement attach to it; blank lines in original source between comment groups are preserved as 3-blank-line gaps
 - **Header comment blocks**: 3 blank lines before the first SQL statement when separated by blank lines in the original
+- **ON CONFLICT**: `DO NOTHING` stays on the `ON CONFLICT` line; `DO UPDATE` puts `SET` / `WHERE` on their own lines like an `UPDATE`
+- **Sign operators**: unary `-` / `+` are tight (`-a`); `*` in infix position is multiplication (`a * b`)
+- **Row-locking clauses**: `FOR UPDATE [OF t] [NOWAIT | SKIP LOCKED]` on its own line after `LIMIT`/`OFFSET`, lock words uppercased
 - **Supported statements**: SELECT, INSERT, UPDATE, DELETE, CREATE TABLE ... AS SELECT, WITH/CTE, DO blocks

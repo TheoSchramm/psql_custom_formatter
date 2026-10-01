@@ -5,6 +5,82 @@ Entries are in reverse chronological order.
 
 ---
 
+## 2026-10-01 — Fix operators, subscripts, row constructors, locking clauses and ON CONFLICT
+
+Found by auditing which context-dependent SQL tokens (`*`, `+`, `$1`, `[ ]`, `FOR`,
+`( , )`, `ALL (...)`, ...) the formatter handled. Several silently produced
+*different SQL* rather than just ugly SQL. Every fix has an edge-case block
+(TEST 40–50) and an exact-output test (suite section 7).
+
+### Bugs that changed the meaning of the SQL
+
+- **`a*b` was split into two columns (`a`, `* AS b`)**: the tokenizer emits `*`
+  as a `STAR` token (for `SELECT *` / `COUNT(*)` / `t.*`), but the infix loop in
+  `parse_expression` only accepted `OP` tokens. In infix position `*` is always
+  multiplication, so `STAR` now maps to the `*` precedence there.
+- **Unary `+` was silently dropped** (`+a` → `a`): `parse_primary` returned the
+  inner expression without a node. It now returns `UnaryOp('+')`. Sign operators
+  are rendered tight (`-a`, `+a`) instead of `- a`; a space is kept only before a
+  second sign (`- -a`) so the output can never turn into a `--` comment.
+- **`$1` lost its `$`** (a prepared-statement parameter became the literal `1`):
+  the tokenizer's `$` branch only handled dollar-quoting and otherwise skipped the
+  character. `$n` is now a single `WORD` token, and any other stray `$` is kept as
+  a `SYM` instead of being dropped.
+- **Array subscripts/slices were exploded into separate select columns**
+  (`arr[1:3]` → `arr`, `[`, `1`, `:`, `3`, `]`): added `SubscriptExpr` and a
+  postfix branch in `parse_expression` for `[i]`, `[lo:hi]`, `[:hi]`, `[lo:]`,
+  chained `[1][2]` and `(expr)[1]`.
+- **`FOR UPDATE` became a bogus table alias and an empty `UPDATE` statement**:
+  `FOR` was not in `KEYWORDS`, so `for` was an `ID` and every `== 'FOR'` check in
+  the parser (`for_clause`, `_where_stop`, the `ORDER BY` stop list, alias
+  rejection) was dead code. `FOR` is now a keyword and `_parse_for_clause`
+  handles `FOR UPDATE | NO KEY UPDATE | SHARE | KEY SHARE [OF t, ...]
+  [NOWAIT | SKIP LOCKED]` (repeatable), uppercasing lock words but not the table
+  names after `OF`, and stopping at `)` so it works inside subqueries. `LIMIT` /
+  `OFFSET` / `FETCH` now stop at `FOR` too. As a side effect
+  `SUBSTRING(s FROM 1 FOR 3)` keeps `FOR` uppercase.
+- **Row constructors were truncated** (`SET (a, b) = (1, 2)` →
+  `(a, b) = (1)` / `, 2 = )`, and the same for `WHERE (a, b) IN ((1,2),(3,4))`):
+  a parenthesized expression stopped at the first comma and left the rest of the
+  list in the stream. Added `RowExpr` for `( expr, expr, ... )`.
+- **`WITH x AS MATERIALIZED (...)` created a bogus second CTE**: `parse_with` now
+  accepts `MATERIALIZED` / `NOT MATERIALIZED` after `AS` (`CteClause.materialized`).
+- **`p SIMILAR TO 'x'` broke out of the WHERE clause**: added `SIMILAR TO` and
+  `NOT SIMILAR TO` as infix operators (they are two bare words, so they cannot go
+  through `_INFIX_PREC`).
+- **`UPDATE ... SET a = 1 RETURNING a` was corrupted** (`, RETURNING a = `):
+  `parse_set_clauses` did not stop at `RETURNING`.
+
+### Statements returned unformatted
+
+- **`x = ALL (SELECT ...)` / `x <> ANY (SELECT ...)`** raised `SqlSyntaxError`
+  (the subquery was parsed as an expression), so the *whole input* came back
+  untouched. The `ANY`/`ALL` branches now parse a `SELECT` as a subquery.
+
+### Formatting
+
+- **`ON CONFLICT ... DO UPDATE SET ... WHERE ...`** was dumped as raw tokens on one
+  line. `parse_on_conflict` now parses `DO NOTHING` and
+  `DO UPDATE SET <list> [WHERE <expr>]` structurally (falling back to raw tokens
+  for anything else), rendered with the same `SET` / `WHERE` layout as `UPDATE`.
+  `ON CONSTRAINT` is uppercased. `INSERT ... SELECT 1 ON CONFLICT ...` (no
+  `FROM`) no longer fails, because the select list now ends at `ON CONFLICT`.
+- **Comma-separated `FROM` tables** were emitted with the comma at column 0
+  (`, t2`); they are now indented under `FROM` like select-list items.
+- **`DEFAULT`** is now an uppercased keyword (`SET a = DEFAULT`).
+- **Inline subqueries** rendered `(SELECT x , y FROM u)`; the space before the
+  comma is gone.
+
+### Tests
+
+- Tightened the round-trip token check: it ignored `$`, `[`, `]` and `|&^~@#?`,
+  which is how `$1` → `1` went unnoticed. It now compares `$n`, brackets and
+  those operators too.
+- Added edge-case TEST 40–50 and suite section 7 (19 exact-output cases, each
+  also required to be idempotent). Total: 187 tests.
+
+---
+
 ## 2026-09-01 — Fix `ANY(ARRAY[...]::TYPE[])` corruption and schema-qualified quoted-identifier loss
 
 Found by batch-formatting every script in a real maintenance-scripts folder and

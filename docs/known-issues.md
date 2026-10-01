@@ -29,6 +29,45 @@ to keep them scoped:
   `SELECT`/`UPDATE`'s `WHERE` — a comment there survives (raw tokens aren't
   dropped) but may not land on its own line the way a structured WHERE's does.
 
+## Word operators that are still mangled
+
+Found 2026-10-01 while auditing context-dependent tokens. These are multi-word or
+bare-word operators the expression parser does not know, so the words are
+mistaken for aliases or clause boundaries and the SQL is **changed**, not just
+left unformatted (same class of bug as `SIMILAR TO`, which is now handled):
+
+- `ts AT TIME ZONE 'UTC'` → `ts AS at`, `time AS zone`, `'UTC'` (three columns)
+- `a COLLATE "C"` → `a AS collate`, `"C"`
+- `b ISNULL` / `b NOTNULL` → breaks out of the WHERE clause (3 blank lines)
+- `c OVERLAPS d` → breaks out of the WHERE clause
+
+Each needs an infix/postfix branch in `parse_expression` like
+`_at_similar_to`.
+
+## psql meta-commands (`\echo`, `\set`, ...) are not supported
+
+The tokenizer has no concept of a backslash command, so `\` becomes a bare
+`SYM` token and the rest of the line is treated as SQL. Worse, a meta-command
+followed by a trailing `--` comment is glued onto *one line* with the comment,
+which can comment out real code after it. Reproduction (pre-existing, not
+caused by any recent change):
+
+```sql
+\echo '=== QUERY PLAN ==='
+-- note
+ROLLBACK;
+```
+
+formats to `\ echo '=== QUERY PLAN ==='	-- note	; rollback ;`, i.e. the
+`ROLLBACK` ends up inside the comment. Found while comparing old vs. new output
+over a folder of real scripts (`pg_otimization/tools/quick_compare.sql`). Fix idea:
+treat a line starting with `\` as an opaque one-line statement and emit it
+verbatim on its own line.
+
+Related: bare transaction statements (`BEGIN`, `ROLLBACK`, `COMMIT`) take the
+raw-statement path and come out lowercase with a space before the `;`
+(`rollback ;`).
+
 ## Remaining Limitations
 
 These are architectural limitations, not bugs. They represent unsupported SQL features that fall through to `format_raw_statement()`:
@@ -38,7 +77,5 @@ These are architectural limitations, not bugs. They represent unsupported SQL fe
 - `MERGE` — not recognized
 - `WINDOW` clause — tokens collected inline, no special formatting
 - `GROUPING SETS / CUBE / ROLLUP` — not handled specially
-- `MATERIALIZED` CTEs — `WITH x AS MATERIALIZED (...)` not recognized
-- `ARRAY[...]` syntax — brackets are `SYM` tokens, commas treated as list separators
 - PL/pgSQL inside `DO` blocks — passed through verbatim
 - `COPY`, `VACUUM`, `EXPLAIN` — not recognized

@@ -36,6 +36,7 @@ KEYWORDS = {
     'ROLLUP', 'CUBE', 'GROUPING', 'SETS', 'FILTER',
     'ROWS', 'RANGE', 'GROUPS', 'PRECEDING', 'FOLLOWING', 'CURRENT', 'UNBOUNDED', 'ROW',
     'WINDOW',
+    'FOR', 'DEFAULT',
 }
 
 IDENTIFIER_WORDS = {'name', 'value', 'type', 'status', 'id', 'number', 'amount'}
@@ -226,6 +227,14 @@ def tokenize(sql):
             if j < n and sql[j] == '$':
                 delim = '$$'
                 body_start = i + 2
+            elif j < n and sql[j].isdigit():
+                # Positional parameter ($1, $2, ...) — keep the '$' attached
+                k = j
+                while k < n and sql[k].isdigit():
+                    k += 1
+                tokens.append(('WORD', sql[i:k]))
+                i = k
+                continue
             elif j < n and (sql[j].isalpha() or sql[j] == '_'):
                 k = j
                 while k < n and (sql[k].isalnum() or sql[k] == '_'):
@@ -234,9 +243,11 @@ def tokenize(sql):
                     delim = sql[i:k+1]
                     body_start = k + 1
                 else:
+                    tokens.append(('SYM', '$'))
                     i += 1
                     continue
             else:
+                tokens.append(('SYM', '$'))
                 i += 1
                 continue
             end = sql.find(delim, body_start)
@@ -412,6 +423,22 @@ class ArrayExpr:
     elements: List[Expression]
 
 @dataclass
+class RowExpr:
+    """Parenthesized row constructor with 2+ items, e.g. (a, b) or (1, 2)."""
+    items: List[Expression]
+
+@dataclass
+class SubscriptExpr:
+    """Array subscript / slice: base[i], base[lo:hi], base[:hi], base[lo:].
+
+    parts holds one expression (or None for an omitted bound) per side of the
+    colon; is_slice says whether a colon was present.
+    """
+    base: Expression
+    parts: list
+    is_slice: bool
+
+@dataclass
 class AnyAllExpr:
     quantifier: str
     array: Expression
@@ -424,7 +451,7 @@ Expression = Union[
     Literal, Identifier, BinaryOp, UnaryOp, IsNullOp,
     FunctionCall, CaseExpr, CastExpr, TypeCastOp,
     InExpr, BetweenExpr, ExistsExpr, SubqueryExpr,
-    Parenthesized, ArrayExpr, AnyAllExpr, RawTokens,
+    Parenthesized, ArrayExpr, AnyAllExpr, RawTokens, RowExpr, SubscriptExpr,
 ]
 
 @dataclass
@@ -474,6 +501,7 @@ class CteClause:
     columns: List[str]
     body: SelectStatement
     leading_comments: List[str] = field(default_factory=list)
+    materialized: Optional[str] = None  # 'MATERIALIZED' | 'NOT MATERIALIZED'
 
 @dataclass
 class UnionPart:
@@ -489,7 +517,11 @@ class SetClause:
 
 @dataclass
 class ConflictClause:
-    raw_tokens: list
+    raw_tokens: list  # conflict target (and, as a fallback, everything else) as raw tokens
+    action: Optional[str] = None  # 'NOTHING' | 'UPDATE' when the DO clause was parsed structurally
+    set_clauses: list = field(default_factory=list)
+    where: Optional[Expression] = None
+    where_trailing_comment: Optional[str] = None
 
 @dataclass
 class SelectStatement:
@@ -823,25 +855,22 @@ class Parser:
                 stmt.trailing_comments.append(tok[1])
         if self.pk()[1] == 'LIMIT':
             self.eat()
-            toks = self.collect_raw(lambda t: t[1] in (';', 'OFFSET', 'FETCH') or t[0] == 'EOF')
+            toks = self.collect_raw(lambda t: t[1] in (';', 'OFFSET', 'FETCH', 'FOR') or t[0] == 'EOF')
             stmt.limit = RawTokens(toks)
         self.skip_blanks_and_comments()
         if self.pk()[1] == 'OFFSET':
             self.eat()
-            toks = self.collect_raw(lambda t: t[1] in (';', 'FETCH') or t[0] == 'EOF')
+            toks = self.collect_raw(lambda t: t[1] in (';', 'FETCH', 'FOR') or t[0] == 'EOF')
             stmt.offset = RawTokens(toks)
         self.skip_blanks_and_comments()
         if self.pk()[1] == 'FETCH':
             toks = [self.eat()]  # FETCH
-            while not self.done() and self.pk()[1] not in (';',) and self.pk()[0] != 'EOF':
+            while not self.done() and self.pk()[1] not in (';', 'FOR') and self.pk()[0] != 'EOF':
                 toks.append(self.eat())
             stmt.fetch_clause = RawTokens(toks)
         self.skip_blanks_and_comments()
         if self.pk()[1] == 'FOR':
-            parts = []
-            while not self.done() and self.pk()[1] not in (';',) and self.pk()[0] != 'EOF' and self.pk()[1] not in ('UNION', 'EXCEPT', 'INTERSECT'):
-                parts.append(self.eat()[1])
-            stmt.for_clause = ' '.join(parts)
+            stmt.for_clause = self._parse_for_clause()
         self.skip_blanks_and_comments()
         if self.pk()[1] == ';':
             stmt._has_semicolon = True
@@ -857,6 +886,40 @@ class Parser:
             sub = self.parse_select(stop_at_rpar=stop_at_rpar)
             stmt.unions.append(UnionPart(op, sub))
         return stmt
+
+    _LOCK_WORDS = frozenset({'for', 'update', 'share', 'no', 'key', 'of', 'nowait', 'skip', 'locked'})
+
+    def _parse_for_clause(self):
+        """Row-locking clause: FOR UPDATE / NO KEY UPDATE / SHARE / KEY SHARE
+        [OF table, ...] [NOWAIT | SKIP LOCKED], possibly repeated.
+
+        Lock words are uppercased; table names after OF are left as written.
+        """
+        parts = []
+        in_of = False
+        while not self.done():
+            t = self.pk()
+            if t[0] == 'EOF' or t[1] in (';', ')', 'UNION', 'EXCEPT', 'INTERSECT'):
+                break
+            if t[0] == 'COMMENT':
+                break
+            self.eat()
+            if t[0] == 'BLANK_LINE':
+                continue
+            word = t[1]
+            low = word.lower() if t[0] in ('ID', 'KW') else None
+            if low == 'of':
+                in_of = True
+                parts.append('OF')
+            elif low in ('nowait', 'skip', 'locked', 'for'):
+                in_of = False
+                parts.append(word.upper())
+            elif in_of or low not in self._LOCK_WORDS:
+                parts.append(word)
+            else:
+                parts.append(word.upper())
+        out = ' '.join(parts)
+        return out.replace(' , ', ', ').replace(' .', '.').replace('. ', '.')
 
     def _where_stop(self, t):
         if t[1] in ('GROUP', 'ORDER', 'HAVING', 'LIMIT', 'OFFSET', 'FETCH',
@@ -884,6 +947,8 @@ class Parser:
             self.skip_blanks()
             t = self.pk()
             if t[1] in _CLAUSE_KWS or t[1] == ')' or t[0] == 'EOF':
+                break
+            if t[1] == 'ON' and self.pk(1)[1] == 'CONFLICT':
                 break
             if t[1] == ',':
                 self.eat()
@@ -951,6 +1016,8 @@ class Parser:
 
     def _select_item_stop(self, t):
         if t[1] in _CLAUSE_KWS or t[1] == ')' or t[0] == 'EOF' or t[1] == ',':
+            return True
+        if t[1] == 'ON' and self.pk(1)[1] == 'CONFLICT':
             return True
         if t[0] == 'COMMENT' and len(t) > 2 and t[2]:
             return True
@@ -1075,6 +1142,12 @@ class Parser:
                     right = self.parse_expression(stop_fn=stop_fn, min_prec=41)
                     left = BinaryOp('NOT ' + op, left, right)
                     continue
+                elif self._at_similar_to(j):
+                    self.eat(); self.eat(); self.eat()
+                    self.skip_blanks()
+                    right = self.parse_expression(stop_fn=stop_fn, min_prec=41)
+                    left = BinaryOp('NOT SIMILAR TO', left, right)
+                    continue
             # IN
             if t[1] == 'IN':
                 self.eat()
@@ -1092,6 +1165,17 @@ class Parser:
                 right = self.parse_expression(stop_fn=stop_fn, min_prec=41)
                 left = BinaryOp(op, left, right)
                 continue
+            # SIMILAR TO (two bare words, so not covered by _INFIX_PREC)
+            if self._at_similar_to():
+                self.eat(); self.eat()
+                self.skip_blanks()
+                right = self.parse_expression(stop_fn=stop_fn, min_prec=41)
+                left = BinaryOp('SIMILAR TO', left, right)
+                continue
+            # Array subscript / slice: expr[i], expr[lo:hi]
+            if t[0] == 'SYM' and t[1] == '[':
+                left = self._parse_subscript(left)
+                continue
             # ANY / ALL as postfix (= ANY(...)) — handled in infix section below
             # Infix operator
             prec = None
@@ -1099,6 +1183,9 @@ class Parser:
                 prec = _INFIX_PREC[t[1]]
             elif t[0] == 'KW' and t[1] in _INFIX_PREC:
                 prec = _INFIX_PREC[t[1]]
+            elif t[0] == 'STAR':
+                # In infix position '*' is multiplication, never a select-list wildcard
+                prec = _INFIX_PREC['*']
             if prec is None or prec < min_prec:
                 break
             op = self.eat()[1]
@@ -1122,8 +1209,11 @@ class Parser:
                         self.eat()
                         type_str = self._parse_type_name()
                         inner = TypeCastOp(inner, type_str)
+                elif self.pk()[1] == 'SELECT':
+                    inner = SubqueryExpr(self.parse_select(stop_at_rpar=True))
                 else:
                     inner = self.parse_expression(stop_fn=lambda t: t[1] == ')')
+                self.skip_blanks()
                 if self.pk()[1] == ')':
                     self.eat()
                 right = AnyAllExpr(quant, inner)
@@ -1134,6 +1224,33 @@ class Parser:
             ltc = pending_trailing_inline if op in ('AND', 'OR') else None
             left = BinaryOp(op, left, right, leading_comments=lc, left_trailing_comment=ltc)
         return left
+
+    def _at_similar_to(self, off=0):
+        a, b = self.pk(off), self.pk(off + 1)
+        return (a[0] == 'ID' and a[1].lower() == 'similar'
+                and b[0] == 'ID' and b[1].lower() == 'to')
+
+    def _parse_subscript(self, base):
+        """Parse [i], [lo:hi], [:hi], [lo:] after `base` (current token is '[')."""
+        self.eat()  # [
+        parts = []
+        is_slice = False
+        stop = lambda t: t[1] in (':', ']') or t[0] == 'EOF'
+        while True:
+            self.skip_blanks()
+            if self.pk()[1] in (':', ']') or self.pk()[0] == 'EOF':
+                parts.append(None)
+            else:
+                parts.append(self.parse_expression(stop_fn=stop))
+            self.skip_blanks()
+            if self.pk()[1] == ':':
+                self.eat()
+                is_slice = True
+                continue
+            break
+        if self.pk()[1] == ']':
+            self.eat()
+        return SubscriptExpr(base, parts, is_slice)
 
     def _parse_type_name(self):
         """Parse a type name after :: — may be multi-word like 'character varying'."""
@@ -1293,7 +1410,12 @@ class Parser:
         if t[1] in ('ANY', 'ALL') and self.pk(1)[1] == '(':
             quant = self.eat()[1]
             self.eat()
-            inner = self.parse_expression(stop_fn=lambda t: t[1] == ')')
+            self.skip_blanks()
+            if self.pk()[1] == 'SELECT':
+                inner = SubqueryExpr(self.parse_select(stop_at_rpar=True))
+            else:
+                inner = self.parse_expression(stop_fn=lambda t: t[1] == ')')
+            self.skip_blanks()
             if self.pk()[1] == ')':
                 self.eat()
             return AnyAllExpr(quant, inner)
@@ -1329,9 +1451,19 @@ class Parser:
                 if self.pk()[1] == ')':
                     self.eat()
                 return SubqueryExpr(sub)
-            # Grouped expression
+            # Grouped expression, or a row constructor when a comma follows
             self.eat()  # (
             inner = self.parse_expression(stop_fn=lambda t: t[1] == ')')
+            self.skip_blanks()
+            if self.pk()[0] == 'COMMA':
+                items = [inner]
+                while self.pk()[0] == 'COMMA':
+                    self.eat()
+                    items.append(self.parse_expression(stop_fn=lambda t: t[1] == ')'))
+                    self.skip_blanks()
+                if self.pk()[1] == ')':
+                    self.eat()
+                return RowExpr(items)
             if self.pk()[1] == ')':
                 self.eat()
             return Parenthesized(inner)
@@ -1341,7 +1473,8 @@ class Parser:
             return UnaryOp('-', inner)
         if t[0] == 'OP' and t[1] == '+':
             self.eat()
-            return self.parse_expression(stop_fn=stop_fn, min_prec=65)
+            inner = self.parse_expression(stop_fn=stop_fn, min_prec=65)
+            return UnaryOp('+', inner)
         if t[0] == 'KW' and t[1] in _NEVER_PRIMARY_KWS:
             raise SqlSyntaxError(f"Unexpected keyword '{t[1]}' where an expression was expected")
         # ID or KW (identifier or function call)
@@ -1831,7 +1964,7 @@ class Parser:
         while not self.done():
             self.skip_blanks()
             t = self.pk()
-            if t[1] in ('WHERE', 'FROM', ';') or t[0] in ('EOF', 'BLANK_LINE'):
+            if t[1] in ('WHERE', 'FROM', 'RETURNING', ';') or t[0] in ('EOF', 'BLANK_LINE'):
                 break
             if t[0] == 'COMMENT':
                 # standalone comment between SET items — attach as the
@@ -1850,7 +1983,7 @@ class Parser:
             if self.pk()[1] == '=':
                 self.eat()
             target = join_expr(target_toks)
-            val = self.parse_expression(stop_fn=lambda t: t[1] in (',', 'WHERE', 'FROM', ';') or t[0] == 'EOF')
+            val = self.parse_expression(stop_fn=lambda t: t[1] in (',', 'WHERE', 'FROM', 'RETURNING', ';') or t[0] == 'EOF')
             sc = SetClause(target=target, value=val)
             if pending_leading_comment is not None:
                 sc.leading_comment = pending_leading_comment
@@ -1860,6 +1993,38 @@ class Parser:
                 sc.trailing_comment = self.eat()[1]
             clauses.append(sc)
         return clauses
+
+    def parse_on_conflict(self):
+        """Parse what follows ON CONFLICT: target, then DO NOTHING / DO UPDATE SET ... [WHERE ...].
+
+        Falls back to keeping everything as raw tokens when the DO clause isn't
+        in the expected shape, so nothing is ever dropped.
+        """
+        toks = self.collect_raw(lambda t: t[1] in (';', 'RETURNING', 'DO') or t[0] == 'EOF')
+        if (len(toks) > 1 and toks[0][1] == 'ON'
+                and toks[1][0] == 'ID' and toks[1][1].lower() == 'constraint'):
+            toks[1] = ('KW', 'CONSTRAINT')
+        clause = ConflictClause(toks)
+        if self.pk()[1] != 'DO':
+            return clause
+        nxt = self.pk(1)
+        if nxt[1] == 'NOTHING':
+            self.eat(); self.eat()
+            clause.action = 'NOTHING'
+        elif nxt[1] == 'UPDATE' and self.pk(2)[1] == 'SET':
+            self.eat(); self.eat(); self.eat()
+            clause.action = 'UPDATE'
+            clause.set_clauses = self.parse_set_clauses()
+            self.skip_blanks()
+            if self.pk()[1] == 'WHERE':
+                self.eat()
+                clause.where = self.parse_expression(stop_fn=self._where_stop)
+                if self.pk()[0] == 'COMMENT' and not self.pk()[2]:
+                    clause.where_trailing_comment = self.eat()[1]
+        else:
+            clause.raw_tokens = toks + self.collect_raw(
+                lambda t: t[1] in (';', 'RETURNING') or t[0] == 'EOF')
+        return clause
 
     def parse_returning_list(self):
         items = []
@@ -1926,8 +2091,7 @@ class Parser:
         self.skip_blanks()
         if self.pk()[1] == 'ON' and self.pk(1)[1] == 'CONFLICT':
             self.eat(); self.eat()
-            toks = self.collect_raw(lambda t: t[1] in (';', 'RETURNING') or t[0] == 'EOF')
-            stmt.on_conflict = ConflictClause(toks)
+            stmt.on_conflict = self.parse_on_conflict()
         self.skip_blanks()
         if self.pk()[1] == 'RETURNING':
             self.eat()
@@ -2018,8 +2182,17 @@ class Parser:
                         columns.append(self.eat()[1])
                     if self.pk()[1] == ')':
                         self.eat()
+            materialized = None
             if self.pk()[1] == 'AS':
                 self.eat()
+                self.skip_blanks()
+                if self.pk()[0] == 'ID' and self.pk()[1].lower() == 'materialized':
+                    self.eat()
+                    materialized = 'MATERIALIZED'
+                elif (self.pk()[1] == 'NOT' and self.pk(1)[0] == 'ID'
+                        and self.pk(1)[1].lower() == 'materialized'):
+                    self.eat(); self.eat()
+                    materialized = 'NOT MATERIALIZED'
             self.skip_blanks()
             if self.pk()[1] == '(':
                 self.eat()
@@ -2030,7 +2203,8 @@ class Parser:
                     self.eat()
             else:
                 body = SelectStatement()
-            stmt.ctes.append(CteClause(name=cte_name, columns=columns, body=body, leading_comments=pending_comments))
+            stmt.ctes.append(CteClause(name=cte_name, columns=columns, body=body,
+                                       leading_comments=pending_comments, materialized=materialized))
             self.skip_blanks()
             if self.pk()[1] == ',':
                 self.eat()
@@ -2302,7 +2476,12 @@ class ASTFormatter:
         scratch = ASTFormatter()
         scratch.format_select(query, base=0, is_subquery=True)
         rendered = ''.join(scratch.out)
-        one_line = ' '.join(p for line in rendered.splitlines() for p in [line.strip()] if p)
+        one_line = ''
+        for line in rendered.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            one_line += (line if line.startswith(',') or not one_line else ' ' + line)
         full = '(' + one_line + ')'
         return full if len(full) <= max_chars else None
 
@@ -2570,7 +2749,14 @@ class ASTFormatter:
                         self.w(' ' + expr.op + ' ')
                     self.format_expression(expr.right, ci, inline)
         elif isinstance(expr, UnaryOp):
-            self.w(expr.op + ' ')
+            if expr.op in ('-', '+'):
+                # Sign operators bind tight (-a, +5); keep a space only when the
+                # operand starts with another sign so '- -a' never becomes a '--' comment.
+                self.w(expr.op)
+                if isinstance(expr.expr, UnaryOp) and expr.expr.op in ('-', '+'):
+                    self.w(' ')
+            else:
+                self.w(expr.op + ' ')
             self.format_expression(expr.expr, ci, inline)
         elif isinstance(expr, IsNullOp):
             self.format_expression(expr.expr, ci, inline)
@@ -2615,6 +2801,22 @@ class ASTFormatter:
             self.w('(')
             self.format_expression(expr.expr, ci, inline=True)
             self.w(')')
+        elif isinstance(expr, RowExpr):
+            self.w('(')
+            for i, it in enumerate(expr.items):
+                if i > 0:
+                    self.w(', ')
+                self.format_expression(it, ci, inline=True)
+            self.w(')')
+        elif isinstance(expr, SubscriptExpr):
+            self.format_expression(expr.base, ci, inline=True)
+            self.w('[')
+            for i, part in enumerate(expr.parts):
+                if i > 0:
+                    self.w(':')
+                if part is not None:
+                    self.format_expression(part, ci, inline=True)
+            self.w(']')
         elif isinstance(expr, ArrayExpr):
             self.w('ARRAY[')
             for i, el in enumerate(expr.elements):
@@ -2633,6 +2835,10 @@ class ASTFormatter:
                     self.format_expression(el, ci + 1, inline=True)
                 self.nl(ci)
                 self.w('])')
+            elif isinstance(inner, SubqueryExpr):
+                # SubqueryExpr renders its own parentheses
+                self.w(expr.quantifier + ' ')
+                self.format_expression(inner, ci, inline=True)
             else:
                 self.w(expr.quantifier + '(')
                 self.format_expression(inner, ci, inline=True)
@@ -2784,7 +2990,7 @@ class ASTFormatter:
         if clause.tables:
             self.format_table_ref(clause.tables[0], ci)
         for table in clause.tables[1:]:
-            self.nl(ci - 1)
+            self.nl(ci)
             self.w(', ')
             self.format_table_ref(table, ci)
         for join in clause.joins:
@@ -2880,21 +3086,7 @@ class ASTFormatter:
         if stmt.set_clauses:
             self.nl(0)
             self.w('SET')
-            first = True
-            for sc in stmt.set_clauses:
-                if first:
-                    self.nl(1)
-                    first = False
-                else:
-                    if sc.leading_comment:
-                        self.nl(1)
-                        self.w(sc.leading_comment)
-                    self.nl(1)
-                    self.w(', ')
-                self.w(sc.target + ' = ')
-                self.format_expression(sc.value, 1, inline=True)
-                if sc.trailing_comment:
-                    self._emit_trailing_comment(sc.trailing_comment)
+            self._format_set_clauses(stmt.set_clauses)
         if stmt.from_clause:
             self.nl(0)
             self.w('FROM')
@@ -2917,6 +3109,23 @@ class ASTFormatter:
             self._format_returning(stmt.returning, 1)
         if stmt._has_semicolon:
             self.w(';')
+
+    def _format_set_clauses(self, clauses):
+        first = True
+        for sc in clauses:
+            if first:
+                self.nl(1)
+                first = False
+            else:
+                if sc.leading_comment:
+                    self.nl(1)
+                    self.w(sc.leading_comment)
+                self.nl(1)
+                self.w(', ')
+            self.w(sc.target + ' = ')
+            self.format_expression(sc.value, 1, inline=True)
+            if sc.trailing_comment:
+                self._emit_trailing_comment(sc.trailing_comment)
 
     def format_insert(self, stmt):
         self.w('INSERT INTO ')
@@ -2945,8 +3154,22 @@ class ASTFormatter:
         if stmt.on_conflict:
             self.nl(0)
             self.w('ON CONFLICT')
-            if stmt.on_conflict.raw_tokens:
-                self.w(' ' + join_expr(stmt.on_conflict.raw_tokens))
+            oc = stmt.on_conflict
+            if oc.raw_tokens:
+                self.w(' ' + join_expr(oc.raw_tokens))
+            if oc.action == 'NOTHING':
+                self.w(' DO NOTHING')
+            elif oc.action == 'UPDATE':
+                self.w(' DO UPDATE')
+                self.nl(0)
+                self.w('SET')
+                self._format_set_clauses(oc.set_clauses)
+                if oc.where is not None:
+                    self.nl(0)
+                    self.w('WHERE')
+                    self.nl(1)
+                    self.format_where_expr(oc.where, 1, inline_and=False,
+                                           final_trailing_comment=oc.where_trailing_comment)
         if stmt.returning:
             self.nl(0)
             self.w('RETURNING')
@@ -3026,7 +3249,10 @@ class ASTFormatter:
             self.w(cte.name)
             if cte.columns:
                 self.w(' (' + ', '.join(cte.columns) + ')')
-            self.w(' AS (')
+            self.w(' AS ')
+            if cte.materialized:
+                self.w(cte.materialized + ' ')
+            self.w('(')
             self.w('\n')
             self.format_select(cte.body, 1)
             self.w('\n)')
