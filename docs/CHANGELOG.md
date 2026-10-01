@@ -5,6 +5,72 @@ Entries are in reverse chronological order.
 
 ---
 
+## 2026-09-01 — Fix `ANY(ARRAY[...]::TYPE[])` corruption and schema-qualified quoted-identifier loss
+
+Found by batch-formatting every script in a real maintenance-scripts folder and
+running a token-level round-trip check (no token lost or added, ignoring
+comments) plus an idempotency check (formatting the output again is a no-op)
+against each result.
+
+- **Bug fix — `x = ANY(ARRAY[...]::TYPE[])` misplaced the cast and corrupted
+  everything after it**: the infix "`ANY`/`ALL` on right side of a binary
+  operator" branch in `parse_expression` had a `ARRAY[` fast path that called
+  `_collect_bracket_elems` and built the `AnyAllExpr` directly, skipping both
+  the check for a trailing `::type` cast and the check for `ANY(...)`'s own
+  closing paren (the non-`ARRAY[` branch did both). `_collect_bracket_elems`
+  additionally had a hardcoded "eat the `)` right after `]`" hack that only
+  happened to work when nothing came between them. With a cast in between
+  (`ARRAY[1,2,3]::BIGINT[]`), the cast token was left unconsumed, the real
+  `)` was never eaten, and the `::` ended up parsed as a postfix cast on the
+  *entire* `c.id = ANY(...)` comparison instead of the array — desyncing the
+  parser so badly that the rest of the WHERE/GROUP BY/HAVING clauses were
+  swallowed into a trailing comment, silently deleting real SQL. Fixed by
+  handling the cast and the closing paren explicitly at the `ANY`/`ALL` call
+  site (matching the non-`ARRAY[` branch) and removing the hack from
+  `_collect_bracket_elems`. Added TEST 38.
+- **Bug fix — schema-qualified quoted identifier as a `CREATE TABLE`/`INSERT
+  INTO` target name was dropped and the schema duplicated**: both
+  `parse_create` and `parse_insert` read a name, then `schema.name` by
+  checking for a following `DOT` — but the post-dot re-read only accepted
+  `ID`/`KW` tokens, not `QUOTED_ID`. For a target like
+  `maintenance."bkp_protocol_GV-35731_item_integrations"`, the quoted part
+  was never consumed, `table_name` silently kept its pre-dot value, and the
+  unconsumed quoted-identifier token got dumped as leftover raw text right
+  after the (duplicated) schema name. `parse_table_ref` (used by
+  `UPDATE`/`DELETE`) already accepted `QUOTED_ID` here; `parse_create` and
+  `parse_insert` now do too. Added TEST 39.
+- **Bug fix — a set-returning function call in `FROM` inside a placeholder
+  `VALUES` row (e.g. `FROM (VALUES\n<<PASTE_HERE>>\n) AS v(...)`, a non-SQL
+  copy/paste template marker some scripts use) corrupted output**:
+  `parse_values_table_ref` silently left the token stream desynced when a row
+  wasn't `(...)` and the next token wasn't the closing `)` either. It now
+  raises instead, which trips `format_sql`'s existing catch-all and leaves
+  the whole file unchanged rather than emitting corrupted SQL — formatting
+  such a file is a no-op rather than a silent partial rewrite.
+
+---
+
+## 2026-09-01 — Fix infinite loop on set-returning function calls in FROM (e.g. `generate_series(...)`)
+
+Found via a user-reported hang: `WITH cte AS (SELECT now() AS data FROM
+generate_series(1,10)) SELECT * FROM cte;` never returned.
+
+- **Bug fix — parser hang on a function call in `FROM`**: `parse_table_ref`
+  only handled bare table names, subqueries, and `VALUES`; a name followed by
+  `(` (e.g. `generate_series(1, 10)`, `unnest(...)`) was read as a plain table
+  name, leaving the argument tokens unconsumed in the stream. Inside a CTE
+  body (`stop_at_rpar=True`), those leftover tokens — including the function
+  call's own closing paren — desynced the CTE-closing-paren check in
+  `parse_with`, which then looped forever re-entering its body-less branch
+  without ever advancing past the stray `)`. `TableRef` gained a `func_call`
+  field; `parse_table_ref` now calls `parse_function_call` when a table name
+  is followed by `(`, and `format_table_ref` renders it via
+  `format_function_call`. Outside a CTE the same missing handling caused
+  silent corruption (unconsumed tokens dumped as trailing raw text) rather
+  than a hang. Added TEST 37 in `tests/edge_cases.sql`.
+
+---
+
 ## 2026-08-28 — Fix WHERE/HAVING comment misplacement, UPDATE SET/WHERE comment loss, JOIN...ON leading comment loss, INSERT/RETURNING list indentation
 
 Found while formatting a real set of DBeaver SQL editor templates and diffing

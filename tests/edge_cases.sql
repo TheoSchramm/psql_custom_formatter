@@ -440,3 +440,41 @@ WHERE
     -- only rows still checked out
     p.deleted = FALSE  -- redundant safety check
     AND p.contract_id IS NULL;
+
+
+-- TEST 37: Set-returning function call in FROM (previously caused a parser hang inside a CTE)
+WITH cte AS (
+    SELECT now() AS data FROM generate_series(1, 10)
+)
+SELECT * FROM cte;
+
+SELECT * FROM generate_series(1, 10) gs;
+
+SELECT * FROM pg_catalog.generate_series(1, 10) gs;
+
+SELECT * FROM foo JOIN generate_series(1, 10) gs ON gs.val = foo.id;
+
+SELECT * FROM unnest(ARRAY[1, 2, 3]) x;
+
+
+-- TEST 38: = ANY(ARRAY[...]::TYPE[]) cast — previously the cast landed outside ANY(...)
+-- and the real closing paren was left unconsumed, corrupting everything after it
+SELECT c.id
+FROM erp.contracts c
+WHERE
+    c.id = ANY(ARRAY[1, 2, 3]::BIGINT[])
+    AND c.deleted = FALSE
+GROUP BY c.id
+HAVING count(c.id) > 1;
+
+
+-- TEST 39: Schema-qualified quoted identifier as CREATE TABLE / INSERT INTO target
+-- (previously the schema was duplicated and the quoted identifier left unconsumed)
+CREATE TABLE
+    maintenance."bkp_protocol_GV-35731_item_integrations" AS
+    SELECT 1 AS new_status;
+
+INSERT INTO maintenance."bkp_protocol_GV-35731_item_integrations" (
+    a
+)
+VALUES (1);

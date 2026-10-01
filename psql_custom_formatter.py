@@ -450,6 +450,7 @@ class TableRef:
     alias_quoted: bool = False
     subquery: Optional[SelectStatement] = None
     values: Optional[ValuesClause] = None
+    func_call: Optional['FunctionCall'] = None
     is_lateral: bool = False
     trailing_comment: Optional[str] = None
 
@@ -1117,10 +1118,14 @@ class Parser:
                     self.eat()  # [
                     elems = self._collect_bracket_elems()
                     inner = ArrayExpr(elems)
+                    if self.pk()[1] == '::':
+                        self.eat()
+                        type_str = self._parse_type_name()
+                        inner = TypeCastOp(inner, type_str)
                 else:
                     inner = self.parse_expression(stop_fn=lambda t: t[1] == ')')
-                    if self.pk()[1] == ')':
-                        self.eat()
+                if self.pk()[1] == ')':
+                    self.eat()
                 right = AnyAllExpr(quant, inner)
                 left = BinaryOp(op, left, right)
                 continue
@@ -1205,9 +1210,6 @@ class Parser:
             e = self.parse_expression(stop_fn=lambda t: t[1] in (',', ']'))
             elems.append(e)
         if self.pk()[1] == ']':
-            self.eat()
-        # eat closing ) of ANY(ARRAY[...])
-        if not self.done() and self.pk()[1] == ')':
             self.eat()
         return elems
 
@@ -1635,6 +1637,11 @@ class Parser:
                 self.eat()
                 ref.schema = ref.name
                 ref.name = self.eat()[1] if self.pk()[0] in ('ID', 'KW', 'STAR', 'QUOTED_ID') else ref.name
+            if self.pk()[1] == '(':
+                # table function call, e.g. generate_series(1, 10), unnest(arr)
+                ref.func_call = self.parse_function_call(ref.name, ref.schema)
+                ref.name = ''
+                ref.schema = None
         # alias
         self.skip_blanks()
         if self.pk()[1] == 'AS':
@@ -1678,8 +1685,13 @@ class Parser:
             rows.append(row_toks)
         # outer )
         self.skip_blanks()
-        if self.pk()[1] == ')':
-            self.eat()
+        if self.pk()[1] != ')':
+            # Row loop stopped on something that isn't a value row or the
+            # closing paren (e.g. a non-SQL template placeholder like
+            # <<COLAR_PASSO_1>>) — bail out instead of silently leaving the
+            # token stream desynced, which corrupts everything downstream.
+            raise SqlSyntaxError("Malformed VALUES table constructor")
+        self.eat()
         vc = ValuesClause(rows=[])
         vc._raw_rows = rows  # keep as raw token lists for now
         # alias
@@ -1875,7 +1887,7 @@ class Parser:
         if self.pk()[0] == 'DOT':
             self.eat()
             stmt.schema = stmt.table
-            stmt.table = self.eat()[1] if self.pk()[0] in ('ID', 'KW') else stmt.table
+            stmt.table = self.eat()[1] if self.pk()[0] in ('ID', 'KW', 'QUOTED_ID') else stmt.table
         # column list
         if self.pk()[1] == '(':
             self.eat()
@@ -2069,7 +2081,7 @@ class Parser:
         if self.pk()[0] == 'DOT':
             self.eat()
             stmt.schema = stmt.table_name
-            stmt.table_name = self.eat()[1] if self.pk()[0] in ('ID', 'KW') else stmt.table_name
+            stmt.table_name = self.eat()[1] if self.pk()[0] in ('ID', 'KW', 'QUOTED_ID') else stmt.table_name
         # Check for CREATE TABLE (col defs) vs CREATE TABLE ... AS SELECT
         self.skip_blanks()
         if self.pk()[1] == '(':
@@ -2789,6 +2801,8 @@ class ASTFormatter:
             self.w(self.ind(ci) + ')')
         elif ref.values:
             self.format_values_table_ref(ref.values, ci)
+        elif ref.func_call:
+            self.format_function_call(ref.func_call, ci)
         else:
             name = ref.name
             if ref.schema:
