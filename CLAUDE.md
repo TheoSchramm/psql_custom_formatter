@@ -18,7 +18,7 @@ python3 psql_custom_formatter.py ${file}
 # Regression test
 cat tests/fixtures/input.sql | python3 psql_custom_formatter.py | diff - tests/fixtures/expected.sql
 
-# Full test suite (187 tests)
+# Full test suite (312 tests)
 python3 tests/run_tests.py
 ```
 
@@ -54,4 +54,7 @@ These rules define the formatter's output. Follow them exactly when modifying fo
 - **ON CONFLICT**: `DO NOTHING` stays on the `ON CONFLICT` line; `DO UPDATE` puts `SET` / `WHERE` on their own lines like an `UPDATE`
 - **Sign operators**: unary `-` / `+` are tight (`-a`); `*` in infix position is multiplication (`a * b`)
 - **Row-locking clauses**: `FOR UPDATE [OF t] [NOWAIT | SKIP LOCKED]` on its own line after `LIMIT`/`OFFSET`, lock words uppercased
-- **Supported statements**: SELECT, INSERT, UPDATE, DELETE, CREATE TABLE ... AS SELECT, WITH/CTE, DO blocks
+- **Utility statements** (ALTER, DROP, TRUNCATE, GRANT, COPY, SET, BEGIN/COMMIT/ROLLBACK, CREATE FUNCTION/TRIGGER/..., VACUUM, ...): one line, keywords uppercased, object names as written; `ALTER TABLE` with several actions puts one per line with leading commas
+- **psql meta-commands** (`\echo`, `\set`, ...): kept verbatim on their own line; consecutive meta lines stay tight, `SELECT ... \gset` stays attached to its statement
+- **Comments are never lost**: if a statement formatter doesn't render a comment it is re-emitted above the statement (`_rescue_lost_comments`); a `;` is never written onto a line that ends in a `--` comment (`_semi()`)
+- **Supported statements**: SELECT, INSERT, UPDATE, DELETE, MERGE, EXPLAIN, CREATE VIEW / MATERIALIZED VIEW, SELECT ... INTO, data-modifying CTEs, WINDOW clause, CREATE TABLE ... AS SELECT, WITH/CTE, DO blocks

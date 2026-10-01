@@ -554,3 +554,280 @@ INSERT INTO t (a) SELECT a FROM u ON CONFLICT (a) DO UPDATE SET a = EXCLUDED.a;
 SELECT SUBSTRING(s FROM 1 FOR 3) FROM t1, t2 x WHERE t1.id = x.id;
 
 UPDATE t SET a = DEFAULT WHERE b = 1;
+
+
+-- TEST 51: psql meta-commands, transaction control and DDL one-liners
+-- (previously `\echo` was glued to a trailing comment, so ROLLBACK ended up inside the comment)
+\echo '=== QUERY PLAN ==='
+-- note
+ROLLBACK;
+
+\set ON_ERROR_STOP on
+\echo 'x'
+
+BEGIN;
+SELECT 1;
+COMMIT;
+
+SELECT a FROM t \gset
+
+ALTER TABLE t ADD COLUMN c INT NOT NULL DEFAULT 0, DROP COLUMN d;
+
+ALTER TABLE t ALTER COLUMN c TYPE BIGINT USING c::BIGINT, ALTER COLUMN d SET DEFAULT 0;
+
+DROP TABLE IF EXISTS a.b, c CASCADE;
+
+TRUNCATE TABLE t RESTART IDENTITY;
+
+GRANT SELECT, INSERT ON TABLE s.t TO PUBLIC, role_a;
+
+COMMENT ON TABLE t IS 'x';
+
+COPY t (a, b) FROM STDIN WITH (format csv);
+
+SET LOCAL work_mem = '64MB';
+
+CREATE UNIQUE INDEX idx ON s.t (a, b) INCLUDE (c) WHERE d IS NOT NULL;
+
+CREATE FUNCTION f(a INT) RETURNS INT AS $$ select a $$ LANGUAGE sql IMMUTABLE;
+
+CREATE TRIGGER tg AFTER INSERT OR UPDATE ON t FOR EACH ROW EXECUTE FUNCTION f();
+
+
+-- TEST 52: EXPLAIN, CREATE VIEW, MERGE, SELECT INTO, CTAS variants
+-- (previously CREATE VIEW became `CREATE TABLE viewv`, MERGE and COPY were corrupted,
+-- and EXPLAIN split into two statements)
+EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) SELECT * FROM t WHERE a = 1;
+
+EXPLAIN ANALYZE UPDATE t SET a = 1 WHERE b = 2;
+
+CREATE OR REPLACE VIEW v (x, y) AS SELECT a, b FROM t WHERE c = 1;
+
+CREATE MATERIALIZED VIEW mv AS SELECT 1 WITH NO DATA;
+
+CREATE TEMP TABLE x AS SELECT 1;
+
+CREATE TABLE a AS TABLE b;
+
+MERGE INTO t USING s ON t.id = s.id
+WHEN MATCHED AND s.del THEN DELETE
+WHEN MATCHED THEN UPDATE SET a = s.a, b = s.b
+WHEN NOT MATCHED THEN INSERT (id, a) VALUES (s.id, s.a);
+
+SELECT * INTO new_t FROM old_t WHERE a = 1;
+
+
+-- TEST 53: Word operators and special syntax (previously turned into aliases / extra columns)
+SELECT ts AT TIME ZONE 'UTC', ts AT TIME ZONE 'a' AT TIME ZONE 'b', a COLLATE "C"
+FROM t
+WHERE b ISNULL AND c NOTNULL AND (a, b) OVERLAPS (c, d) AND d BETWEEN SYMMETRIC 1 AND 2
+ORDER BY a USING <, b DESC NULLS LAST;
+
+SELECT a IS JSON, b IS NOT JSON ARRAY, (a).b, (a).*, a.b[1].c,
+    a::CHARACTER VARYING(10), b::NUMERIC(10, 2), c::TIMESTAMP WITH TIME ZONE
+FROM t;
+
+SELECT TRIM(BOTH 'x' FROM s), POSITION('a' IN s), OVERLAY(s PLACING 'x' FROM 1 FOR 2),
+    EXTRACT(epoch FROM NOW() - ts), SUBSTRING(s FROM '[0-9]+')
+FROM t
+WHERE b = ANY (VALUES (1), (2));
+
+SELECT ARRAY_AGG(a ORDER BY b DESC NULLS LAST), SUM(x) OVER (ORDER BY y DESC NULLS FIRST)
+FROM t;
+
+
+-- TEST 54: WINDOW clause, data-modifying CTEs, structured DELETE
+SELECT a, SUM(b) OVER w FROM t WINDOW w AS (PARTITION BY a ORDER BY c), w2 AS (ORDER BY d) ORDER BY a;
+
+WITH i AS (INSERT INTO t VALUES (1) RETURNING id) SELECT * FROM i;
+
+WITH moved AS (DELETE FROM a WHERE x = 1 RETURNING *) INSERT INTO b SELECT * FROM moved;
+
+DELETE FROM t USING u, v WHERE t.id = u.id AND u.k = v.k RETURNING t.id;
+
+DELETE FROM t WHERE CURRENT OF c;
+
+SELECT a FROM t GROUP BY ROLLUP (a, b), CUBE (c, d), GROUPING SETS ((e), (f), ());
+
+
+-- TEST 55: Comments at clause boundaries that used to be dropped
+SELECT a
+FROM t
+-- between the table and the next JOIN
+JOIN u p
+-- between the joined table and its ON
+ON p.id = t.id
+WHERE a = 1;
+
+SELECT a
+FROM
+-- before the first table
+t
+-- before the comma table
+, u;
+
+SELECT
+-- before the first select item
+a
+, b
+FROM t;
+
+SELECT a FROM t WHERE a IN (
+1, -- one
+2 -- two
+);
+
+DELETE FROM t
+-- why
+WHERE a = 1  -- trailing
+    AND b = 2;
+
+INSERT INTO t (a, b) VALUES (1, -- one
+2);
+
+
+-- TEST 56: CREATE TABLE comments, LIKE and table options
+CREATE TABLE t (
+-- the id
+id INT,
+-- the name
+name TEXT, -- trailing
+-- uniq
+UNIQUE (id) -- u
+);
+
+CREATE TABLE t (id INT, name TEXT) PARTITION BY RANGE (id);
+
+CREATE TABLE a (LIKE b INCLUDING ALL);
+
+
+-- TEST 57: DO block envelope variants
+DO LANGUAGE plpgsql $$ begin perform 1; end $$;
+
+DO $$ begin null; end $$ LANGUAGE plpgsql;
+
+
+-- TEST 58: Semicolon never lands on a comment line; subquery function arguments keep parentheses
+UPDATE t SET a = 1 WHERE id IN ()  -- note
+;
+
+DELETE FROM t WHERE a = 1 -- c
+;
+
+SELECT COALESCE(a, (SELECT 1), 2), COALESCE((SELECT MAX(x) FROM t), 0), ARRAY(SELECT 1) FROM u;
+
+
+-- TEST 59: IN (VALUES), window refinement, WITH ORDINALITY (previously raw fallback or corrupted)
+SELECT a FROM t WHERE b IN (VALUES (1), (2));
+
+SELECT SUM(a) OVER (w ORDER BY b) FROM t WINDOW w AS (PARTITION BY c);
+
+SELECT SUM(a) OVER (PARTITION BY b RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW EXCLUDE TIES) FROM t;
+
+SELECT a FROM t CROSS JOIN LATERAL UNNEST(arr) WITH ORDINALITY u (x, n);
+
+
+-- TEST 60: Comments between statements and UPDATE without a terminating semicolon
+SELECT a
+FROM t
+WHERE b = 1
+
+
+
+-- note one
+-- note two
+SELECT c
+FROM u;
+
+UPDATE t SET a = 1
+
+
+
+-- next
+SELECT 1;
+
+UPDATE t SET a = 1,
+-- b
+b = 2
+-- before where
+WHERE c = 1;
+
+
+-- TEST 61: A line comment before a closing paren (previously mis-nested the parens and, inside
+-- a CTE, made the parser loop forever)
+WITH f AS (
+    SELECT a
+    FROM t
+    WHERE d IS FALSE
+        AND ((x IS NOT NULL)	-- combo
+        OR (y IS NOT NULL)	-- composto
+        AND (z = 1) -- nao pai
+    )
+    GROUP BY a
+)
+SELECT * FROM f;
+
+SELECT a FROM t WHERE b = (c + 1 -- note
+);
+
+
+-- TEST 62: Number literals, digit-led names, comment adjacency, WITH without a main query
+SELECT 1e10, 1.5e-3, 0x1F, 1_000, 2.E+2, .5 FROM t;
+
+SELECT * FROM maintenance.1433617_serra WHERE a = 1;
+
+SELECT a FROM t WHERE b = 1 --x
+/* block */ AND c = 2;
+
+WITH cte AS (SELECT 1);
+
+SELECT
+'a
+b'
+
+-- c1
+-- c2
+/* x */
+
+
+-- TEST 63: SELECT without a terminating semicolon followed by another statement; ROWS FROM
+SELECT 'x'
+
+-- c
+
+DROP TABLE IF EXISTS m.x;
+
+SELECT TRIM((SELECT 1 LIMIT 1), '/');
+
+SELECT m.ord FROM erp.reports r,
+LATERAL ROWS FROM (regexp_matches(r.d, 'x', 'gi'), unnest(a)) WITH ORDINALITY m (tag, ord) WHERE r.id = 1;
+
+
+-- TEST 64: ${placeholders}, VALUES CTE bodies, comments inside CASE
+SELECT a.${col}, ${sch}.t.x FROM erp.${table} t JOIN ${s}.u ON 1 = 1;
+
+WITH r (a) AS (VALUES (0.01), (-0.01)) SELECT * FROM r;
+
+SELECT (CASE
+    WHEN a <> '' THEN
+        1 -- fixed
+    ELSE
+        b -- pool
+END) AS t FROM x;
+
+
+-- TEST 65: Statements without a terminating semicolon followed by another statement; WITH in subqueries
+SELECT a FROM t ORDER BY a DESC
+DROP TABLE m.x;
+
+SELECT b FROM u GROUP BY b
+TRUNCATE t;
+
+SELECT 1 WHERE EXISTS (WITH c (x) AS (SELECT 1) SELECT x FROM c) AND a IN (WITH d AS (SELECT 2) SELECT * FROM d);
+
+
+-- TEST 66: Casts followed by operators (previously `::text LIKE '0%'` swallowed LIKE into the type name)
+SELECT a::TEXT LIKE '0%', b::INT IN (1, 2), c::NUMERIC(10, 2) IS NULL, d::TIMESTAMP(3) WITH TIME ZONE,
+    i::INT BETWEEN 1 AND 2, j::TEXT || 'x'
+FROM t
+WHERE a::TEXT ILIKE 'x%' AND b::INT NOT IN (1);

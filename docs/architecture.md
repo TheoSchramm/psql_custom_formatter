@@ -98,11 +98,24 @@ Operator precedence levels used:
 
 #### Key AST node types
 
-**Statements**: `SelectStatement`, `InsertStatement`, `UpdateStatement`, `DeleteStatement`, `WithStatement`, `CreateTableAsStatement`, `CreateIndexStatement`, `DoBlock`, `RawStatement`
+**Statements**: `SelectStatement`, `InsertStatement`, `UpdateStatement`, `DeleteStatement`, `MergeStatement`, `WithStatement`, `ExplainStatement`, `CreateTableStatement`, `CreateTableAsStatement`, `CreateViewStatement`, `CreateIndexStatement`, `DoBlock`, `UtilityStatement` (DDL / transaction control / other statements without a dedicated formatter), `MetaStatement` (psql `\...` line), `RawStatement`
 
 **Clauses**: `SelectItem`, `FromClause`, `TableRef`, `JoinClause`, `CteClause`, `SetClause`, `OrderItem`, `WindowSpec`, `ValuesClause`, `UnionPart`, `ConflictClause`
 
-**Expressions**: `Literal`, `Identifier`, `BinaryOp`, `UnaryOp`, `IsNullOp`, `FunctionCall`, `CaseExpr`, `CastExpr`, `TypeCastOp`, `InExpr`, `BetweenExpr`, `ExistsExpr`, `SubqueryExpr`, `Parenthesized`, `RowExpr`, `ArrayExpr`, `SubscriptExpr`, `AnyAllExpr`, `RawTokens`
+**Expressions**: `Literal`, `Identifier`, `BinaryOp`, `UnaryOp`, `IsNullOp`, `FunctionCall`, `CaseExpr`, `CastExpr`, `TypeCastOp`, `InExpr`, `BetweenExpr`, `ExistsExpr`, `SubqueryExpr`, `Parenthesized`, `RowExpr`, `ArrayExpr`, `SubscriptExpr`, `FieldExpr`, `PostfixOp`, `ValuesExpr`, `AnyAllExpr`, `RawTokens`
+
+#### Comment safety nets
+
+Comments are user content and are never allowed to vanish or to hide code:
+
+- every statement records the comments in its source tokens (`_src_comments`);
+  `ASTFormatter._rescue_lost_comments` re-emits any the statement formatter did not
+  render, above the statement;
+- `Parser._close_paren()` tolerates comments before `)`;
+- `join_expr()` starts a new line after a `--` comment, and every `;` is written by
+  `ASTFormatter._semi()`, which moves it to its own line when the current line ends in a comment;
+- comments after a blank line following a statement lead the *next* statement
+  (`_release_next_statement_comments` / `_give_back_comments_after_blank`).
 
 `RawTokens` / `RawStatement` are fallback nodes that hold raw token tuples. `join_expr()` formats them on output, preserving the formatter's behavior for unsupported constructs.
 
@@ -181,10 +194,10 @@ cat tests/fixtures/input.sql | python3 psql_custom_formatter.py | diff - tests/f
 python3 tests/run_tests.py
 ```
 
-187 tests across seven suites:
+312 tests across seven suites:
 
 1. **Regression** — compares fixture input/expected output.
-2. **Edge cases** — targeted blocks in `tests/edge_cases.sql` (TEST 1–50); each starts with `-- TEST N:`.
+2. **Edge cases** — targeted blocks in `tests/edge_cases.sql` (TEST 1–66); each starts with `-- TEST N:`.
 3. **Idempotency** — `format(format(sql)) == format(sql)` for every test case.
 4. **Round-trip tokens** — verifies no tokens are silently dropped or added (including `$n`, `[ ]` and operator characters).
 5. **Comment preservation** — comments at clause boundaries survive, on their own line.

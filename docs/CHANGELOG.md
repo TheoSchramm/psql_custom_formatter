@@ -5,6 +5,134 @@ Entries are in reverse chronological order.
 
 ---
 
+## 2026-10-01 (2) — Resolve every documented known issue
+
+Worked through `known-issues.md` item by item. Verifying each one turned up more
+cases where the formatter silently produced *different SQL* (not just ugly SQL), so
+those are fixed too. Validated by formatting a corpus of ~1,800 real `.sql` scripts
+with the old and new formatter and comparing: no comment is lost any more
+(previously ~300 files lost at least one), 13 files that made the old formatter hang
+or crash now format, and every remaining difference was inspected.
+
+### Previously documented known issues
+
+- **Comment gaps** (all four): a standalone comment between a table/JOIN and the next
+  `JOIN` / `,` table, between a joined table and its `ON`/`USING`, before the first
+  `FROM` table, and before the first select-list item is now rendered in place
+  (`TableRef.leading_comments`, `JoinClause.leading_comments` / `pre_on_comments`,
+  `FromClause.leading_comments`). `DELETE`'s `WHERE` is a structured expression like
+  `UPDATE`'s (comments, `AND`/`OR` layout, `WHERE CURRENT OF` kept raw), and `USING`
+  tables use leading-comma style.
+- **Word operators**: `AT TIME ZONE` (chainable, `AT LOCAL`), `COLLATE`, `ISNULL` /
+  `NOTNULL`, `OVERLAPS`. Previously each was read as an alias or clause boundary and
+  rewrote the SQL (`ts AT TIME ZONE 'UTC'` became three columns).
+- **psql meta-commands**: a line starting with `\` is one verbatim `META` token
+  (`MetaStatement`), kept tight with neighbouring meta lines and with the statement
+  that follows when no blank line separates them; `... \gset` after a statement
+  attaches to it (`META_INLINE`). Previously `\echo` was glued to a following `--`
+  comment and the code after it ended up *inside* the comment.
+- **Transaction control and other utility statements** (`BEGIN`, `COMMIT`,
+  `ROLLBACK`, `SET`, `DROP`, `TRUNCATE`, `GRANT`, `REVOKE`, `COMMENT`, `VACUUM`,
+  `COPY`, `LOCK`, `CREATE FUNCTION/TRIGGER/SEQUENCE/SCHEMA/...`): new
+  `UtilityStatement` with word-based keyword uppercasing, object names kept as
+  written, a space before `(` after a name (`COPY t (a, b)`), and no `rollback ;`
+  spacing. `ALTER TABLE` with several actions puts one per line with leading commas.
+- **`CREATE VIEW` / `CREATE MATERIALIZED VIEW`**: previously parsed as `CREATE TABLE
+  viewv AS ...`. Now `CreateViewStatement` (`OR REPLACE`, `TEMP`, column list,
+  `WITH NO DATA`, `WITH CHECK OPTION`). `CREATE TEMP/UNLOGGED TABLE` keeps its modifier,
+  `CREATE TABLE ... AS TABLE x` is supported, and `CREATE TABLE` keeps trailing table
+  options (`PARTITION BY ...`, `WITH (...)`, `INHERITS`) and `LIKE ... INCLUDING ...`.
+- **`MERGE`**: `MergeStatement` with `WHEN [NOT] MATCHED [BY SOURCE|TARGET] [AND cond]`
+  and `UPDATE SET` / `DELETE` / `INSERT` / `DO NOTHING` actions plus `RETURNING`.
+- **`EXPLAIN`**: formats the statement under it (`ExplainStatement`) instead of
+  splitting into `explain` and a second statement.
+- **`WINDOW` clause** (previously split into its own bogus statement after 3 blank
+  lines), including `OVER (w ORDER BY ...)` base-window refinement (previously
+  produced `OVER () AS w`).
+- **`GROUPING SETS` / `CUBE` / `ROLLUP`** render consistently (`ROLLUP (a, b)`).
+- **`CREATE TABLE` column comments**: standalone and trailing comments between columns
+  and constraints used to be dropped.
+- **PL/pgSQL inside `DO`**: kept verbatim on purpose (see known-issues); the envelope
+  now also handles `DO LANGUAGE x $$...$$` and `DO $$...$$ LANGUAGE x`.
+
+### Other silent corruptions found and fixed
+
+- `NULLS FIRST/LAST` was dropped inside aggregate `ORDER BY` and window specs.
+- `BETWEEN SYMMETRIC`, `IS [NOT] JSON [OBJECT|ARRAY|SCALAR|VALUE]`,
+  `ORDER BY x USING <`, field selection `(a).b` / `(a).*` / `a.b[1].c`, and type
+  modifiers on multi-word types (`character varying(10)`).
+- `TRIM(BOTH x FROM s)`, `POSITION(a IN b)`, `OVERLAY(...)`, `EXTRACT`, `SUBSTRING`:
+  keyword-style arguments are now parsed as expressions (`FunctionCall.special`) —
+  `TRIM`/`POSITION`/`OVERLAY` used to make the whole file come back unformatted.
+- Data-modifying CTEs (`WITH x AS (INSERT/UPDATE/DELETE ... RETURNING ...)`),
+  `SELECT ... INTO`, `x = ANY (VALUES ...)` / `IN (VALUES ...)`,
+  `unnest(arr) WITH ORDINALITY AS u(x, n)` (and alias column lists on any table).
+- A bare `$$body$$;` statement lost its `;`.
+- A `;` could be appended to a line ending in a `--` comment (`UPDATE`, `DELETE`, ...),
+  commenting it out and merging two statements. All terminators now go through `_semi()`.
+- A subquery passed as a non-sole function argument lost its parentheses
+  (`COALESCE(a, (SELECT ...))` became `COALESCE(a, SELECT ...)`).
+- A comment inside an `IN (...)` list made the list parser swallow the closing `)` and
+  `;` as values; comments there are now structured (leading / trailing / end) and
+  idempotent. `join_expr` now starts a new line after a line comment so raw-token
+  rendering (e.g. `VALUES` rows) can never comment out what follows.
+- `parse_expression` consumed comments after an expression to peek for an operator and
+  did not give them back when none followed, so comments between two statements were
+  lost. `parse_select` also absorbed comments *after a blank line* into the previous
+  statement; they now lead the next one. `UPDATE ... SET a = 1` followed by a comment
+  and another statement parsed `SELECT` as a second `SET` target.
+- `parse_returning_list` did not stop at `)`, breaking `RETURNING` inside a CTE.
+
+- **Numeric literals were split**: `1e10` became `1 AS e10`, `1.5e-3` and `0x1F` were
+  corrupted and `1_000` split in two. The tokenizer now reads exponents, `0x/0o/0b`
+  prefixes and digit underscores, and keeps a digit-led word whole
+  (`maintenance.1433617_backup`), with a `.` glued to a preceding name treated as a
+  qualifier rather than a decimal point.
+- **Infinite loop**: a line comment right before a closing paren inside a parenthesized
+  expression (`AND (z = 1 -- note\n)`) left the `)` unconsumed, mis-nested everything
+  after it and, inside a CTE, made `parse_with` spin forever (the old formatter hung on
+  such files too). All 29 "expect `)`" sites now go through `Parser._close_paren()`,
+  which skips comments before the paren and keeps them (`Parenthesized.close_comments`).
+- A **block comment following a line comment** was appended to the same line by
+  `join_expr`, so the rest of the block comment turned into code.
+- `WITH x AS (...);` with no main query lost its `;`.
+- Comments after a blank line following a statement are no longer absorbed into it, and
+  statements whose parsers store comment tokens (raw / utility) no longer render a
+  comment twice.
+
+- **Casts swallowed the operator after them**: `x::text LIKE '0%'`, `x::int IN (...)`,
+  `x::t IS NULL`, `x::int BETWEEN ...` treated `LIKE`/`IN`/`IS`/`BETWEEN` as part of the type
+  name (the type parser accepted any following word). `_parse_type_name` now only continues
+  for real type words (`varying`, `precision`, `with/without time zone`, `interval day to
+  second`, `(n)`, `[]`, `schema.type`).
+- **`WITH x AS (VALUES (...))` turned into `SELECT`** (the first token of a CTE body was
+  always eaten as `SELECT`); `VALUES` / `TABLE` bodies are now kept as written.
+- **`EXISTS (WITH ... SELECT ...)`** (and the same in `IN` / `ANY` / scalar / `FROM`
+  subqueries) rewrote `WITH` as `SELECT`; subqueries may now start with `WITH`.
+- **A statement without a terminating `;` swallowed the next one** when it ended in a
+  select list, `ORDER BY` or `GROUP BY` (`SELECT 'x'\n\nDROP TABLE t;` produced
+  `SELECT 'x', DROP, TABLE, ...`). Those lists now continue only after a comma.
+- **Comments inside `CASE`** (`THEN 1 -- note` before `ELSE`) cut the CASE short.
+- `LATERAL ROWS FROM (f(...)) WITH ORDINALITY AS m(a, b)` sent `parse_with` into an
+  infinite loop; `ROWS FROM` is supported and `parse_with` now fails loudly instead of
+  looping if an iteration consumes nothing.
+- DBeaver/template placeholders `${name}` are one opaque token (also inside dotted names
+  such as `erp.${table}` and `a.${col}`); the `$` used to be dropped.
+- `TRIM(x, '/')` lost the space after its comma; raw `VALUES (-0.01)` printed `(- 0.01)`.
+
+### Safety nets
+
+- `ASTFormatter._rescue_lost_comments`: any comment that a statement formatter fails
+  to render is re-emitted above that statement, so a comment can never vanish silently.
+- `ASTFormatter._semi()` and the `join_expr` line-comment guard (see above).
+
+### Tests
+
+- New edge-case blocks TEST 51–66 and 96 exact-output cases in suite section 7
+  (each also required to be idempotent); a generic quality check that every edge case
+  keeps all of its comments; the round-trip token check now also understands `\`.
+---
+
 ## 2026-10-01 — Fix operators, subscripts, row constructors, locking clauses and ON CONFLICT
 
 Found by auditing which context-dependent SQL tokens (`*`, `+`, `$1`, `[ ]`, `FOR`,

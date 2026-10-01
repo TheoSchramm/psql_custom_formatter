@@ -25,7 +25,12 @@ A lightweight, zero-dependency PostgreSQL SQL formatter written in Python. Desig
 | `DELETE` | FROM, WHERE |
 | `CREATE TABLE ... AS SELECT` | IF NOT EXISTS, schema-qualified names |
 | `WITH` (CTE) | Multiple CTEs, RECURSIVE, column lists, MATERIALIZED / NOT MATERIALIZED |
-| `DO $$ ... $$` | PL/pgSQL passthrough |
+| `MERGE` | WHEN [NOT] MATCHED [AND ...] THEN UPDATE / DELETE / INSERT / DO NOTHING, RETURNING |
+| `EXPLAIN` | Options, then the explained statement formatted normally |
+| `CREATE [MATERIALIZED] VIEW` | OR REPLACE, column list, WITH NO DATA |
+| `ALTER` / `DROP` / `TRUNCATE` / `GRANT` / `COPY` / `SET` / `BEGIN`... | One-liners with keywords uppercased; `ALTER TABLE` one action per line |
+| psql meta-commands | `\echo`, `\set`, `\gset`, ... kept verbatim |
+| `DO $$ ... $$` | PL/pgSQL passthrough (envelope formatted, body verbatim) |
 
 ## Installation
 
@@ -138,7 +143,7 @@ ORDER BY
 # Regression test against expected output
 cat tests/fixtures/input.sql | python3 psql_custom_formatter.py | diff - tests/fixtures/expected.sql
 
-# Full test suite (187 tests: edge cases, idempotency, round-trip tokens, exact output)
+# Full test suite (312 tests: edge cases, idempotency, round-trip tokens, exact output)
 python3 tests/run_tests.py
 ```
 
