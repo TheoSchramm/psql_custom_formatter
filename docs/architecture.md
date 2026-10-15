@@ -12,7 +12,7 @@ For formatting rules, see [CLAUDE.md](../CLAUDE.md).
 
 ### Overview
 
-The formatter is a single-file Python program (`psql_custom_formatter.py`) with no external dependencies. It follows a three-stage pipeline:
+The formatter is a pure-Python package (`pgfmt/`) with no external dependencies. `psql_custom_formatter.py` is the thin entry point DBeaver calls; it imports the package that sits next to it, so the folder must be kept together. It follows a three-stage pipeline:
 
 ```
 Raw SQL string
@@ -22,6 +22,32 @@ Raw SQL string
 ```
 
 The public entry point is `format_sql(sql)`, which wraps the pipeline in a try/except and returns the original SQL unchanged if any error occurs.
+
+### Module map
+
+```
+psql_custom_formatter.py   # entry point DBeaver calls; re-exports the pgfmt API
+pgfmt/
+    __init__.py            # format_sql() + public API
+    constants.py           # keyword tables, operators + precedence, clause boundaries, INDENT, *_MAX_CHARS, SqlSyntaxError
+    tokenizer.py           # tokenize(), operator lexing (_scan_operator), join_expr()
+    nodes.py               # AST node dataclasses
+    parser/                # class Parser = mixins below
+        base.py            #   token cursor, comment helpers, parse_all / parse_statement, error fallback
+        expressions.py     #   Pratt parser, primaries, CASE, function calls, window, ORDER BY
+        select.py          #   SELECT, select list, FROM / JOIN / VALUES, WITH
+        dml.py             #   INSERT / UPDATE / DELETE / MERGE, SET, ON CONFLICT, RETURNING
+        ddl.py             #   CREATE*, DO, utility statements, EXPLAIN, raw fallback
+    formatter/             # class ASTFormatter = mixins below (same split as parser/)
+        base.py            #   output buffer, nl/ind, comment alignment, format_all, statement dispatch
+        expressions.py     #   format_expression, AND/OR, IN, CASE, function calls
+        select.py          #   SELECT, FROM / JOIN, WITH
+        dml.py             #   INSERT / UPDATE / DELETE / MERGE
+        ddl.py             #   CREATE*, DO, utility statements (ALTER TABLE, CREATE OPERATOR, ...), EXPLAIN
+    cli.py                 # argparse: stdin/stdout, in-place file, --check, --diff
+```
+
+`Parser` and `ASTFormatter` are each assembled from mixins (`class Parser(BaseParserMixin, ExpressionParserMixin, ...)`). Every method still works on `self` (`self.pk()`, `self.w()`), so a method can call one defined in another mixin; the split is by statement family only, to keep each file small enough to read whole. A scratch formatter inside a method is created with `type(self)()`, not `ASTFormatter()`, to avoid a circular import.
 
 ---
 
@@ -98,7 +124,7 @@ Operator precedence levels used:
 
 #### Key AST node types
 
-**Statements**: `SelectStatement`, `InsertStatement`, `UpdateStatement`, `DeleteStatement`, `MergeStatement`, `WithStatement`, `ExplainStatement`, `CreateTableStatement`, `CreateTableAsStatement`, `CreateViewStatement`, `CreateIndexStatement`, `DoBlock`, `UtilityStatement` (DDL / transaction control / other statements without a dedicated formatter), `MetaStatement` (psql `\...` line), `RawStatement`
+**Statements**: `SelectStatement`, `InsertStatement`, `UpdateStatement`, `DeleteStatement`, `MergeStatement`, `WithStatement`, `ExplainStatement`, `CreateTableStatement`, `CreateTableAsStatement`, `CreateViewStatement`, `CreateIndexStatement`, `DoBlock`, `UtilityStatement` (DDL / transaction control / other statements without a dedicated formatter), `MetaStatement` (psql `\...` line), `ExpressionFragment` (bare select-list fragment such as `CASE ... END AS x`), `VerbatimStatement` (statement that failed to parse/format, re-emitted as written), `RawStatement`
 
 **Clauses**: `SelectItem`, `FromClause`, `TableRef`, `JoinClause`, `CteClause`, `SetClause`, `OrderItem`, `WindowSpec`, `ValuesClause`, `UnionPart`, `ConflictClause`
 
@@ -118,6 +144,8 @@ Comments are user content and are never allowed to vanish or to hide code:
   (`_release_next_statement_comments` / `_give_back_comments_after_blank`).
 
 `RawTokens` / `RawStatement` are fallback nodes that hold raw token tuples. `join_expr()` formats them on output, preserving the formatter's behavior for unsupported constructs.
+
+`VerbatimStatement` is the per-statement error fallback: `format_sql()` passes `tokenize(sql, spans)` offsets and the source text to the `Parser`, so when one statement raises during parsing (or formatting) only that statement, up to its `;`, is kept exactly as written and the rest of the file is still formatted. Without spans (`Parser(tokens)`) errors propagate as before.
 
 ---
 
@@ -194,7 +222,7 @@ cat tests/fixtures/input.sql | python3 psql_custom_formatter.py | diff - tests/f
 python3 tests/run_tests.py
 ```
 
-312 tests across seven suites:
+349 tests across seven suites:
 
 1. **Regression** — compares fixture input/expected output.
 2. **Edge cases** — targeted blocks in `tests/edge_cases.sql` (TEST 1–66); each starts with `-- TEST N:`.
@@ -203,6 +231,31 @@ python3 tests/run_tests.py
 5. **Comment preservation** — comments at clause boundaries survive, on their own line.
 6. **Comment/list positioning** — exact output for comment placement and list indentation.
 7. **Syntax exact output** — exact formatted output (and idempotency) for syntax that used to be mangled: operators, subscripts, locking clauses, row constructors, `ON CONFLICT`, ...
+
+### PostgreSQL 18 conformance
+
+`python3 tests/pg_conformance.py` formats 3,249 statements built from the official
+PostgreSQL 18 manual: `tests/pg18/doc_examples.json` (SQL code blocks extracted from the
+PDF, 1,878 of them valid SQL) and `tests/pg18/synopsis_*.sql` (1,102 statements covering
+every form in the Synopsis of all 183 SQL command reference pages). Each statement must
+format without exception, without falling back to verbatim/raw, keeping its tokens and
+comments, idempotently. If `pglast` (libpg_query, the PostgreSQL 18 parser) is importable,
+input and output must also parse to the same tree (source positions ignored) — the
+semantic check that catches invented aliases, dropped parentheses and reordered FROM items.
+Statements PostgreSQL rejects (manual pseudo-code) are only checked for content safety.
+
+`--regress DIR` runs the same checks over PostgreSQL's regression-test SQL
+(`src/test/regress/sql` of a PostgreSQL 18 source tree, ~48,700 statements written by the
+PostgreSQL developers to exercise every feature): an independent check that nothing in the
+manual was missed. Last run: 48,721 statements, 48,150 valid, all pass.
+
+Held-out check: the same runner over every other test SQL file of the PostgreSQL 18 source
+(contrib/, src/pl/, src/test/modules/, src/test/mb/, ... — 325 files, 15,118 statements),
+which was never used while fixing. First run: 98.8% passed, 0 meaning changes; the failures
+exposed two lexing bugs (below, CHANGELOG 2026-10-15 (6)). After fixing them: all pass
+(the multibyte-encoding tests read in their own encoding, e.g. GB18030).
+
+The case tables for suites 5–7 live in `tests/cases/` (`comment_preservation.py`, `comment_positioning.py`, `syntax.py`); `tests/run_tests.py` holds the runner and the checks.
 
 Plus 7 automated quality checks on every output: no exceptions, no empty output, no fused keywords, no double spaces, correct semicolon spacing, keyword uppercasing, balanced parentheses.
 
@@ -214,4 +267,4 @@ To add a regression test:
 2. Add it to `tests/edge_cases.sql` with a `-- TEST N:` header.
 3. Run the formatter and verify the output is correct.
 4. The test runner picks up new blocks automatically.
-5. If the bug is one where the formatter changes tokens or returns the input untouched, also add a case to `SYNTAX_EXACT_OUTPUT_CASES` in `tests/run_tests.py` — round-trip checks alone can pass on those.
+5. If the bug is one where the formatter changes tokens or returns the input untouched, also add a case to `SYNTAX_EXACT_OUTPUT_CASES` in `tests/cases/syntax.py` — round-trip checks alone can pass on those.

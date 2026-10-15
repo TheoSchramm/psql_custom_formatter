@@ -102,6 +102,7 @@ cat myquery.sql | python3 psql_custom_formatter.py --diff
    ```
    python3 /path/to/psql_custom_formatter.py
    ```
+   (keep the `pgfmt/` folder next to the script: it is imported from there)
 4. Use `Ctrl+Shift+F` to format SQL in the editor
 
 ## Examples
@@ -143,21 +144,31 @@ ORDER BY
 # Regression test against expected output
 cat tests/fixtures/input.sql | python3 psql_custom_formatter.py | diff - tests/fixtures/expected.sql
 
-# Full test suite (312 tests: edge cases, idempotency, round-trip tokens, exact output)
+# Full test suite (349 tests: edge cases, idempotency, round-trip tokens, exact output)
 python3 tests/run_tests.py
+
+# PostgreSQL 18 conformance (statements from the official manual; uses pglast if installed)
+python3 tests/pg_conformance.py
 ```
 
 ## Project Structure
 
 ```
 psql_custom_formatter/
-    psql_custom_formatter.py      # The formatter (single file, no dependencies)
+    psql_custom_formatter.py      # Entry point (what DBeaver calls)
+    pgfmt/                        # The formatter package (no dependencies)
+        constants.py  tokenizer.py  nodes.py  cli.py
+        parser/                   # Parser, split by statement family
+        formatter/                # ASTFormatter, split the same way
     docs/
         architecture.md         # Internal architecture and test pipeline
         CHANGELOG.md            # All fix history and version changes
         known-issues.md         # Known issues, limitations, and improvements
     tests/
         run_tests.py            # Test runner (edge cases, idempotency, round-trip)
+        cases/                  # Exact-output / comment-preservation case tables
+        pg_conformance.py       # PostgreSQL 18 conformance run over tests/pg18/
+        pg18/                   # Statements from the PG 18 manual (examples + Synopsis forms)
         edge_cases.sql          # 20 edge case test inputs
         fixtures/
             input.sql           # Regression test input

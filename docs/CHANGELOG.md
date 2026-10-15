@@ -5,6 +5,256 @@ Entries are in reverse chronological order.
 
 ---
 
+## 2026-10-15 (6) — Held-out check: identifier lexing and case folding
+
+Ran the conformance runner over the PostgreSQL 18 test SQL **not** used during the earlier
+fixes (contrib/, src/pl/, src/test/modules/, src/test/mb/, ...: 325 files, 15,118
+statements). First run: 14,937 passed (98.8%), no meaning changes, 151 outputs PostgreSQL
+rejected. Causes, both pre-existing:
+
+- **Silent corruption: non-ASCII identifiers were case-folded with Python's `lower()` /
+  `upper()`.** PostgreSQL folds only ASCII letters, so `SELECT 1 AS DESCRIÇÃO` became
+  `AS descrição` (a different column name), and `função(x)` became `FUNÇÃO(x)` (folds to
+  `funÇÃo`, a different function). Folding is now ASCII-only (`ascii_lower` / `ascii_upper`)
+  and names with non-ASCII characters are kept as written. The safety net compares with
+  the same ASCII-only folding, so it now catches this class of change.
+- Identifier characters now follow PostgreSQL's lexer: `$` inside a name (`has$dollar`) and
+  any non-ASCII character (`naïve·name`) no longer split the identifier.
+
+Also from the held-out run: own-line comments between an expression and its `AS` alias,
+a function-name keyword as a bare alias (`sum(x) sum`), `INSERT INTO t (SELECT ...) UNION
+(...)` (the paren is the query, not a column list), `WITH ... (SELECT ...)`, and
+`ORDER BY x USING operator(schema.op)`. After the fixes the held-out set passes completely
+(the GB18030 test file read in GB18030; read as UTF-8 its bytes are mangled).
+
+XMLQUERY (the one function in the manual's examples PostgreSQL rejects) is listed in the
+manual as unsupported (Appendix D.2, feature X200); the formatter still formats it.
+
+2 exact-output tests added (349 total).
+
+---
+
+## 2026-10-15 (5) — Validated against PostgreSQL's own regression suite
+
+Ran the formatter over PostgreSQL 18's regression-test SQL (`src/test/regress/sql`, 230
+files, 48,721 statements, 48,150 valid), with the same parse-tree oracle. It started at
+~190 failures; all now pass (`tests/pg_conformance.py --regress DIR`). Also repaired 4 manual
+examples whose `--` comments the PDF had wrapped onto the next line (1,882 valid now).
+
+Silent corruptions fixed:
+- Operators starting with `*` (`*<`, `*<=`, `*=` ...) were split into `*` and `<`.
+- Block comments nest in PostgreSQL (`/* a /* b */ c */`); the tokenizer ended them at the
+  first `*/`.
+- `CREATE VIEW ... WITH (...) -- note` + `AS ...` put ` AS` after the comment (commented out);
+  same for `CREATE TABLE ... AS` options. `_write_as()` puts it on its own line.
+- `OVER (ROWS BETWEEN ...)` (a frame-only window) lost its parentheses: a named window
+  reference was stored in `WindowSpec.frame`; it now has its own `ref_name`.
+- `CREATE TABLE;` gained an invented `AS` (now kept verbatim).
+
+Newly supported: nested join trees without parentheses (`a JOIN b JOIN c ON x ON y`,
+`JoinClause.nested_joins`), `NATURAL [LEFT|FULL|INNER] JOIN`, MERGE with a joined source
+(`USING a JOIN b ON ... ON ...`), parenthesized query operands of any depth and VALUES
+operands (`((SELECT 1)) UNION (VALUES (2))`, `IN (VALUES ... ORDER BY 1)`, CTE bodies like
+`((VALUES ..) UNION ALL (..))`, `_parse_paren_body`), VALUES as the main statement of WITH,
+SQL/JSON calls starting with a keyword (`JSON_OBJECT(RETURNING jsonb)`) or with options after
+a query argument (`JSON_ARRAY(SELECT ... RETURNING jsonb)`), `INSERT ... SELECT RETURNING`,
+`set(...)` as a function, `COLLATION FOR (...)` in FROM, `TABLESAMPLE` without an alias,
+`LOCK ... SHARE UPDATE EXCLUSIVE`, typed literals with a precision (`interval(2) '...'`),
+slices whose bound looks like a psql variable (`[1:NULL]`, `['a':'b']`), and comment
+placement between VALUES rows (trailing vs own-line), after `VALUES`, before
+`ON CONFLICT`/`RETURNING`, between a CREATE TABLE column list and `WITH (...)`, and
+stacked own-line comments between select items / SET items (previously only the last one
+stayed in place).
+
+6 exact-output tests added (347 total).
+
+---
+
+## 2026-10-15 (4) — PostgreSQL 18 syntax coverage, checked against PostgreSQL's own parser
+
+Built two corpora from the official PostgreSQL 18.6 manual (PDF): the SQL code blocks of
+the whole manual (2,147 extracted, 1,878 valid SQL) and 1,102 statements written to cover
+every form in the Synopsis of all 183 SQL command reference pages. Each output is compared
+with its input through the real PostgreSQL 18 parser (pglast): same parse tree, positions
+ignored. This found silent corruptions that token checks had missed (an inserted `AS` or a
+reordered FROM keeps the tokens). All 2,980 valid statements now pass;
+`tests/pg_conformance.py` reruns the check (`tests/pg18/`).
+
+### Silent corruptions fixed
+
+- **FROM items reordered**: comma items and JOINs were kept in two lists and printed
+  commas first, so `a JOIN b ON .., c JOIN d ON ..` became `a, c JOIN b .. JOIN d ..`
+  (different binding; LATERAL references broke). `JoinClause.after_table` keeps the order.
+  This had changed a real production script.
+- **`:=` named arguments** became `a, : = 1`; **`B'..'`, `X'..'`, `N'..'`, `U&'..'`**
+  lost their prefix; `E'it\'s'` ended at the escaped quote; `"a""b"` was split in two.
+  String / quoted-identifier lexing now follows PostgreSQL (`_string_prefix`, `_scan_quoted`).
+- **Commas inserted into keyword-style calls**: `xmlelement(NAME foo)`, `xmlparse(DOCUMENT ..)`,
+  `xmlexists(.. PASSING BY VALUE ..)`, `VARIADIC arr`, SQL/JSON (`json_object('a' VALUE 1 ..)`,
+  `json_query(.. RETURNING text WITH WRAPPER ..)`). A call whose argument is followed by a
+  word is re-read as a keyword/expression sequence (`_CALL_ARG_WORDS`); `JSON_TABLE`
+  `COLUMNS (...)` is kept as written.
+- **Invented aliases**: `interval '1' AS day`, `LIKE 'x' AS escape`, `U&'..' AS uescape`,
+  `IS nfd AS normalized`, `percentile_disc(0.5) AS within group (...)`, `SELECT ALL AS a`.
+- `ARRAY[[1,2],[3,4]]` got commas inside the brackets; `= ANY((SELECT ..))` lost the
+  parentheses that make it the array form; `CREATE TABLE p PARTITION OF ...` /
+  `ON COMMIT ... AS` glued the name to the next word (`pPARTITION`); `INSERT (col.field)`
+  split the column; a comment in an INSERT column list became a bogus column; typed
+  literals other than a fixed list (`point '(1,2)'`) got a comma.
+- **Uppercased quoted function names** (`"myFunc"(1)` → `"MYFUNC"`).
+
+### Safety net
+
+After formatting a statement, its significant tokens (case-folded, without whitespace,
+comments and `AS`) must equal the source's; otherwise the statement is emitted as
+written. On the 3,282-script DBeaver corpus this keeps 26 work-in-progress statements
+(e.g. `SELECT id, FROM t`) as written instead of silently "repairing" them.
+
+### New syntax
+
+SQL-standard function bodies (`BEGIN ATOMIC ... END`), `RETURNING WITH (OLD AS o, NEW AS n)`
+and `old.*` / `new.*` (PG 18), `MERGE` as a CTE body and after `WITH`, `MERGE ... INSERT
+OVERRIDING`, CTE `SEARCH` / `CYCLE`, parenthesized set-operation operands and leading
+`(SELECT ...)`, `INTERSECT/EXCEPT DISTINCT`, `VALUES` / `TABLE` / `FETCH` as statements,
+`INSERT ... AS alias / OVERRIDING / DEFAULT VALUES / WITH ...`, `UPDATE ... WHERE CURRENT OF`,
+`DELETE ... USING` with JOINs, `ONLY t` / `t *`, `TABLESAMPLE ... REPEATABLE`, `JOIN ... USING
+(..) AS j`, function column definition lists (`AS (a int, ..)`), N-part names
+(`schema.table.column`), `OPERATOR(schema.op)`, `[NOT] LIKE / ILIKE / SIMILAR TO ... ESCAPE`,
+`IS [NOT] [NFC|NFD|NFKC|NFKD] NORMALIZED`, `UESCAPE`, `COLLATION FOR (x)`, `WITHIN GROUP`,
+multi-word typed literals (`TIMESTAMP WITH TIME ZONE '..'`, `DOUBLE PRECISION '..'`) and
+interval qualifiers (`'1' DAY`, `YEAR TO MONTH`, `SECOND(3)`), `SELECT;` / `SELECT FROM t`,
+`CREATE TABLE AS` with a column list / USING / WITH / ON COMMIT / TABLESPACE and
+`WITH [NO] DATA`, `REFRESH ... WITH NO DATA`, keyword-named functions (hstore `delete(h, k)`).
+
+11 exact-output tests added (341 total).
+
+---
+
+## 2026-10-15 (3) — One definition per keyword table; bugs found while unifying them
+
+Keyword tables were partly central (`constants.py`) and partly retyped inline: the
+statement-start list five times, and five hand-written variants of "what ends this
+clause". All SQL-language and shared tables now live in `pgfmt/constants.py`, in
+sections (layout, operators + `_INFIX_PREC`, keyword vocabulary, statement starts,
+clause boundaries, utility words). The clause-end sets are composed from shared pieces
+(`_SET_OP_KWS`, `_QUERY_TAIL_KWS`, `_WINDOW_FRAME_KWS`, `_ORDER_ITEM_KWS`), so a new
+clause keyword is added in one place. Tables used by a single method stay next to it.
+Removed the unused `SELECT_CLAUSE_KWS`, `_JOIN_START_KWS` (a duplicate of
+`JOIN_MODIFIERS`) and `_COMMENT_RE`.
+
+Unifying the sets changed four of them (only additions, checked against the old
+literals): `GROUP BY` gained OFFSET/FETCH/FOR, `JOIN ... ON` gained OFFSET/FETCH/FOR,
+set operations and RETURNING, `ORDER BY` gained GROUP/ORDER/WINDOW (and FOR/WHERE for
+its items). Output on 3,282 real scripts is byte-identical.
+
+Bugs fixed (each with an exact-output test, 330 total):
+
+- **Silent corruption: `GROUP BY a OFFSET 5`** became `GROUP BY a, OFFSET, 5` (same for
+  `FETCH FIRST ...` and `FOR UPDATE`): the GROUP BY stop set lacked those keywords.
+- **Silent corruption: `CREATE TABLE x AS SELECT ... WITH NO DATA`** printed invented SQL
+  (`WITH no AS (SELECT), data AS (SELECT)`). `CREATE TABLE AS` now keeps the
+  `WITH [NO] DATA` suffix like views do (`_parse_query_suffix`, shared with
+  `CREATE VIEW`), and `parse_with` raises instead of inventing an empty CTE body when
+  `name AS (` is missing, so a malformed WITH is kept verbatim.
+- **`DELETE ... USING a JOIN b ON ...`** left the JOIN unformatted (as a separate raw
+  statement). `DeleteStatement.using` is now a `FromClause`, parsed and formatted like
+  `UPDATE ... FROM`.
+- **`INSERT ... SELECT ... ORDER BY x ON CONFLICT ...`** was left unformatted: the ORDER BY
+  list now stops at `ON CONFLICT`.
+
+---
+
+## 2026-10-15 (2) — Split the single file into the `pgfmt/` package
+
+`psql_custom_formatter.py` (5,207 lines) is now a thin entry point over the `pgfmt/`
+package: `constants`, `tokenizer`, `nodes`, `parser/` and `formatter/` (each class split
+into mixins by statement family: base / expressions / select / dml / ddl) and `cli`. No
+file is over ~900 lines, so each layer can be read whole. The test-case tables moved from
+`tests/run_tests.py` to `tests/cases/`.
+
+The move was pure: the code was sliced by AST, not retyped, and the only change in
+code is `ASTFormatter()` → `type(self)()` for scratch formatters inside methods (this
+avoids a circular import). Verified with all 326 tests, a static check that every
+referenced global is defined and every import is used, and byte-identical output
+(including a second, idempotency pass) against the pre-split version on 3,279 files.
+The DBeaver command (`python3 /path/to/psql_custom_formatter.py`) is unchanged; the
+`pgfmt/` folder has to stay next to the script.
+
+---
+
+## 2026-10-15 — Fixes from formatting the Backup_Theo script corpus
+
+Formatted the 67 `.sql` files under `~/projects/utilitarios/Backup_Theo/` (protocol
+scripts and DBeaver templates) and checked every output for exceptions, lost comments,
+token changes (ordered, not just as a multiset), idempotency and quality issues.
+
+- **One bad statement no longer leaves the whole file unformatted.** Any parse error made
+  `format_sql()` return the input unchanged (e.g. a script with `<<COLAR_PASSO_1>>`
+  paste placeholders inside `FROM (VALUES ...)`). Now `tokenize()` can record token
+  source offsets, and a statement that fails to parse or format becomes a
+  `VerbatimStatement`: its source text up to `;` (plus a same-line trailing comment) is
+  kept exactly as written and the other statements are formatted.
+- **`CASE -- comment` failed to parse** ("Unexpected keyword 'WHEN'"), so the whole file
+  was left unformatted. Comments after `CASE`/its operand, and between branches, are now
+  kept in `CaseExpr.gap_comments` and rendered in place (same-line comments stay trailing,
+  own-line ones get their own line) instead of being hoisted above the statement.
+- **A comment before `)` in a function call failed to parse** (`concat_ws(..., x -- note\n)`).
+  Comments between/after arguments are kept in `FunctionCall.arg_comments` and rendered
+  after their argument; the next argument / `)` moves to a new line.
+- **Silent corruption: a scalar subquery with a `--` comment was collapsed onto one line**,
+  so `(SELECT a -- q\n FROM k) AS s` became `(SELECT a -- q FROM k) AS s` with the rest
+  of the line commented out. `_inline_subquery()` now refuses to collapse such subqueries.
+- **Bare select-list fragments** (DBeaver templates like `CASE ... END AS status` or
+  `regexp_replace(...)`) were joined into one line (up to 1,182 chars). They are now
+  parsed as an `ExpressionFragment` and laid out like a select list at column 0.
+
+- **Silent corruption: operators outside a fixed list were split into pieces.**
+  `c <-> d` became `c < -> AS d`, `m <<= n` became `m << = AS n`, `|/ 25` became
+  `| / 25`, `===` became `= = =`. `tokenize()` now lexes operators like PostgreSQL
+  (`_scan_operator`: longest run of operator characters, cut before `--` / `/*`, a
+  trailing `+`/`-` split off unless the operator contains `~ ! @ # % ^ & | \` ?`).
+  Operators not in `_INFIX_PREC` parse with PostgreSQL's "any other operator"
+  precedence (`_OTHER_OP_PREC`), and any operator followed by an operand works as a prefix
+  operator (`|/ 25`, `@ -5`); a lone `@@` (DBeaver placeholder) stays a raw token.
+- **Silent corruption: adjacent string literals** (`'a'` newline `'b'`, which PostgreSQL
+  concatenates) were split into two function arguments (`concat('a', 'b')`), or joined
+  on one line (a syntax error) leaving the statement unformatted. They are now a
+  `StringContinuation` node rendered one piece per line, and never collapsed into an
+  inlined subquery; raw/utility statements (`join_expr`) keep the line break too.
+- **`CREATE OPERATOR` / `AGGREGATE` / `COLLATION` definition lists** were one long line
+  with the object type and option keys lowercase. `_definition_list_lines()` now puts
+  one `KEY = value` per line with leading commas and `)` on its own line; `OPERATOR`,
+  `AGGREGATE`, `COLLATION`, `ENUM` and `CREATE/DROP/ALTER TYPE` are uppercased.
+
+Regression sweep over 3,194 DBeaver scripts against the previous version: whole-file
+fallbacks (input returned unchanged) went from 104 to 32; the files that now format
+differ from the source only by the usual `AS` alias style.
+
+9 exact-output tests added (326 total).
+
+---
+
+## 2026-10-14 — Comments at the start of a parenthesized subquery
+
+A standalone comment right after the `(` of a subquery (before its `SELECT`/`WITH`)
+broke formatting in three ways:
+
+- **CTE body** (`b AS (\n    -- note\n    SELECT ...`): the comment was dropped by the
+  parser and re-emitted by `_rescue_lost_comments` above the whole `WITH`.
+- **FROM subquery**: the `(` was not recognized as a subquery, so the body was left as
+  raw tokens on one line, glued to the comment.
+- **`IN (SELECT ...)`**: parsing failed and the whole statement was left unformatted.
+
+Fix: `Parser._query_follows()` detects a SELECT/WITH past blank lines and comments at
+every subquery entry point (FROM, IN, ANY/ALL, EXISTS, scalar, function argument);
+`_parse_query()` keeps those comments in `SelectStatement.leading_comments` /
+`WithStatement.leading_comments`, rendered on their own lines above `SELECT`/`WITH`.
+CTE bodies of any kind (including INSERT/UPDATE/DELETE) keep them in
+`CteClause.body_leading_comments`, rendered inside the parens. A subquery with a leading
+comment is never collapsed onto one line. 5 exact-output tests added (317 total).
+
+---
+
 ## 2026-10-01 (2) — Resolve every documented known issue
 
 Worked through `known-issues.md` item by item. Verifying each one turned up more

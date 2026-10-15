@@ -1,0 +1,6614 @@
+[
+{
+"line": 1,
+"section": "synopsis_1.sql",
+"sql": "ABORT;",
+"valid": true
+},
+{
+"line": 2,
+"section": "synopsis_1.sql",
+"sql": "ABORT WORK;",
+"valid": true
+},
+{
+"line": 3,
+"section": "synopsis_1.sql",
+"sql": "ABORT TRANSACTION AND NO CHAIN;",
+"valid": true
+},
+{
+"line": 4,
+"section": "synopsis_1.sql",
+"sql": "ABORT AND CHAIN;",
+"valid": true
+},
+{
+"line": 5,
+"section": "synopsis_1.sql",
+"sql": "ALTER AGGREGATE myavg(integer) RENAME TO my_average;",
+"valid": true
+},
+{
+"line": 6,
+"section": "synopsis_1.sql",
+"sql": "ALTER AGGREGATE myavg(integer) OWNER TO joe;",
+"valid": true
+},
+{
+"line": 7,
+"section": "synopsis_1.sql",
+"sql": "ALTER AGGREGATE myavg(*) OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 8,
+"section": "synopsis_1.sql",
+"sql": "ALTER AGGREGATE mypercentile(float8 ORDER BY integer) SET SCHEMA myschema;",
+"valid": true
+},
+{
+"line": 9,
+"section": "synopsis_1.sql",
+"sql": "ALTER AGGREGATE mypercentile(VARIADIC \"any\" ORDER BY VARIADIC \"any\") OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 10,
+"section": "synopsis_1.sql",
+"sql": "ALTER COLLATION \"de_DE\" REFRESH VERSION;",
+"valid": true
+},
+{
+"line": 11,
+"section": "synopsis_1.sql",
+"sql": "ALTER COLLATION \"de_DE\" RENAME TO german;",
+"valid": true
+},
+{
+"line": 12,
+"section": "synopsis_1.sql",
+"sql": "ALTER COLLATION \"en_US\" OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 13,
+"section": "synopsis_1.sql",
+"sql": "ALTER COLLATION german SET SCHEMA public;",
+"valid": true
+},
+{
+"line": 14,
+"section": "synopsis_1.sql",
+"sql": "ALTER CONVERSION iso_8859_1_to_utf8 RENAME TO latin1_to_unicode;",
+"valid": true
+},
+{
+"line": 15,
+"section": "synopsis_1.sql",
+"sql": "ALTER CONVERSION iso_8859_1_to_utf8 OWNER TO joe;",
+"valid": true
+},
+{
+"line": 16,
+"section": "synopsis_1.sql",
+"sql": "ALTER CONVERSION iso_8859_1_to_utf8 SET SCHEMA s;",
+"valid": true
+},
+{
+"line": 17,
+"section": "synopsis_1.sql",
+"sql": "ALTER DATABASE test WITH ALLOW_CONNECTIONS false CONNECTION LIMIT 10 IS_TEMPLATE true;",
+"valid": true
+},
+{
+"line": 18,
+"section": "synopsis_1.sql",
+"sql": "ALTER DATABASE test CONNECTION LIMIT -1;",
+"valid": true
+},
+{
+"line": 19,
+"section": "synopsis_1.sql",
+"sql": "ALTER DATABASE test RENAME TO test2;",
+"valid": true
+},
+{
+"line": 20,
+"section": "synopsis_1.sql",
+"sql": "ALTER DATABASE test OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 21,
+"section": "synopsis_1.sql",
+"sql": "ALTER DATABASE test SET TABLESPACE fast;",
+"valid": true
+},
+{
+"line": 22,
+"section": "synopsis_1.sql",
+"sql": "ALTER DATABASE test REFRESH COLLATION VERSION;",
+"valid": true
+},
+{
+"line": 23,
+"section": "synopsis_1.sql",
+"sql": "ALTER DATABASE test SET enable_indexscan TO off;",
+"valid": true
+},
+{
+"line": 24,
+"section": "synopsis_1.sql",
+"sql": "ALTER DATABASE test SET search_path = public, pg_catalog;",
+"valid": true
+},
+{
+"line": 25,
+"section": "synopsis_1.sql",
+"sql": "ALTER DATABASE test SET work_mem TO DEFAULT;",
+"valid": true
+},
+{
+"line": 26,
+"section": "synopsis_1.sql",
+"sql": "ALTER DATABASE test SET timezone FROM CURRENT;",
+"valid": true
+},
+{
+"line": 27,
+"section": "synopsis_1.sql",
+"sql": "ALTER DATABASE test RESET enable_indexscan;",
+"valid": true
+},
+{
+"line": 28,
+"section": "synopsis_1.sql",
+"sql": "ALTER DATABASE test RESET ALL;",
+"valid": true
+},
+{
+"line": 29,
+"section": "synopsis_1.sql",
+"sql": "ALTER DEFAULT PRIVILEGES IN SCHEMA myschema GRANT SELECT ON TABLES TO PUBLIC;",
+"valid": true
+},
+{
+"line": 30,
+"section": "synopsis_1.sql",
+"sql": "ALTER DEFAULT PRIVILEGES IN SCHEMA myschema GRANT INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER, MAINTAIN ON TABLES TO webuser WITH GRANT OPTION;",
+"valid": true
+},
+{
+"line": 31,
+"section": "synopsis_1.sql",
+"sql": "ALTER DEFAULT PRIVILEGES FOR ROLE admin, other IN SCHEMA a, b GRANT ALL PRIVILEGES ON SEQUENCES TO GROUP staff;",
+"valid": true
+},
+{
+"line": 32,
+"section": "synopsis_1.sql",
+"sql": "ALTER DEFAULT PRIVILEGES GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO r;",
+"valid": true
+},
+{
+"line": 33,
+"section": "synopsis_1.sql",
+"sql": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO r;",
+"valid": true
+},
+{
+"line": 34,
+"section": "synopsis_1.sql",
+"sql": "ALTER DEFAULT PRIVILEGES GRANT ALL ON ROUTINES TO r;",
+"valid": true
+},
+{
+"line": 35,
+"section": "synopsis_1.sql",
+"sql": "ALTER DEFAULT PRIVILEGES GRANT USAGE ON TYPES TO r;",
+"valid": true
+},
+{
+"line": 36,
+"section": "synopsis_1.sql",
+"sql": "ALTER DEFAULT PRIVILEGES GRANT USAGE, CREATE ON SCHEMAS TO r;",
+"valid": true
+},
+{
+"line": 37,
+"section": "synopsis_1.sql",
+"sql": "ALTER DEFAULT PRIVILEGES GRANT SELECT, UPDATE ON LARGE OBJECTS TO r;",
+"valid": true
+},
+{
+"line": 38,
+"section": "synopsis_1.sql",
+"sql": "ALTER DEFAULT PRIVILEGES IN SCHEMA myschema REVOKE SELECT ON TABLES FROM PUBLIC;",
+"valid": true
+},
+{
+"line": 39,
+"section": "synopsis_1.sql",
+"sql": "ALTER DEFAULT PRIVILEGES FOR USER admin REVOKE GRANT OPTION FOR INSERT ON TABLES FROM webuser CASCADE;",
+"valid": true
+},
+{
+"line": 40,
+"section": "synopsis_1.sql",
+"sql": "ALTER DEFAULT PRIVILEGES REVOKE ALL ON SEQUENCES FROM r RESTRICT;",
+"valid": true
+},
+{
+"line": 41,
+"section": "synopsis_1.sql",
+"sql": "ALTER DEFAULT PRIVILEGES REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;",
+"valid": true
+},
+{
+"line": 42,
+"section": "synopsis_1.sql",
+"sql": "ALTER DEFAULT PRIVILEGES REVOKE USAGE ON TYPES FROM r;",
+"valid": true
+},
+{
+"line": 43,
+"section": "synopsis_1.sql",
+"sql": "ALTER DEFAULT PRIVILEGES REVOKE CREATE ON SCHEMAS FROM r;",
+"valid": true
+},
+{
+"line": 44,
+"section": "synopsis_1.sql",
+"sql": "ALTER DEFAULT PRIVILEGES REVOKE SELECT ON LARGE OBJECTS FROM r;",
+"valid": true
+},
+{
+"line": 45,
+"section": "synopsis_1.sql",
+"sql": "ALTER DOMAIN zipcode SET DEFAULT '00000';",
+"valid": true
+},
+{
+"line": 46,
+"section": "synopsis_1.sql",
+"sql": "ALTER DOMAIN zipcode DROP DEFAULT;",
+"valid": true
+},
+{
+"line": 47,
+"section": "synopsis_1.sql",
+"sql": "ALTER DOMAIN zipcode SET NOT NULL;",
+"valid": true
+},
+{
+"line": 48,
+"section": "synopsis_1.sql",
+"sql": "ALTER DOMAIN zipcode DROP NOT NULL;",
+"valid": true
+},
+{
+"line": 49,
+"section": "synopsis_1.sql",
+"sql": "ALTER DOMAIN zipcode ADD CONSTRAINT zipchk CHECK (char_length(VALUE) = 5) NOT VALID;",
+"valid": true
+},
+{
+"line": 50,
+"section": "synopsis_1.sql",
+"sql": "ALTER DOMAIN zipcode ADD NOT NULL;",
+"valid": true
+},
+{
+"line": 51,
+"section": "synopsis_1.sql",
+"sql": "ALTER DOMAIN zipcode DROP CONSTRAINT IF EXISTS zipchk CASCADE;",
+"valid": true
+},
+{
+"line": 52,
+"section": "synopsis_1.sql",
+"sql": "ALTER DOMAIN zipcode RENAME CONSTRAINT zipchk TO zip_check;",
+"valid": true
+},
+{
+"line": 53,
+"section": "synopsis_1.sql",
+"sql": "ALTER DOMAIN zipcode VALIDATE CONSTRAINT zipchk;",
+"valid": true
+},
+{
+"line": 54,
+"section": "synopsis_1.sql",
+"sql": "ALTER DOMAIN zipcode OWNER TO joe;",
+"valid": true
+},
+{
+"line": 55,
+"section": "synopsis_1.sql",
+"sql": "ALTER DOMAIN zipcode RENAME TO zip;",
+"valid": true
+},
+{
+"line": 56,
+"section": "synopsis_1.sql",
+"sql": "ALTER DOMAIN zipcode SET SCHEMA customers;",
+"valid": true
+},
+{
+"line": 57,
+"section": "synopsis_1.sql",
+"sql": "ALTER EVENT TRIGGER abort_ddl DISABLE;",
+"valid": true
+},
+{
+"line": 58,
+"section": "synopsis_1.sql",
+"sql": "ALTER EVENT TRIGGER abort_ddl ENABLE REPLICA;",
+"valid": true
+},
+{
+"line": 59,
+"section": "synopsis_1.sql",
+"sql": "ALTER EVENT TRIGGER abort_ddl ENABLE ALWAYS;",
+"valid": true
+},
+{
+"line": 60,
+"section": "synopsis_1.sql",
+"sql": "ALTER EVENT TRIGGER abort_ddl OWNER TO joe;",
+"valid": true
+},
+{
+"line": 61,
+"section": "synopsis_1.sql",
+"sql": "ALTER EVENT TRIGGER abort_ddl RENAME TO stop_ddl;",
+"valid": true
+},
+{
+"line": 62,
+"section": "synopsis_1.sql",
+"sql": "ALTER EXTENSION hstore UPDATE TO '2.0';",
+"valid": true
+},
+{
+"line": 63,
+"section": "synopsis_1.sql",
+"sql": "ALTER EXTENSION hstore UPDATE;",
+"valid": true
+},
+{
+"line": 64,
+"section": "synopsis_1.sql",
+"sql": "ALTER EXTENSION hstore SET SCHEMA utils;",
+"valid": true
+},
+{
+"line": 65,
+"section": "synopsis_1.sql",
+"sql": "ALTER EXTENSION hstore ADD FUNCTION populate_record(anyelement, hstore);",
+"valid": true
+},
+{
+"line": 66,
+"section": "synopsis_1.sql",
+"sql": "ALTER EXTENSION hstore ADD ACCESS METHOD heap2;",
+"valid": true
+},
+{
+"line": 67,
+"section": "synopsis_1.sql",
+"sql": "ALTER EXTENSION hstore ADD AGGREGATE myavg(integer);",
+"valid": true
+},
+{
+"line": 68,
+"section": "synopsis_1.sql",
+"sql": "ALTER EXTENSION hstore ADD CAST (text AS hstore);",
+"valid": true
+},
+{
+"line": 69,
+"section": "synopsis_1.sql",
+"sql": "ALTER EXTENSION hstore ADD OPERATOR #= (anyelement, hstore);",
+"valid": true
+},
+{
+"line": 70,
+"section": "synopsis_1.sql",
+"sql": "ALTER EXTENSION hstore ADD OPERATOR CLASS gist_hstore_ops USING gist;",
+"valid": true
+},
+{
+"line": 71,
+"section": "synopsis_1.sql",
+"sql": "ALTER EXTENSION hstore DROP OPERATOR FAMILY gist_hstore_ops USING gist;",
+"valid": true
+},
+{
+"line": 72,
+"section": "synopsis_1.sql",
+"sql": "ALTER EXTENSION hstore ADD PROCEDURAL LANGUAGE plsample;",
+"valid": true
+},
+{
+"line": 73,
+"section": "synopsis_1.sql",
+"sql": "ALTER EXTENSION hstore ADD TEXT SEARCH CONFIGURATION my_config;",
+"valid": true
+},
+{
+"line": 74,
+"section": "synopsis_1.sql",
+"sql": "ALTER EXTENSION hstore ADD TRANSFORM FOR hstore LANGUAGE plpython3u;",
+"valid": true
+},
+{
+"line": 75,
+"section": "synopsis_1.sql",
+"sql": "ALTER EXTENSION hstore DROP FOREIGN DATA WRAPPER w;",
+"valid": true
+},
+{
+"line": 76,
+"section": "synopsis_1.sql",
+"sql": "ALTER EXTENSION hstore DROP MATERIALIZED VIEW mv;",
+"valid": true
+},
+{
+"line": 77,
+"section": "synopsis_1.sql",
+"sql": "ALTER EXTENSION hstore DROP ROUTINE r(int);",
+"valid": true
+},
+{
+"line": 78,
+"section": "synopsis_1.sql",
+"sql": "ALTER FOREIGN DATA WRAPPER dbi OPTIONS (ADD foo '1', DROP bar);",
+"valid": true
+},
+{
+"line": 79,
+"section": "synopsis_1.sql",
+"sql": "ALTER FOREIGN DATA WRAPPER dbi VALIDATOR bob.myvalidator;",
+"valid": true
+},
+{
+"line": 80,
+"section": "synopsis_1.sql",
+"sql": "ALTER FOREIGN DATA WRAPPER dbi HANDLER h NO VALIDATOR;",
+"valid": true
+},
+{
+"line": 81,
+"section": "synopsis_1.sql",
+"sql": "ALTER FOREIGN DATA WRAPPER dbi NO HANDLER;",
+"valid": true
+},
+{
+"line": 82,
+"section": "synopsis_1.sql",
+"sql": "ALTER FOREIGN DATA WRAPPER dbi OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 83,
+"section": "synopsis_1.sql",
+"sql": "ALTER FOREIGN DATA WRAPPER dbi RENAME TO dbi2;",
+"valid": true
+},
+{
+"line": 84,
+"section": "synopsis_1.sql",
+"sql": "ALTER FOREIGN TABLE distributors ALTER COLUMN street SET NOT NULL;",
+"valid": true
+},
+{
+"line": 85,
+"section": "synopsis_1.sql",
+"sql": "ALTER FOREIGN TABLE myschema.distributors OPTIONS (ADD opt1 'value', SET opt2 'value2', DROP opt3);",
+"valid": true
+},
+{
+"line": 86,
+"section": "synopsis_1.sql",
+"sql": "ALTER FOREIGN TABLE IF EXISTS ONLY ft ADD COLUMN IF NOT EXISTS c text COLLATE \"C\" NOT NULL, DROP COLUMN IF EXISTS d RESTRICT;",
+"valid": true
+},
+{
+"line": 87,
+"section": "synopsis_1.sql",
+"sql": "ALTER FOREIGN TABLE ft ALTER c SET DATA TYPE varchar(10) COLLATE \"C\", ALTER c SET DEFAULT 'x', ALTER c DROP DEFAULT;",
+"valid": true
+},
+{
+"line": 88,
+"section": "synopsis_1.sql",
+"sql": "ALTER FOREIGN TABLE ft ALTER COLUMN c SET STATISTICS 100, ALTER COLUMN c SET (n_distinct = 100), ALTER COLUMN c RESET (n_distinct);",
+"valid": true
+},
+{
+"line": 89,
+"section": "synopsis_1.sql",
+"sql": "ALTER FOREIGN TABLE ft ALTER COLUMN c SET STORAGE EXTERNAL, ALTER COLUMN c OPTIONS (ADD column_name 'cc');",
+"valid": true
+},
+{
+"line": 90,
+"section": "synopsis_1.sql",
+"sql": "ALTER FOREIGN TABLE ft ADD CONSTRAINT chk CHECK (c <> '') NOT VALID, VALIDATE CONSTRAINT chk, DROP CONSTRAINT IF EXISTS chk CASCADE;",
+"valid": true
+},
+{
+"line": 91,
+"section": "synopsis_1.sql",
+"sql": "ALTER FOREIGN TABLE ft DISABLE TRIGGER ALL, ENABLE TRIGGER USER, ENABLE REPLICA TRIGGER t1, ENABLE ALWAYS TRIGGER t2;",
+"valid": true
+},
+{
+"line": 92,
+"section": "synopsis_1.sql",
+"sql": "ALTER FOREIGN TABLE ft SET WITHOUT OIDS, INHERIT parent, NO INHERIT other, OWNER TO joe;",
+"valid": true
+},
+{
+"line": 93,
+"section": "synopsis_1.sql",
+"sql": "ALTER FOREIGN TABLE ft RENAME COLUMN c TO c2;",
+"valid": true
+},
+{
+"line": 94,
+"section": "synopsis_1.sql",
+"sql": "ALTER FOREIGN TABLE IF EXISTS ft RENAME TO ft2;",
+"valid": true
+},
+{
+"line": 95,
+"section": "synopsis_1.sql",
+"sql": "ALTER FOREIGN TABLE ft SET SCHEMA s;",
+"valid": true
+},
+{
+"line": 96,
+"section": "synopsis_1.sql",
+"sql": "ALTER FUNCTION sqrt(integer) RENAME TO square_root;",
+"valid": true
+},
+{
+"line": 97,
+"section": "synopsis_1.sql",
+"sql": "ALTER FUNCTION sqrt(integer) OWNER TO joe;",
+"valid": true
+},
+{
+"line": 98,
+"section": "synopsis_1.sql",
+"sql": "ALTER FUNCTION sqrt(integer) SET SCHEMA maths;",
+"valid": true
+},
+{
+"line": 99,
+"section": "synopsis_1.sql",
+"sql": "ALTER FUNCTION sqrt(integer) DEPENDS ON EXTENSION mathlib;",
+"valid": true
+},
+{
+"line": 100,
+"section": "synopsis_1.sql",
+"sql": "ALTER FUNCTION sqrt(integer) NO DEPENDS ON EXTENSION mathlib;",
+"valid": true
+},
+{
+"line": 101,
+"section": "synopsis_1.sql",
+"sql": "ALTER FUNCTION check_password(text) SET search_path = admin, pg_temp;",
+"valid": true
+},
+{
+"line": 102,
+"section": "synopsis_1.sql",
+"sql": "ALTER FUNCTION check_password(text) RESET search_path;",
+"valid": true
+},
+{
+"line": 103,
+"section": "synopsis_1.sql",
+"sql": "ALTER FUNCTION f(IN a integer, OUT b text) CALLED ON NULL INPUT IMMUTABLE NOT LEAKPROOF EXTERNAL SECURITY DEFINER PARALLEL SAFE COST 100 ROWS 10 SUPPORT supp RESTRICT;",
+"valid": true
+},
+{
+"line": 104,
+"section": "synopsis_1.sql",
+"sql": "ALTER FUNCTION f(VARIADIC integer[]) RETURNS NULL ON NULL INPUT STABLE LEAKPROOF SECURITY INVOKER PARALLEL RESTRICTED;",
+"valid": true
+},
+{
+"line": 105,
+"section": "synopsis_1.sql",
+"sql": "ALTER FUNCTION f() STRICT VOLATILE PARALLEL UNSAFE SET work_mem TO DEFAULT SET timezone FROM CURRENT RESET ALL;",
+"valid": true
+},
+{
+"line": 106,
+"section": "synopsis_1.sql",
+"sql": "ALTER GROUP staff ADD USER karl, john;",
+"valid": true
+},
+{
+"line": 107,
+"section": "synopsis_1.sql",
+"sql": "ALTER GROUP workers DROP USER beth;",
+"valid": true
+},
+{
+"line": 108,
+"section": "synopsis_1.sql",
+"sql": "ALTER GROUP CURRENT_USER ADD USER x;",
+"valid": true
+},
+{
+"line": 109,
+"section": "synopsis_1.sql",
+"sql": "ALTER GROUP staff RENAME TO staff2;",
+"valid": true
+},
+{
+"line": 110,
+"section": "synopsis_1.sql",
+"sql": "ALTER INDEX distributors RENAME TO suppliers;",
+"valid": true
+},
+{
+"line": 111,
+"section": "synopsis_1.sql",
+"sql": "ALTER INDEX IF EXISTS distributors SET TABLESPACE fasttablespace;",
+"valid": true
+},
+{
+"line": 112,
+"section": "synopsis_1.sql",
+"sql": "ALTER INDEX measurement_idx ATTACH PARTITION measurement_y2006_idx;",
+"valid": true
+},
+{
+"line": 113,
+"section": "synopsis_1.sql",
+"sql": "ALTER INDEX idx DEPENDS ON EXTENSION e;",
+"valid": true
+},
+{
+"line": 114,
+"section": "synopsis_1.sql",
+"sql": "ALTER INDEX idx NO DEPENDS ON EXTENSION e;",
+"valid": true
+},
+{
+"line": 115,
+"section": "synopsis_1.sql",
+"sql": "ALTER INDEX distributors SET (fillfactor = 75);",
+"valid": true
+},
+{
+"line": 116,
+"section": "synopsis_1.sql",
+"sql": "ALTER INDEX distributors RESET (fillfactor, deduplicate_items);",
+"valid": true
+},
+{
+"line": 117,
+"section": "synopsis_1.sql",
+"sql": "ALTER INDEX coord_idx ALTER COLUMN 3 SET STATISTICS 1000;",
+"valid": true
+},
+{
+"line": 118,
+"section": "synopsis_1.sql",
+"sql": "ALTER INDEX ALL IN TABLESPACE ts OWNED BY a, b SET TABLESPACE ts2 NOWAIT;",
+"valid": true
+},
+{
+"line": 119,
+"section": "synopsis_1.sql",
+"sql": "ALTER LANGUAGE plsample RENAME TO plsample2;",
+"valid": true
+},
+{
+"line": 120,
+"section": "synopsis_1.sql",
+"sql": "ALTER PROCEDURAL LANGUAGE plsample OWNER TO joe;",
+"valid": true
+},
+{
+"line": 121,
+"section": "synopsis_1.sql",
+"sql": "ALTER LANGUAGE plsample OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 122,
+"section": "synopsis_1.sql",
+"sql": "ALTER LARGE OBJECT 12345 OWNER TO joe;",
+"valid": true
+},
+{
+"line": 123,
+"section": "synopsis_1.sql",
+"sql": "ALTER MATERIALIZED VIEW foo RENAME TO bar;",
+"valid": true
+},
+{
+"line": 124,
+"section": "synopsis_1.sql",
+"sql": "ALTER MATERIALIZED VIEW IF EXISTS foo ALTER COLUMN a SET STATISTICS 100, ALTER a SET (n_distinct = 5), ALTER a RESET (n_distinct);",
+"valid": true
+},
+{
+"line": 125,
+"section": "synopsis_1.sql",
+"sql": "ALTER MATERIALIZED VIEW foo ALTER COLUMN a SET STORAGE MAIN, ALTER COLUMN a SET COMPRESSION lz4;",
+"valid": true
+},
+{
+"line": 126,
+"section": "synopsis_1.sql",
+"sql": "ALTER MATERIALIZED VIEW foo CLUSTER ON idx, SET WITHOUT CLUSTER, SET ACCESS METHOD heap, SET TABLESPACE ts;",
+"valid": true
+},
+{
+"line": 127,
+"section": "synopsis_1.sql",
+"sql": "ALTER MATERIALIZED VIEW foo SET (fillfactor = 70), RESET (fillfactor), OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 128,
+"section": "synopsis_1.sql",
+"sql": "ALTER MATERIALIZED VIEW foo DEPENDS ON EXTENSION e;",
+"valid": true
+},
+{
+"line": 129,
+"section": "synopsis_1.sql",
+"sql": "ALTER MATERIALIZED VIEW foo RENAME COLUMN a TO b;",
+"valid": true
+},
+{
+"line": 130,
+"section": "synopsis_1.sql",
+"sql": "ALTER MATERIALIZED VIEW foo SET SCHEMA s;",
+"valid": true
+},
+{
+"line": 131,
+"section": "synopsis_1.sql",
+"sql": "ALTER MATERIALIZED VIEW ALL IN TABLESPACE ts OWNED BY r SET TABLESPACE ts2 NOWAIT;",
+"valid": true
+},
+{
+"line": 132,
+"section": "synopsis_1.sql",
+"sql": "ALTER OPERATOR @@ (text, text) OWNER TO joe;",
+"valid": true
+},
+{
+"line": 133,
+"section": "synopsis_1.sql",
+"sql": "ALTER OPERATOR @@ (NONE, text) SET SCHEMA s;",
+"valid": true
+},
+{
+"line": 134,
+"section": "synopsis_1.sql",
+"sql": "ALTER OPERATOR && (int[], int[]) SET (RESTRICT = _int_contsel, JOIN = _int_contjoinsel);",
+"valid": true
+},
+{
+"line": 135,
+"section": "synopsis_1.sql",
+"sql": "ALTER OPERATOR === (boolean, boolean) SET (COMMUTATOR = ===, NEGATOR = !==, HASHES, MERGES);",
+"valid": true
+},
+{
+"line": 136,
+"section": "synopsis_1.sql",
+"sql": "ALTER OPERATOR - (NONE, integer) SET (RESTRICT = NONE);",
+"valid": true
+},
+{
+"line": 137,
+"section": "synopsis_1.sql",
+"sql": "ALTER OPERATOR CLASS int4_ops USING btree RENAME TO int4_ops2;",
+"valid": true
+},
+{
+"line": 138,
+"section": "synopsis_1.sql",
+"sql": "ALTER OPERATOR CLASS int4_ops USING btree OWNER TO joe;",
+"valid": true
+},
+{
+"line": 139,
+"section": "synopsis_1.sql",
+"sql": "ALTER OPERATOR CLASS int4_ops USING btree SET SCHEMA s;",
+"valid": true
+},
+{
+"line": 140,
+"section": "synopsis_1.sql",
+"sql": "ALTER OPERATOR FAMILY integer_ops USING btree ADD OPERATOR 1 < (int4, int2), OPERATOR 2 <= (int4, int2), FUNCTION 1 btint42cmp(int4, int2);",
+"valid": true
+},
+{
+"line": 141,
+"section": "synopsis_1.sql",
+"sql": "ALTER OPERATOR FAMILY integer_ops USING btree ADD OPERATOR 15 <-> (point, point) FOR ORDER BY float_ops, OPERATOR 3 && (box, box) FOR SEARCH;",
+"valid": true
+},
+{
+"line": 142,
+"section": "synopsis_1.sql",
+"sql": "ALTER OPERATOR FAMILY integer_ops USING btree ADD FUNCTION 2 (int4, int2) btint42sortsupport(internal);",
+"valid": true
+},
+{
+"line": 143,
+"section": "synopsis_1.sql",
+"sql": "ALTER OPERATOR FAMILY integer_ops USING btree DROP OPERATOR 1 (int4, int2), FUNCTION 1 (int4, int2);",
+"valid": true
+},
+{
+"line": 144,
+"section": "synopsis_1.sql",
+"sql": "ALTER OPERATOR FAMILY integer_ops USING btree RENAME TO int_ops;",
+"valid": true
+},
+{
+"line": 145,
+"section": "synopsis_1.sql",
+"sql": "ALTER OPERATOR FAMILY integer_ops USING btree OWNER TO joe;",
+"valid": true
+},
+{
+"line": 146,
+"section": "synopsis_1.sql",
+"sql": "ALTER OPERATOR FAMILY integer_ops USING btree SET SCHEMA s;",
+"valid": true
+},
+{
+"line": 147,
+"section": "synopsis_1.sql",
+"sql": "ALTER POLICY account_managers ON accounts RENAME TO managers;",
+"valid": true
+},
+{
+"line": 148,
+"section": "synopsis_1.sql",
+"sql": "ALTER POLICY p ON t TO PUBLIC, CURRENT_ROLE USING (a = current_user) WITH CHECK (b > 0);",
+"valid": true
+},
+{
+"line": 149,
+"section": "synopsis_1.sql",
+"sql": "ALTER POLICY p ON t USING (true);",
+"valid": true
+},
+{
+"line": 150,
+"section": "synopsis_1.sql",
+"sql": "ALTER PROCEDURE insert_data(integer, integer) RENAME TO insert_record;",
+"valid": true
+},
+{
+"line": 151,
+"section": "synopsis_1.sql",
+"sql": "ALTER PROCEDURE insert_data(integer, integer) OWNER TO joe;",
+"valid": true
+},
+{
+"line": 152,
+"section": "synopsis_1.sql",
+"sql": "ALTER PROCEDURE insert_data(integer, integer) SET SCHEMA accounting;",
+"valid": true
+},
+{
+"line": 153,
+"section": "synopsis_1.sql",
+"sql": "ALTER PROCEDURE insert_data(integer, integer) DEPENDS ON EXTENSION myext;",
+"valid": true
+},
+{
+"line": 154,
+"section": "synopsis_1.sql",
+"sql": "ALTER PROCEDURE check_password(text) SET search_path = admin, pg_temp;",
+"valid": true
+},
+{
+"line": 155,
+"section": "synopsis_1.sql",
+"sql": "ALTER PROCEDURE check_password(text) RESET search_path;",
+"valid": true
+},
+{
+"line": 156,
+"section": "synopsis_1.sql",
+"sql": "ALTER PROCEDURE p(INOUT a int) EXTERNAL SECURITY DEFINER SET work_mem = '64MB' RESET ALL RESTRICT;",
+"valid": true
+},
+{
+"line": 157,
+"section": "synopsis_1.sql",
+"sql": "ALTER PUBLICATION noinsert SET (publish = 'update, delete');",
+"valid": true
+},
+{
+"line": 158,
+"section": "synopsis_1.sql",
+"sql": "ALTER PUBLICATION mypublication ADD TABLE users (user_id, firstname), departments;",
+"valid": true
+},
+{
+"line": 159,
+"section": "synopsis_1.sql",
+"sql": "ALTER PUBLICATION mypublication SET TABLE users (user_id, firstname, lastname), TABLE departments;",
+"valid": true
+},
+{
+"line": 160,
+"section": "synopsis_1.sql",
+"sql": "ALTER PUBLICATION sales_publication ADD TABLES IN SCHEMA marketing, sales;",
+"valid": true
+},
+{
+"line": 161,
+"section": "synopsis_1.sql",
+"sql": "ALTER PUBLICATION production_publication ADD TABLE users, departments, TABLES IN SCHEMA production;",
+"valid": true
+},
+{
+"line": 162,
+"section": "synopsis_1.sql",
+"sql": "ALTER PUBLICATION p ADD TABLE t * WHERE (a > 1);",
+"valid": true
+},
+{
+"line": 163,
+"section": "synopsis_1.sql",
+"sql": "ALTER PUBLICATION p DROP TABLE ONLY t, TABLES IN SCHEMA CURRENT_SCHEMA;",
+"valid": true
+},
+{
+"line": 164,
+"section": "synopsis_1.sql",
+"sql": "ALTER PUBLICATION p OWNER TO joe;",
+"valid": true
+},
+{
+"line": 165,
+"section": "synopsis_1.sql",
+"sql": "ALTER PUBLICATION p RENAME TO p2;",
+"valid": true
+},
+{
+"line": 166,
+"section": "synopsis_1.sql",
+"sql": "ALTER ROLE davide WITH PASSWORD 'hu8jmn3';",
+"valid": true
+},
+{
+"line": 167,
+"section": "synopsis_1.sql",
+"sql": "ALTER ROLE davide WITH PASSWORD NULL;",
+"valid": true
+},
+{
+"line": 168,
+"section": "synopsis_1.sql",
+"sql": "ALTER ROLE chris VALID UNTIL 'May 4 12:00:00 2015 +1';",
+"valid": true
+},
+{
+"line": 169,
+"section": "synopsis_1.sql",
+"sql": "ALTER ROLE fred VALID UNTIL 'infinity';",
+"valid": true
+},
+{
+"line": 170,
+"section": "synopsis_1.sql",
+"sql": "ALTER ROLE worker_bee SET maintenance_work_mem = 100000;",
+"valid": true
+},
+{
+"line": 171,
+"section": "synopsis_1.sql",
+"sql": "ALTER ROLE fred IN DATABASE devel SET client_min_messages = DEBUG;",
+"valid": true
+},
+{
+"line": 172,
+"section": "synopsis_1.sql",
+"sql": "ALTER ROLE miriam CREATEROLE CREATEDB;",
+"valid": true
+},
+{
+"line": 173,
+"section": "synopsis_1.sql",
+"sql": "ALTER ROLE r SUPERUSER NOCREATEDB NOCREATEROLE INHERIT NOINHERIT LOGIN NOLOGIN REPLICATION NOREPLICATION BYPASSRLS NOBYPASSRLS CONNECTION LIMIT 5 ENCRYPTED PASSWORD 'x';",
+"valid": true
+},
+{
+"line": 174,
+"section": "synopsis_1.sql",
+"sql": "ALTER ROLE ALL SET work_mem FROM CURRENT;",
+"valid": true
+},
+{
+"line": 175,
+"section": "synopsis_1.sql",
+"sql": "ALTER ROLE CURRENT_USER RESET work_mem;",
+"valid": true
+},
+{
+"line": 176,
+"section": "synopsis_1.sql",
+"sql": "ALTER ROLE ALL IN DATABASE d RESET ALL;",
+"valid": true
+},
+{
+"line": 177,
+"section": "synopsis_1.sql",
+"sql": "ALTER ROLE davide RENAME TO david;",
+"valid": true
+},
+{
+"line": 178,
+"section": "synopsis_1.sql",
+"sql": "ALTER ROUTINE foo(integer) RENAME TO foobar;",
+"valid": true
+},
+{
+"line": 179,
+"section": "synopsis_1.sql",
+"sql": "ALTER ROUTINE foo(integer) OWNER TO joe;",
+"valid": true
+},
+{
+"line": 180,
+"section": "synopsis_1.sql",
+"sql": "ALTER ROUTINE foo(integer) SET SCHEMA s;",
+"valid": true
+},
+{
+"line": 181,
+"section": "synopsis_1.sql",
+"sql": "ALTER ROUTINE foo(integer) NO DEPENDS ON EXTENSION e;",
+"valid": true
+},
+{
+"line": 182,
+"section": "synopsis_1.sql",
+"sql": "ALTER ROUTINE foo(integer) IMMUTABLE NOT LEAKPROOF SECURITY INVOKER PARALLEL SAFE COST 1 ROWS 1 SET x = 1 RESET ALL;",
+"valid": true
+},
+{
+"line": 183,
+"section": "synopsis_1.sql",
+"sql": "ALTER RULE notify_all ON emp RENAME TO notify_me;",
+"valid": true
+},
+{
+"line": 184,
+"section": "synopsis_1.sql",
+"sql": "ALTER SCHEMA s RENAME TO s2;",
+"valid": true
+},
+{
+"line": 185,
+"section": "synopsis_1.sql",
+"sql": "ALTER SCHEMA s OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 186,
+"section": "synopsis_1.sql",
+"sql": "ALTER SEQUENCE serial RESTART WITH 105;",
+"valid": true
+},
+{
+"line": 187,
+"section": "synopsis_1.sql",
+"sql": "ALTER SEQUENCE IF EXISTS serial AS bigint INCREMENT BY 2 MINVALUE 1 NO MAXVALUE NO CYCLE START WITH 1 RESTART CACHE 10 OWNED BY t.c;",
+"valid": true
+},
+{
+"line": 188,
+"section": "synopsis_1.sql",
+"sql": "ALTER SEQUENCE serial INCREMENT 5 NO MINVALUE MAXVALUE 1000 CYCLE START 10 RESTART 20 OWNED BY NONE;",
+"valid": true
+},
+{
+"line": 189,
+"section": "synopsis_1.sql",
+"sql": "ALTER SEQUENCE serial SET LOGGED;",
+"valid": true
+},
+{
+"line": 190,
+"section": "synopsis_1.sql",
+"sql": "ALTER SEQUENCE serial SET UNLOGGED;",
+"valid": true
+},
+{
+"line": 191,
+"section": "synopsis_1.sql",
+"sql": "ALTER SEQUENCE serial OWNER TO joe;",
+"valid": true
+},
+{
+"line": 192,
+"section": "synopsis_1.sql",
+"sql": "ALTER SEQUENCE serial RENAME TO serial2;",
+"valid": true
+},
+{
+"line": 193,
+"section": "synopsis_1.sql",
+"sql": "ALTER SEQUENCE serial SET SCHEMA s;",
+"valid": true
+},
+{
+"line": 194,
+"section": "synopsis_1.sql",
+"sql": "ALTER SERVER foo OPTIONS (host 'foo', dbname 'foodb');",
+"valid": true
+},
+{
+"line": 195,
+"section": "synopsis_1.sql",
+"sql": "ALTER SERVER foo VERSION '8.4' OPTIONS (SET host 'baz');",
+"valid": true
+},
+{
+"line": 196,
+"section": "synopsis_1.sql",
+"sql": "ALTER SERVER foo OWNER TO joe;",
+"valid": true
+},
+{
+"line": 197,
+"section": "synopsis_1.sql",
+"sql": "ALTER SERVER foo RENAME TO bar;",
+"valid": true
+},
+{
+"line": 198,
+"section": "synopsis_1.sql",
+"sql": "ALTER STATISTICS s OWNER TO joe;",
+"valid": true
+},
+{
+"line": 199,
+"section": "synopsis_1.sql",
+"sql": "ALTER STATISTICS s RENAME TO s2;",
+"valid": true
+},
+{
+"line": 200,
+"section": "synopsis_1.sql",
+"sql": "ALTER STATISTICS s SET SCHEMA x;",
+"valid": true
+},
+{
+"line": 201,
+"section": "synopsis_1.sql",
+"sql": "ALTER STATISTICS s SET STATISTICS 500;",
+"valid": true
+},
+{
+"line": 202,
+"section": "synopsis_1.sql",
+"sql": "ALTER STATISTICS s SET STATISTICS DEFAULT;",
+"valid": true
+},
+{
+"line": 1,
+"section": "synopsis_2.sql",
+"sql": "ALTER SUBSCRIPTION mysub CONNECTION 'host=192.168.1.50 port=5432 user=foo dbname=foodb';",
+"valid": true
+},
+{
+"line": 2,
+"section": "synopsis_2.sql",
+"sql": "ALTER SUBSCRIPTION mysub SET PUBLICATION insert_only, other WITH (refresh = false, copy_data);",
+"valid": true
+},
+{
+"line": 3,
+"section": "synopsis_2.sql",
+"sql": "ALTER SUBSCRIPTION mysub ADD PUBLICATION p2 WITH (refresh = true);",
+"valid": true
+},
+{
+"line": 4,
+"section": "synopsis_2.sql",
+"sql": "ALTER SUBSCRIPTION mysub DROP PUBLICATION p2;",
+"valid": true
+},
+{
+"line": 5,
+"section": "synopsis_2.sql",
+"sql": "ALTER SUBSCRIPTION mysub REFRESH PUBLICATION WITH (copy_data = false);",
+"valid": true
+},
+{
+"line": 6,
+"section": "synopsis_2.sql",
+"sql": "ALTER SUBSCRIPTION mysub REFRESH PUBLICATION;",
+"valid": true
+},
+{
+"line": 7,
+"section": "synopsis_2.sql",
+"sql": "ALTER SUBSCRIPTION mysub ENABLE;",
+"valid": true
+},
+{
+"line": 8,
+"section": "synopsis_2.sql",
+"sql": "ALTER SUBSCRIPTION mysub DISABLE;",
+"valid": true
+},
+{
+"line": 9,
+"section": "synopsis_2.sql",
+"sql": "ALTER SUBSCRIPTION mysub SET (slot_name = NONE, synchronous_commit = 'off');",
+"valid": true
+},
+{
+"line": 10,
+"section": "synopsis_2.sql",
+"sql": "ALTER SUBSCRIPTION mysub SKIP (lsn = '0/14C0378');",
+"valid": true
+},
+{
+"line": 11,
+"section": "synopsis_2.sql",
+"sql": "ALTER SUBSCRIPTION mysub OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 12,
+"section": "synopsis_2.sql",
+"sql": "ALTER SUBSCRIPTION mysub RENAME TO sub2;",
+"valid": true
+},
+{
+"line": 13,
+"section": "synopsis_2.sql",
+"sql": "ALTER SYSTEM SET wal_level = replica;",
+"valid": true
+},
+{
+"line": 14,
+"section": "synopsis_2.sql",
+"sql": "ALTER SYSTEM SET shared_preload_libraries TO 'pg_stat_statements', 'auto_explain';",
+"valid": true
+},
+{
+"line": 15,
+"section": "synopsis_2.sql",
+"sql": "ALTER SYSTEM SET work_mem TO DEFAULT;",
+"valid": true
+},
+{
+"line": 16,
+"section": "synopsis_2.sql",
+"sql": "ALTER SYSTEM RESET wal_level;",
+"valid": true
+},
+{
+"line": 17,
+"section": "synopsis_2.sql",
+"sql": "ALTER SYSTEM RESET ALL;",
+"valid": true
+},
+{
+"line": 18,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE distributors ADD COLUMN address varchar(30);",
+"valid": true
+},
+{
+"line": 19,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE IF EXISTS ONLY distributors ADD COLUMN IF NOT EXISTS address text COLLATE \"C\" NOT NULL DEFAULT 'x' CHECK (address <> '');",
+"valid": true
+},
+{
+"line": 20,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE distributors * DROP COLUMN IF EXISTS address RESTRICT;",
+"valid": true
+},
+{
+"line": 21,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE distributors DROP address CASCADE;",
+"valid": true
+},
+{
+"line": 22,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE distributors ALTER COLUMN address TYPE varchar(80), ALTER COLUMN name TYPE varchar(100);",
+"valid": true
+},
+{
+"line": 23,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE foo ALTER COLUMN foo_timestamp SET DATA TYPE timestamp with time zone USING timestamp with time zone 'epoch' + foo_timestamp * interval '1 second';",
+"valid": true
+},
+{
+"line": 24,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE foo ALTER COLUMN foo_timestamp DROP DEFAULT, ALTER COLUMN foo_timestamp TYPE timestamp with time zone USING timestamp with time zone 'epoch' + foo_timestamp * interval '1 second', ALTER COLUMN foo_timestamp SET DEFAULT now();",
+"valid": true
+},
+{
+"line": 25,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t ALTER c TYPE numeric(10, 2) COLLATE \"C\" USING c::numeric;",
+"valid": true
+},
+{
+"line": 26,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t ALTER COLUMN c SET DEFAULT nextval('s'), ALTER COLUMN c DROP DEFAULT;",
+"valid": true
+},
+{
+"line": 27,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE distributors ALTER COLUMN street SET NOT NULL;",
+"valid": true
+},
+{
+"line": 28,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE distributors ALTER COLUMN street DROP NOT NULL;",
+"valid": true
+},
+{
+"line": 29,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t ALTER COLUMN g SET EXPRESSION AS (a * 2);",
+"valid": true
+},
+{
+"line": 30,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t ALTER COLUMN g DROP EXPRESSION IF EXISTS;",
+"valid": true
+},
+{
+"line": 31,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (START WITH 10 INCREMENT BY 5);",
+"valid": true
+},
+{
+"line": 32,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY;",
+"valid": true
+},
+{
+"line": 33,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t ALTER COLUMN id SET GENERATED BY DEFAULT SET INCREMENT BY 2 RESTART WITH 100;",
+"valid": true
+},
+{
+"line": 34,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t ALTER COLUMN id RESTART;",
+"valid": true
+},
+{
+"line": 35,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t ALTER COLUMN id DROP IDENTITY IF EXISTS;",
+"valid": true
+},
+{
+"line": 36,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t ALTER COLUMN c SET STATISTICS DEFAULT, ALTER COLUMN d SET STATISTICS 500;",
+"valid": true
+},
+{
+"line": 37,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t ALTER COLUMN c SET (n_distinct = -1, n_distinct_inherited = 10), ALTER COLUMN c RESET (n_distinct);",
+"valid": true
+},
+{
+"line": 38,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t ALTER COLUMN c SET STORAGE PLAIN, ALTER COLUMN d SET COMPRESSION pglz;",
+"valid": true
+},
+{
+"line": 39,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE distributors ADD CONSTRAINT zipchk CHECK (char_length(zipcode) = 5) NO INHERIT;",
+"valid": true
+},
+{
+"line": 40,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE distributors ADD CONSTRAINT distfk FOREIGN KEY (address) REFERENCES addresses (address) NOT VALID;",
+"valid": true
+},
+{
+"line": 41,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE distributors ADD CONSTRAINT dist_id_zipcode_key UNIQUE (dist_id, zipcode);",
+"valid": true
+},
+{
+"line": 42,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE distributors ADD CONSTRAINT u2 UNIQUE NULLS NOT DISTINCT (a) INCLUDE (b) WITH (fillfactor = 70) USING INDEX TABLESPACE ts;",
+"valid": true
+},
+{
+"line": 43,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE distributors ADD PRIMARY KEY (dist_id);",
+"valid": true
+},
+{
+"line": 44,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE reservations ADD CONSTRAINT r_pk PRIMARY KEY (room, during WITHOUT OVERLAPS);",
+"valid": true
+},
+{
+"line": 45,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t ADD CONSTRAINT ex EXCLUDE USING gist (room WITH =, during WITH &&) WHERE (active);",
+"valid": true
+},
+{
+"line": 46,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t ADD CONSTRAINT ex2 EXCLUDE USING gist ((lower(name)) COLLATE \"C\" text_pattern_ops ASC NULLS LAST WITH =);",
+"valid": true
+},
+{
+"line": 47,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t ADD CONSTRAINT fk FOREIGN KEY (a, PERIOD valid) REFERENCES p (a, PERIOD valid) MATCH SIMPLE ON DELETE SET NULL (a) ON UPDATE CASCADE DEFERRABLE INITIALLY DEFERRED;",
+"valid": true
+},
+{
+"line": 48,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t ADD CONSTRAINT fk2 FOREIGN KEY (a) REFERENCES p MATCH FULL ON DELETE SET DEFAULT ON UPDATE NO ACTION NOT DEFERRABLE INITIALLY IMMEDIATE NOT ENFORCED;",
+"valid": true
+},
+{
+"line": 49,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t ADD CONSTRAINT nn NOT NULL c NO INHERIT;",
+"valid": true
+},
+{
+"line": 50,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE distributors ADD CONSTRAINT dist_id_unique UNIQUE USING INDEX dist_id_temp_idx;",
+"valid": true
+},
+{
+"line": 51,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE distributors ADD CONSTRAINT pk PRIMARY KEY USING INDEX idx DEFERRABLE INITIALLY DEFERRED;",
+"valid": true
+},
+{
+"line": 52,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t ALTER CONSTRAINT fk DEFERRABLE INITIALLY IMMEDIATE ENFORCED;",
+"valid": true
+},
+{
+"line": 53,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t ALTER CONSTRAINT fk NOT DEFERRABLE;",
+"valid": true
+},
+{
+"line": 54,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t ALTER CONSTRAINT nn NO INHERIT;",
+"valid": true
+},
+{
+"line": 55,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE distributors VALIDATE CONSTRAINT distfk;",
+"valid": true
+},
+{
+"line": 56,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE distributors DROP CONSTRAINT IF EXISTS zipchk RESTRICT;",
+"valid": true
+},
+{
+"line": 57,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE ONLY distributors DROP CONSTRAINT zipchk;",
+"valid": true
+},
+{
+"line": 58,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t DISABLE TRIGGER ALL, ENABLE TRIGGER USER, ENABLE TRIGGER trg, DISABLE TRIGGER trg2;",
+"valid": true
+},
+{
+"line": 59,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t ENABLE REPLICA TRIGGER trg, ENABLE ALWAYS TRIGGER trg2;",
+"valid": true
+},
+{
+"line": 60,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t DISABLE RULE r1, ENABLE RULE r2, ENABLE REPLICA RULE r3, ENABLE ALWAYS RULE r4;",
+"valid": true
+},
+{
+"line": 61,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t DISABLE ROW LEVEL SECURITY, ENABLE ROW LEVEL SECURITY, FORCE ROW LEVEL SECURITY, NO FORCE ROW LEVEL SECURITY;",
+"valid": true
+},
+{
+"line": 62,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE distributors CLUSTER ON dist_id_idx;",
+"valid": true
+},
+{
+"line": 63,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t SET WITHOUT CLUSTER, SET WITHOUT OIDS;",
+"valid": true
+},
+{
+"line": 64,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t SET ACCESS METHOD heap2;",
+"valid": true
+},
+{
+"line": 65,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t SET ACCESS METHOD DEFAULT;",
+"valid": true
+},
+{
+"line": 66,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE distributors SET TABLESPACE fasttablespace;",
+"valid": true
+},
+{
+"line": 67,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t SET LOGGED;",
+"valid": true
+},
+{
+"line": 68,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t SET UNLOGGED;",
+"valid": true
+},
+{
+"line": 69,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE distributors SET (fillfactor = 50, autovacuum_enabled = false, toast.autovacuum_enabled);",
+"valid": true
+},
+{
+"line": 70,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE distributors RESET (fillfactor, toast.autovacuum_enabled);",
+"valid": true
+},
+{
+"line": 71,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t INHERIT parent, NO INHERIT other;",
+"valid": true
+},
+{
+"line": 72,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t OF mytype;",
+"valid": true
+},
+{
+"line": 73,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t NOT OF;",
+"valid": true
+},
+{
+"line": 74,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 75,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t REPLICA IDENTITY DEFAULT;",
+"valid": true
+},
+{
+"line": 76,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t REPLICA IDENTITY USING INDEX idx;",
+"valid": true
+},
+{
+"line": 77,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t REPLICA IDENTITY FULL;",
+"valid": true
+},
+{
+"line": 78,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t REPLICA IDENTITY NOTHING;",
+"valid": true
+},
+{
+"line": 79,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE distributors RENAME COLUMN address TO city;",
+"valid": true
+},
+{
+"line": 80,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE ONLY distributors RENAME address TO city;",
+"valid": true
+},
+{
+"line": 81,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE distributors RENAME CONSTRAINT zipchk TO zip_check;",
+"valid": true
+},
+{
+"line": 82,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE distributors RENAME TO suppliers;",
+"valid": true
+},
+{
+"line": 83,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE myschema.distributors SET SCHEMA yourschema;",
+"valid": true
+},
+{
+"line": 84,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE ALL IN TABLESPACE ts OWNED BY a, b SET TABLESPACE ts2 NOWAIT;",
+"valid": true
+},
+{
+"line": 85,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE measurement ATTACH PARTITION measurement_y2016m07 FOR VALUES FROM ('2016-07-01') TO ('2016-08-01');",
+"valid": true
+},
+{
+"line": 86,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE cities ATTACH PARTITION cities_ab FOR VALUES IN ('a', 'b');",
+"valid": true
+},
+{
+"line": 87,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE orders ATTACH PARTITION orders_p4 FOR VALUES WITH (MODULUS 4, REMAINDER 3);",
+"valid": true
+},
+{
+"line": 88,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE cities ATTACH PARTITION cities_partdef DEFAULT;",
+"valid": true
+},
+{
+"line": 89,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE m ATTACH PARTITION p FOR VALUES FROM (MINVALUE, 0) TO (10, MAXVALUE);",
+"valid": true
+},
+{
+"line": 90,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE measurement DETACH PARTITION measurement_y2015m12;",
+"valid": true
+},
+{
+"line": 91,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE measurement DETACH PARTITION measurement_y2015m12 CONCURRENTLY;",
+"valid": true
+},
+{
+"line": 92,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE measurement DETACH PARTITION measurement_y2015m12 FINALIZE;",
+"valid": true
+},
+{
+"line": 93,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t ADD COLUMN g int GENERATED ALWAYS AS (a + 1) VIRTUAL, ADD COLUMN h int GENERATED ALWAYS AS (a * 2) STORED;",
+"valid": true
+},
+{
+"line": 94,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t ADD COLUMN id int GENERATED BY DEFAULT AS IDENTITY (CACHE 10) PRIMARY KEY;",
+"valid": true
+},
+{
+"line": 95,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLE t ADD COLUMN r int REFERENCES p (id) ON DELETE RESTRICT CONSTRAINT x NOT NULL NO INHERIT;",
+"valid": true
+},
+{
+"line": 96,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLESPACE index_space RENAME TO fast_raid;",
+"valid": true
+},
+{
+"line": 97,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLESPACE index_space OWNER TO mary;",
+"valid": true
+},
+{
+"line": 98,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLESPACE index_space SET (random_page_cost = 1.1, seq_page_cost = 1);",
+"valid": true
+},
+{
+"line": 99,
+"section": "synopsis_2.sql",
+"sql": "ALTER TABLESPACE index_space RESET (random_page_cost);",
+"valid": true
+},
+{
+"line": 100,
+"section": "synopsis_2.sql",
+"sql": "ALTER TEXT SEARCH CONFIGURATION my_config ADD MAPPING FOR asciiword, word WITH english_stem, simple;",
+"valid": true
+},
+{
+"line": 101,
+"section": "synopsis_2.sql",
+"sql": "ALTER TEXT SEARCH CONFIGURATION my_config ALTER MAPPING FOR asciiword WITH english_stem;",
+"valid": true
+},
+{
+"line": 102,
+"section": "synopsis_2.sql",
+"sql": "ALTER TEXT SEARCH CONFIGURATION my_config ALTER MAPPING REPLACE english WITH swedish;",
+"valid": true
+},
+{
+"line": 103,
+"section": "synopsis_2.sql",
+"sql": "ALTER TEXT SEARCH CONFIGURATION my_config ALTER MAPPING FOR word REPLACE english WITH swedish;",
+"valid": true
+},
+{
+"line": 104,
+"section": "synopsis_2.sql",
+"sql": "ALTER TEXT SEARCH CONFIGURATION my_config DROP MAPPING IF EXISTS FOR word, asciiword;",
+"valid": true
+},
+{
+"line": 105,
+"section": "synopsis_2.sql",
+"sql": "ALTER TEXT SEARCH CONFIGURATION my_config RENAME TO c2;",
+"valid": true
+},
+{
+"line": 106,
+"section": "synopsis_2.sql",
+"sql": "ALTER TEXT SEARCH CONFIGURATION my_config OWNER TO joe;",
+"valid": true
+},
+{
+"line": 107,
+"section": "synopsis_2.sql",
+"sql": "ALTER TEXT SEARCH CONFIGURATION my_config SET SCHEMA s;",
+"valid": true
+},
+{
+"line": 108,
+"section": "synopsis_2.sql",
+"sql": "ALTER TEXT SEARCH DICTIONARY my_dict (StopWords = newrussian);",
+"valid": true
+},
+{
+"line": 109,
+"section": "synopsis_2.sql",
+"sql": "ALTER TEXT SEARCH DICTIONARY my_dict (language = dutch, StopWords);",
+"valid": true
+},
+{
+"line": 110,
+"section": "synopsis_2.sql",
+"sql": "ALTER TEXT SEARCH DICTIONARY my_dict (dummy);",
+"valid": true
+},
+{
+"line": 111,
+"section": "synopsis_2.sql",
+"sql": "ALTER TEXT SEARCH DICTIONARY my_dict RENAME TO d2;",
+"valid": true
+},
+{
+"line": 112,
+"section": "synopsis_2.sql",
+"sql": "ALTER TEXT SEARCH DICTIONARY my_dict OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 113,
+"section": "synopsis_2.sql",
+"sql": "ALTER TEXT SEARCH DICTIONARY my_dict SET SCHEMA s;",
+"valid": true
+},
+{
+"line": 114,
+"section": "synopsis_2.sql",
+"sql": "ALTER TEXT SEARCH PARSER p RENAME TO p2;",
+"valid": true
+},
+{
+"line": 115,
+"section": "synopsis_2.sql",
+"sql": "ALTER TEXT SEARCH PARSER p SET SCHEMA s;",
+"valid": true
+},
+{
+"line": 116,
+"section": "synopsis_2.sql",
+"sql": "ALTER TEXT SEARCH TEMPLATE tm RENAME TO tm2;",
+"valid": true
+},
+{
+"line": 117,
+"section": "synopsis_2.sql",
+"sql": "ALTER TEXT SEARCH TEMPLATE tm SET SCHEMA s;",
+"valid": true
+},
+{
+"line": 118,
+"section": "synopsis_2.sql",
+"sql": "ALTER TRIGGER emp_stamp ON emp RENAME TO emp_track_chgs;",
+"valid": true
+},
+{
+"line": 119,
+"section": "synopsis_2.sql",
+"sql": "ALTER TRIGGER emp_stamp ON emp DEPENDS ON EXTENSION emplib;",
+"valid": true
+},
+{
+"line": 120,
+"section": "synopsis_2.sql",
+"sql": "ALTER TRIGGER emp_stamp ON emp NO DEPENDS ON EXTENSION emplib;",
+"valid": true
+},
+{
+"line": 121,
+"section": "synopsis_2.sql",
+"sql": "ALTER TYPE electronic_mail RENAME TO email;",
+"valid": true
+},
+{
+"line": 122,
+"section": "synopsis_2.sql",
+"sql": "ALTER TYPE email OWNER TO joe;",
+"valid": true
+},
+{
+"line": 123,
+"section": "synopsis_2.sql",
+"sql": "ALTER TYPE email SET SCHEMA customers;",
+"valid": true
+},
+{
+"line": 124,
+"section": "synopsis_2.sql",
+"sql": "ALTER TYPE compfoo ADD ATTRIBUTE f3 int;",
+"valid": true
+},
+{
+"line": 125,
+"section": "synopsis_2.sql",
+"sql": "ALTER TYPE compfoo ADD ATTRIBUTE f4 text COLLATE \"C\" CASCADE, DROP ATTRIBUTE IF EXISTS f1 RESTRICT, ALTER ATTRIBUTE f2 SET DATA TYPE bigint COLLATE \"C\" CASCADE;",
+"valid": true
+},
+{
+"line": 126,
+"section": "synopsis_2.sql",
+"sql": "ALTER TYPE compfoo RENAME ATTRIBUTE f1 TO f9 CASCADE;",
+"valid": true
+},
+{
+"line": 127,
+"section": "synopsis_2.sql",
+"sql": "ALTER TYPE colors ADD VALUE 'orange' AFTER 'red';",
+"valid": true
+},
+{
+"line": 128,
+"section": "synopsis_2.sql",
+"sql": "ALTER TYPE colors ADD VALUE IF NOT EXISTS 'pink' BEFORE 'red';",
+"valid": true
+},
+{
+"line": 129,
+"section": "synopsis_2.sql",
+"sql": "ALTER TYPE colors RENAME VALUE 'purple' TO 'mauve';",
+"valid": true
+},
+{
+"line": 130,
+"section": "synopsis_2.sql",
+"sql": "ALTER TYPE mytype SET (SEND = mytypesend, RECEIVE = mytyperecv);",
+"valid": true
+},
+{
+"line": 131,
+"section": "synopsis_2.sql",
+"sql": "ALTER TYPE mytype SET (STORAGE = extended, ANALYZE = NONE);",
+"valid": true
+},
+{
+"line": 132,
+"section": "synopsis_2.sql",
+"sql": "ALTER USER davide WITH PASSWORD 'hu8jmn3';",
+"valid": true
+},
+{
+"line": 133,
+"section": "synopsis_2.sql",
+"sql": "ALTER USER u NOSUPERUSER CREATEDB VALID UNTIL 'infinity';",
+"valid": true
+},
+{
+"line": 134,
+"section": "synopsis_2.sql",
+"sql": "ALTER USER u RENAME TO u2;",
+"valid": true
+},
+{
+"line": 135,
+"section": "synopsis_2.sql",
+"sql": "ALTER USER ALL IN DATABASE d SET search_path TO a, b;",
+"valid": true
+},
+{
+"line": 136,
+"section": "synopsis_2.sql",
+"sql": "ALTER USER SESSION_USER RESET ALL;",
+"valid": true
+},
+{
+"line": 137,
+"section": "synopsis_2.sql",
+"sql": "ALTER USER MAPPING FOR bob SERVER foo OPTIONS (SET password 'public');",
+"valid": true
+},
+{
+"line": 138,
+"section": "synopsis_2.sql",
+"sql": "ALTER USER MAPPING FOR USER SERVER foo OPTIONS (ADD user 'x', DROP password);",
+"valid": true
+},
+{
+"line": 139,
+"section": "synopsis_2.sql",
+"sql": "ALTER USER MAPPING FOR PUBLIC SERVER foo OPTIONS (SET opt 'v');",
+"valid": true
+},
+{
+"line": 140,
+"section": "synopsis_2.sql",
+"sql": "ALTER USER MAPPING FOR CURRENT_ROLE SERVER foo OPTIONS (SET opt 'v');",
+"valid": true
+},
+{
+"line": 141,
+"section": "synopsis_2.sql",
+"sql": "ALTER VIEW foo RENAME TO bar;",
+"valid": true
+},
+{
+"line": 142,
+"section": "synopsis_2.sql",
+"sql": "ALTER VIEW IF EXISTS foo ALTER COLUMN ts SET DEFAULT now();",
+"valid": true
+},
+{
+"line": 143,
+"section": "synopsis_2.sql",
+"sql": "ALTER VIEW foo ALTER ts DROP DEFAULT;",
+"valid": true
+},
+{
+"line": 144,
+"section": "synopsis_2.sql",
+"sql": "ALTER VIEW foo OWNER TO joe;",
+"valid": true
+},
+{
+"line": 145,
+"section": "synopsis_2.sql",
+"sql": "ALTER VIEW foo RENAME COLUMN a TO b;",
+"valid": true
+},
+{
+"line": 146,
+"section": "synopsis_2.sql",
+"sql": "ALTER VIEW foo SET SCHEMA s;",
+"valid": true
+},
+{
+"line": 147,
+"section": "synopsis_2.sql",
+"sql": "ALTER VIEW foo SET (security_barrier = true, check_option = local, security_invoker);",
+"valid": true
+},
+{
+"line": 148,
+"section": "synopsis_2.sql",
+"sql": "ALTER VIEW foo RESET (security_barrier);",
+"valid": true
+},
+{
+"line": 149,
+"section": "synopsis_2.sql",
+"sql": "ANALYZE users;",
+"valid": true
+},
+{
+"line": 150,
+"section": "synopsis_2.sql",
+"sql": "ANALYZE VERBOSE users (id, display_name);",
+"valid": true
+},
+{
+"line": 151,
+"section": "synopsis_2.sql",
+"sql": "ANALYZE (VERBOSE, SKIP_LOCKED false, BUFFER_USAGE_LIMIT '16MB') ONLY users (id), orders *;",
+"valid": true
+},
+{
+"line": 152,
+"section": "synopsis_2.sql",
+"sql": "ANALYZE;",
+"valid": true
+},
+{
+"line": 153,
+"section": "synopsis_2.sql",
+"sql": "BEGIN;",
+"valid": true
+},
+{
+"line": 154,
+"section": "synopsis_2.sql",
+"sql": "BEGIN WORK;",
+"valid": true
+},
+{
+"line": 155,
+"section": "synopsis_2.sql",
+"sql": "BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE, READ ONLY, DEFERRABLE;",
+"valid": true
+},
+{
+"line": 156,
+"section": "synopsis_2.sql",
+"sql": "BEGIN ISOLATION LEVEL REPEATABLE READ READ WRITE NOT DEFERRABLE;",
+"valid": true
+},
+{
+"line": 157,
+"section": "synopsis_2.sql",
+"sql": "BEGIN TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;",
+"valid": true
+},
+{
+"line": 158,
+"section": "synopsis_2.sql",
+"sql": "CALL do_db_maintenance();",
+"valid": true
+},
+{
+"line": 159,
+"section": "synopsis_2.sql",
+"sql": "CALL insert_data(1, 2);",
+"valid": true
+},
+{
+"line": 160,
+"section": "synopsis_2.sql",
+"sql": "CALL p(a => 1, b := 2);",
+"valid": true
+},
+{
+"line": 161,
+"section": "synopsis_2.sql",
+"sql": "CHECKPOINT;",
+"valid": true
+},
+{
+"line": 162,
+"section": "synopsis_2.sql",
+"sql": "CLOSE liahona;",
+"valid": true
+},
+{
+"line": 163,
+"section": "synopsis_2.sql",
+"sql": "CLOSE ALL;",
+"valid": true
+},
+{
+"line": 164,
+"section": "synopsis_2.sql",
+"sql": "CLUSTER employees USING employees_ind;",
+"valid": true
+},
+{
+"line": 165,
+"section": "synopsis_2.sql",
+"sql": "CLUSTER employees;",
+"valid": true
+},
+{
+"line": 166,
+"section": "synopsis_2.sql",
+"sql": "CLUSTER;",
+"valid": true
+},
+{
+"line": 167,
+"section": "synopsis_2.sql",
+"sql": "CLUSTER (VERBOSE true) employees USING idx;",
+"valid": true
+},
+{
+"line": 168,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON TABLE mytable IS 'This is my table.';",
+"valid": true
+},
+{
+"line": 169,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON TABLE mytable IS NULL;",
+"valid": true
+},
+{
+"line": 170,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON ACCESS METHOD gin IS 'GIN index access method';",
+"valid": true
+},
+{
+"line": 171,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON AGGREGATE my_aggregate (double precision) IS 'Computes sample variance';",
+"valid": true
+},
+{
+"line": 172,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON AGGREGATE my_agg (*) IS 'x';",
+"valid": true
+},
+{
+"line": 173,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON CAST (text AS int4) IS 'Allow casts from text to int4';",
+"valid": true
+},
+{
+"line": 174,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON COLLATION \"fr_CA\" IS 'Canadian French';",
+"valid": true
+},
+{
+"line": 175,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON COLUMN my_table.my_column IS 'Employee ID number';",
+"valid": true
+},
+{
+"line": 176,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON CONSTRAINT bar_col_cons ON bar IS 'Constrains column col';",
+"valid": true
+},
+{
+"line": 177,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON CONSTRAINT dom_col_constr ON DOMAIN dom IS 'Constrains col of domain';",
+"valid": true
+},
+{
+"line": 178,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON CONVERSION my_conv IS 'Conversion to UTF8';",
+"valid": true
+},
+{
+"line": 179,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON DATABASE my_database IS 'Development Database';",
+"valid": true
+},
+{
+"line": 180,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON DOMAIN my_domain IS 'Email Address Domain';",
+"valid": true
+},
+{
+"line": 181,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON EVENT TRIGGER abort_ddl IS 'Aborts all DDL commands';",
+"valid": true
+},
+{
+"line": 182,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON EXTENSION hstore IS 'implements the hstore data type';",
+"valid": true
+},
+{
+"line": 183,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON FOREIGN DATA WRAPPER mywrapper IS 'my foreign data wrapper';",
+"valid": true
+},
+{
+"line": 184,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON FOREIGN TABLE my_foreign_table IS 'Employee Information in other database';",
+"valid": true
+},
+{
+"line": 185,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON FUNCTION my_function (timestamp) IS 'Returns Roman Numeral';",
+"valid": true
+},
+{
+"line": 186,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON INDEX my_index IS 'Enforces uniqueness on employee ID';",
+"valid": true
+},
+{
+"line": 187,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON LANGUAGE plpython IS 'Python support for stored procedures';",
+"valid": true
+},
+{
+"line": 188,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON LARGE OBJECT 346344 IS 'Planning document';",
+"valid": true
+},
+{
+"line": 189,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON MATERIALIZED VIEW my_matview IS 'Summary of order history';",
+"valid": true
+},
+{
+"line": 190,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON OPERATOR ^ (text, text) IS 'Performs intersection of two texts';",
+"valid": true
+},
+{
+"line": 191,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON OPERATOR - (NONE, integer) IS 'Unary minus';",
+"valid": true
+},
+{
+"line": 192,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON OPERATOR CLASS int4ops USING btree IS '4 byte integer operators for btrees';",
+"valid": true
+},
+{
+"line": 193,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON OPERATOR FAMILY integer_ops USING btree IS 'all integer operators for btrees';",
+"valid": true
+},
+{
+"line": 194,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON POLICY my_policy ON mytable IS 'Filter rows by users';",
+"valid": true
+},
+{
+"line": 195,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON PROCEDURE my_proc (integer, integer) IS 'Runs a report';",
+"valid": true
+},
+{
+"line": 196,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON PUBLICATION alltables IS 'Publishes all operations on all tables';",
+"valid": true
+},
+{
+"line": 197,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON ROLE my_role IS 'Administration group for finance tables';",
+"valid": true
+},
+{
+"line": 198,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON ROUTINE my_routine (integer, integer) IS 'Runs a routine (which is a function or procedure)';",
+"valid": true
+},
+{
+"line": 199,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON RULE my_rule ON my_table IS 'Logs updates of employee records';",
+"valid": true
+},
+{
+"line": 200,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON SCHEMA my_schema IS 'Departmental data';",
+"valid": true
+},
+{
+"line": 201,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON SEQUENCE my_sequence IS 'Used to generate primary keys';",
+"valid": true
+},
+{
+"line": 202,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON SERVER myserver IS 'my foreign server';",
+"valid": true
+},
+{
+"line": 203,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON STATISTICS my_statistics IS 'Improves planner row estimations';",
+"valid": true
+},
+{
+"line": 204,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON SUBSCRIPTION alltables IS 'Subscription for alltables publication';",
+"valid": true
+},
+{
+"line": 205,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON TABLESPACE my_tablespace IS 'Tablespace for indexes';",
+"valid": true
+},
+{
+"line": 206,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON TEXT SEARCH CONFIGURATION my_config IS 'Special word filtering';",
+"valid": true
+},
+{
+"line": 207,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON TEXT SEARCH DICTIONARY swedish IS 'Snowball stemmer for Swedish language';",
+"valid": true
+},
+{
+"line": 208,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON TEXT SEARCH PARSER my_parser IS 'Splits text into words';",
+"valid": true
+},
+{
+"line": 209,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON TEXT SEARCH TEMPLATE snowball IS 'Snowball stemmer';",
+"valid": true
+},
+{
+"line": 210,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON TRANSFORM FOR hstore LANGUAGE plpython3u IS 'Transform between hstore and Python dict';",
+"valid": true
+},
+{
+"line": 211,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON TRIGGER my_trigger ON my_table IS 'Used for RI';",
+"valid": true
+},
+{
+"line": 212,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON TYPE complex IS 'Complex number data type';",
+"valid": true
+},
+{
+"line": 213,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON VIEW my_view IS 'View of departmental costs';",
+"valid": true
+},
+{
+"line": 214,
+"section": "synopsis_2.sql",
+"sql": "COMMENT ON FUNCTION f(IN a int, VARIADIC b text[]) IS E'line1\\nline2';",
+"valid": true
+},
+{
+"line": 215,
+"section": "synopsis_2.sql",
+"sql": "COMMIT;",
+"valid": true
+},
+{
+"line": 216,
+"section": "synopsis_2.sql",
+"sql": "COMMIT WORK AND CHAIN;",
+"valid": true
+},
+{
+"line": 217,
+"section": "synopsis_2.sql",
+"sql": "COMMIT TRANSACTION AND NO CHAIN;",
+"valid": true
+},
+{
+"line": 218,
+"section": "synopsis_2.sql",
+"sql": "COMMIT PREPARED 'foobar';",
+"valid": true
+},
+{
+"line": 219,
+"section": "synopsis_2.sql",
+"sql": "COPY country TO STDOUT (DELIMITER '|');",
+"valid": true
+},
+{
+"line": 220,
+"section": "synopsis_2.sql",
+"sql": "COPY country FROM '/usr1/proj/bray/sql/country_data';",
+"valid": true
+},
+{
+"line": 221,
+"section": "synopsis_2.sql",
+"sql": "COPY (SELECT * FROM country WHERE country_name LIKE 'A%') TO '/usr1/proj/bray/sql/a_list_countries.copy';",
+"valid": true
+},
+{
+"line": 222,
+"section": "synopsis_2.sql",
+"sql": "COPY country TO PROGRAM 'gzip > /usr1/proj/bray/sql/country_data.gz';",
+"valid": true
+},
+{
+"line": 223,
+"section": "synopsis_2.sql",
+"sql": "COPY country (code, name) FROM STDIN WITH (FORMAT csv, HEADER MATCH, NULL '', DEFAULT '\\D', QUOTE '\"', ESCAPE '\\', FORCE_NOT_NULL (code), FORCE_NULL *, ON_ERROR ignore, REJECT_LIMIT 10, ENCODING 'UTF8', LOG_VERBOSITY verbose) WHERE code <> 'XX';",
+"valid": true
+},
+{
+"line": 224,
+"section": "synopsis_2.sql",
+"sql": "COPY t TO STDOUT (FORMAT csv, FORCE_QUOTE *, FREEZE false, HEADER true);",
+"valid": true
+},
+{
+"line": 225,
+"section": "synopsis_2.sql",
+"sql": "COPY t FROM PROGRAM 'cat x' FREEZE;",
+"valid": true
+},
+{
+"line": 226,
+"section": "synopsis_2.sql",
+"sql": "CREATE ACCESS METHOD heptree TYPE INDEX HANDLER heptree_handler;",
+"valid": true
+},
+{
+"line": 227,
+"section": "synopsis_2.sql",
+"sql": "CREATE ACCESS METHOD heap2 TYPE TABLE HANDLER heap_tableam_handler;",
+"valid": true
+},
+{
+"line": 228,
+"section": "synopsis_2.sql",
+"sql": "CREATE AGGREGATE sum (complex) (sfunc = complex_add, stype = complex, initcond = '(0,0)');",
+"valid": true
+},
+{
+"line": 229,
+"section": "synopsis_2.sql",
+"sql": "CREATE OR REPLACE AGGREGATE avg (float8) (sfunc = float8_accum, stype = float8[], finalfunc = float8_avg, initcond = '{0,0,0}', combinefunc = float8_combine, parallel = safe);",
+"valid": true
+},
+{
+"line": 230,
+"section": "synopsis_2.sql",
+"sql": "CREATE AGGREGATE unsafe_sum (float8) (stype = float8, sfunc = float8pl, mstype = float8, msfunc = float8pl, minvfunc = float8mi);",
+"valid": true
+},
+{
+"line": 231,
+"section": "synopsis_2.sql",
+"sql": "CREATE AGGREGATE array_accum (anycompatible) (sfunc = array_append, stype = anycompatiblearray, initcond = '{}', finalfunc_extra, finalfunc_modify = read_only, sspace = 100, serialfunc = s, deserialfunc = d, mfinalfunc_extra, mfinalfunc_modify = shareable, mstype = int, msspace = 4, minitcond = '0', sortop = >);",
+"valid": true
+},
+{
+"line": 232,
+"section": "synopsis_2.sql",
+"sql": "CREATE AGGREGATE my_rank (VARIADIC \"any\" ORDER BY VARIADIC \"any\") (sfunc = ordered_set_transition_multi, stype = internal, finalfunc = rank_final, finalfunc_extra, hypothetical);",
+"valid": true
+},
+{
+"line": 233,
+"section": "synopsis_2.sql",
+"sql": "CREATE AGGREGATE percentile_disc (float8 ORDER BY anyelement) (sfunc = ordered_set_transition, stype = internal, finalfunc = percentile_disc_final, finalfunc_extra);",
+"valid": true
+},
+{
+"line": 234,
+"section": "synopsis_2.sql",
+"sql": "CREATE AGGREGATE oldstyle (basetype = int4, sfunc = int4pl, stype = int4);",
+"valid": true
+},
+{
+"line": 235,
+"section": "synopsis_2.sql",
+"sql": "CREATE CAST (bigint AS int4) WITH FUNCTION int4(bigint) AS ASSIGNMENT;",
+"valid": true
+},
+{
+"line": 236,
+"section": "synopsis_2.sql",
+"sql": "CREATE CAST (text AS mytype) WITHOUT FUNCTION AS IMPLICIT;",
+"valid": true
+},
+{
+"line": 237,
+"section": "synopsis_2.sql",
+"sql": "CREATE CAST (mytype AS text) WITH INOUT;",
+"valid": true
+},
+{
+"line": 238,
+"section": "synopsis_2.sql",
+"sql": "CREATE COLLATION french (locale = 'fr_FR.utf8');",
+"valid": true
+},
+{
+"line": 239,
+"section": "synopsis_2.sql",
+"sql": "CREATE COLLATION german_phonebook (provider = icu, locale = 'de-u-co-phonebk');",
+"valid": true
+},
+{
+"line": 240,
+"section": "synopsis_2.sql",
+"sql": "CREATE COLLATION IF NOT EXISTS c2 (lc_collate = 'C', lc_ctype = 'C', deterministic = false, rules = '&a < b', version = '1');",
+"valid": true
+},
+{
+"line": 241,
+"section": "synopsis_2.sql",
+"sql": "CREATE COLLATION german FROM \"de_DE\";",
+"valid": true
+},
+{
+"line": 242,
+"section": "synopsis_2.sql",
+"sql": "CREATE CONVERSION myconv FOR 'UTF8' TO 'LATIN1' FROM myfunc;",
+"valid": true
+},
+{
+"line": 243,
+"section": "synopsis_2.sql",
+"sql": "CREATE DEFAULT CONVERSION myconv2 FOR 'UTF8' TO 'LATIN1' FROM myfunc;",
+"valid": true
+},
+{
+"line": 244,
+"section": "synopsis_2.sql",
+"sql": "CREATE DATABASE lusiadas;",
+"valid": true
+},
+{
+"line": 245,
+"section": "synopsis_2.sql",
+"sql": "CREATE DATABASE sales OWNER salesapp TABLESPACE salesspace;",
+"valid": true
+},
+{
+"line": 246,
+"section": "synopsis_2.sql",
+"sql": "CREATE DATABASE music LOCALE 'sv_SE.utf8' TEMPLATE template0;",
+"valid": true
+},
+{
+"line": 247,
+"section": "synopsis_2.sql",
+"sql": "CREATE DATABASE music2 LOCALE 'sv_SE.iso885915' ENCODING LATIN9 TEMPLATE template0;",
+"valid": true
+},
+{
+"line": 248,
+"section": "synopsis_2.sql",
+"sql": "CREATE DATABASE d WITH OWNER = u TEMPLATE = t ENCODING = 'UTF8' STRATEGY = wal_log LC_COLLATE = 'C' LC_CTYPE = 'C' BUILTIN_LOCALE = 'C.UTF-8' ICU_LOCALE = 'en' ICU_RULES = '' LOCALE_PROVIDER = icu COLLATION_VERSION = '1' TABLESPACE = ts ALLOW_CONNECTIONS = true CONNECTION LIMIT = 5 IS_TEMPLATE = false OID = 20000;",
+"valid": true
+},
+{
+"line": 249,
+"section": "synopsis_2.sql",
+"sql": "CREATE DOMAIN us_postal_code AS TEXT CHECK (VALUE ~ '^\\d{5}$' OR VALUE ~ '^\\d{5}-\\d{4}$');",
+"valid": true
+},
+{
+"line": 250,
+"section": "synopsis_2.sql",
+"sql": "CREATE DOMAIN d int COLLATE \"C\" DEFAULT 0 CONSTRAINT nn NOT NULL CHECK (VALUE > -1) NULL;",
+"valid": true
+},
+{
+"line": 251,
+"section": "synopsis_2.sql",
+"sql": "CREATE EVENT TRIGGER abort_ddl ON ddl_command_start EXECUTE FUNCTION abort_any_command();",
+"valid": true
+},
+{
+"line": 252,
+"section": "synopsis_2.sql",
+"sql": "CREATE EVENT TRIGGER t ON ddl_command_end WHEN TAG IN ('CREATE TABLE', 'ALTER TABLE') AND tag IN ('x') EXECUTE PROCEDURE f();",
+"valid": true
+},
+{
+"line": 253,
+"section": "synopsis_2.sql",
+"sql": "CREATE EXTENSION hstore;",
+"valid": true
+},
+{
+"line": 254,
+"section": "synopsis_2.sql",
+"sql": "CREATE EXTENSION IF NOT EXISTS hstore WITH SCHEMA public VERSION '1.4' CASCADE;",
+"valid": true
+},
+{
+"line": 255,
+"section": "synopsis_2.sql",
+"sql": "CREATE EXTENSION hstore SCHEMA addons;",
+"valid": true
+},
+{
+"line": 1,
+"section": "synopsis_3.sql",
+"sql": "CREATE FOREIGN DATA WRAPPER dummy;",
+"valid": true
+},
+{
+"line": 2,
+"section": "synopsis_3.sql",
+"sql": "CREATE FOREIGN DATA WRAPPER file HANDLER file_fdw_handler VALIDATOR file_fdw_validator;",
+"valid": true
+},
+{
+"line": 3,
+"section": "synopsis_3.sql",
+"sql": "CREATE FOREIGN DATA WRAPPER mywrapper NO HANDLER NO VALIDATOR OPTIONS (debug 'true');",
+"valid": true
+},
+{
+"line": 4,
+"section": "synopsis_3.sql",
+"sql": "CREATE FOREIGN TABLE films (code char(5) NOT NULL, title varchar(40) NOT NULL, did integer NOT NULL, date_prod date, kind varchar(10), len interval hour to minute) SERVER film_server;",
+"valid": true
+},
+{
+"line": 5,
+"section": "synopsis_3.sql",
+"sql": "CREATE FOREIGN TABLE IF NOT EXISTS ft (a int OPTIONS (column_name 'aa') COLLATE \"C\" CONSTRAINT c1 NOT NULL CHECK (a > 0) NO INHERIT DEFAULT 1, b text GENERATED ALWAYS AS (a::text) STORED, CONSTRAINT tc CHECK (a < 10) NOT ENFORCED, LIKE src INCLUDING ALL EXCLUDING COMMENTS) INHERITS (p1, p2) SERVER s OPTIONS (table_name 'x');",
+"valid": true
+},
+{
+"line": 6,
+"section": "synopsis_3.sql",
+"sql": "CREATE FOREIGN TABLE measurement_y2016m07 PARTITION OF measurement FOR VALUES FROM ('2016-07-01') TO ('2016-08-01') SERVER server_07;",
+"valid": true
+},
+{
+"line": 7,
+"section": "synopsis_3.sql",
+"sql": "CREATE FOREIGN TABLE p2 PARTITION OF p (a WITH OPTIONS NOT NULL, CONSTRAINT k CHECK (a > 0)) DEFAULT SERVER s;",
+"valid": true
+},
+{
+"line": 8,
+"section": "synopsis_3.sql",
+"sql": "CREATE FUNCTION add(integer, integer) RETURNS integer AS 'select $1 + $2;' LANGUAGE SQL IMMUTABLE RETURNS NULL ON NULL INPUT;",
+"valid": true
+},
+{
+"line": 9,
+"section": "synopsis_3.sql",
+"sql": "CREATE FUNCTION add(a integer, b integer) RETURNS integer LANGUAGE SQL IMMUTABLE RETURNS NULL ON NULL INPUT RETURN a + b;",
+"valid": true
+},
+{
+"line": 10,
+"section": "synopsis_3.sql",
+"sql": "CREATE FUNCTION increment(i integer) RETURNS integer AS $$\n        BEGIN\n                RETURN i + 1;\n        END;\n$$ LANGUAGE plpgsql;",
+"valid": true
+},
+{
+"line": 11,
+"section": "synopsis_3.sql",
+"sql": "CREATE FUNCTION dup(in int, out f1 int, out f2 text) AS $$ SELECT $1, CAST($1 AS text) || ' is text' $$ LANGUAGE SQL;",
+"valid": true
+},
+{
+"line": 12,
+"section": "synopsis_3.sql",
+"sql": "CREATE FUNCTION dup(int) RETURNS TABLE(f1 int, f2 text) AS $$ SELECT $1, CAST($1 AS text) || ' is text' $$ LANGUAGE SQL;",
+"valid": true
+},
+{
+"line": 13,
+"section": "synopsis_3.sql",
+"sql": "CREATE OR REPLACE FUNCTION check_password(uname TEXT, pass TEXT) RETURNS BOOLEAN AS $$\nDECLARE passed BOOLEAN;\nBEGIN\n        SELECT  (pwd = $2) INTO passed\n        FROM    pwds\n        WHERE   username = $1;\n        RETURN passed;\nEND;\n$$  LANGUAGE plpgsql\n    SECURITY DEFINER\n    SET search_path = admin, pg_temp;",
+"valid": true
+},
+{
+"line": 14,
+"section": "synopsis_3.sql",
+"sql": "CREATE FUNCTION f(a int DEFAULT 1, b text = 'x', VARIADIC c int[] DEFAULT '{}') RETURNS SETOF int WINDOW STABLE NOT LEAKPROOF CALLED ON NULL INPUT EXTERNAL SECURITY INVOKER PARALLEL SAFE COST 10 ROWS 5 SUPPORT s SET work_mem TO '64MB' SET x FROM CURRENT LANGUAGE c AS 'obj_file', 'link_symbol';",
+"valid": true
+},
+{
+"line": 15,
+"section": "synopsis_3.sql",
+"sql": "CREATE FUNCTION tr(x hstore) RETURNS int TRANSFORM FOR TYPE hstore, FOR TYPE int LANGUAGE plpython3u AS $$ return 1 $$;",
+"valid": true
+},
+{
+"line": 16,
+"section": "synopsis_3.sql",
+"sql": "CREATE FUNCTION g() RETURNS int LANGUAGE SQL BEGIN ATOMIC SELECT 1; SELECT 2; END;",
+"valid": true
+},
+{
+"line": 17,
+"section": "synopsis_3.sql",
+"sql": "CREATE FUNCTION h(a int) RETURNS TABLE (x int) LANGUAGE SQL BEGIN ATOMIC INSERT INTO t VALUES (a); SELECT x FROM t WHERE x = a; END;",
+"valid": true
+},
+{
+"line": 18,
+"section": "synopsis_3.sql",
+"sql": "CREATE GROUP staff;",
+"valid": true
+},
+{
+"line": 19,
+"section": "synopsis_3.sql",
+"sql": "CREATE GROUP g WITH SUPERUSER CREATEDB NOCREATEROLE NOINHERIT LOGIN REPLICATION BYPASSRLS CONNECTION LIMIT 5 ENCRYPTED PASSWORD 'p' VALID UNTIL '2030-01-01' IN ROLE a, b IN GROUP c ROLE d ADMIN e USER f SYSID 100;",
+"valid": true
+},
+{
+"line": 20,
+"section": "synopsis_3.sql",
+"sql": "CREATE UNIQUE INDEX title_idx ON films (title);",
+"valid": true
+},
+{
+"line": 21,
+"section": "synopsis_3.sql",
+"sql": "CREATE UNIQUE INDEX title_idx ON films (title) INCLUDE (director, rating);",
+"valid": true
+},
+{
+"line": 22,
+"section": "synopsis_3.sql",
+"sql": "CREATE INDEX title_idx ON films (title) WITH (deduplicate_items = off);",
+"valid": true
+},
+{
+"line": 23,
+"section": "synopsis_3.sql",
+"sql": "CREATE INDEX ON films ((lower(title)));",
+"valid": true
+},
+{
+"line": 24,
+"section": "synopsis_3.sql",
+"sql": "CREATE INDEX title_idx_german ON films (title COLLATE \"de_DE\");",
+"valid": true
+},
+{
+"line": 25,
+"section": "synopsis_3.sql",
+"sql": "CREATE INDEX title_idx_nulls_low ON films (title NULLS FIRST);",
+"valid": true
+},
+{
+"line": 26,
+"section": "synopsis_3.sql",
+"sql": "CREATE UNIQUE INDEX title_idx ON films (title) WITH (fillfactor = 70);",
+"valid": true
+},
+{
+"line": 27,
+"section": "synopsis_3.sql",
+"sql": "CREATE INDEX gin_idx ON documents_table USING GIN (locations) WITH (fastupdate = off);",
+"valid": true
+},
+{
+"line": 28,
+"section": "synopsis_3.sql",
+"sql": "CREATE INDEX code_idx ON films (code) TABLESPACE indexspace;",
+"valid": true
+},
+{
+"line": 29,
+"section": "synopsis_3.sql",
+"sql": "CREATE INDEX pointloc ON points USING gist (box(location, location));",
+"valid": true
+},
+{
+"line": 30,
+"section": "synopsis_3.sql",
+"sql": "CREATE INDEX CONCURRENTLY sales_quantity_index ON sales_table (quantity);",
+"valid": true
+},
+{
+"line": 31,
+"section": "synopsis_3.sql",
+"sql": "CREATE INDEX IF NOT EXISTS i ON ONLY t USING btree (a DESC NULLS LAST, (b + 1) text_pattern_ops, c int4_ops (siglen = 32) ASC) INCLUDE (d) NULLS NOT DISTINCT WITH (fillfactor = 70) TABLESPACE ts WHERE a > 0 AND b IS NOT NULL;",
+"valid": true
+},
+{
+"line": 32,
+"section": "synopsis_3.sql",
+"sql": "CREATE UNIQUE INDEX CONCURRENTLY ON t (a) NULLS DISTINCT;",
+"valid": true
+},
+{
+"line": 33,
+"section": "synopsis_3.sql",
+"sql": "CREATE LANGUAGE plsample HANDLER plsample_call_handler;",
+"valid": true
+},
+{
+"line": 34,
+"section": "synopsis_3.sql",
+"sql": "CREATE OR REPLACE TRUSTED PROCEDURAL LANGUAGE plx HANDLER h INLINE i VALIDATOR v;",
+"valid": true
+},
+{
+"line": 35,
+"section": "synopsis_3.sql",
+"sql": "CREATE LANGUAGE plpgsql;",
+"valid": true
+},
+{
+"line": 36,
+"section": "synopsis_3.sql",
+"sql": "CREATE MATERIALIZED VIEW mymatview AS SELECT * FROM mytab;",
+"valid": true
+},
+{
+"line": 37,
+"section": "synopsis_3.sql",
+"sql": "CREATE MATERIALIZED VIEW IF NOT EXISTS mv (a, b) USING heap WITH (fillfactor = 70) TABLESPACE ts AS SELECT x, y FROM t WITH NO DATA;",
+"valid": true
+},
+{
+"line": 38,
+"section": "synopsis_3.sql",
+"sql": "CREATE MATERIALIZED VIEW mv2 AS WITH c AS (SELECT 1 AS a) SELECT a FROM c WITH DATA;",
+"valid": true
+},
+{
+"line": 39,
+"section": "synopsis_3.sql",
+"sql": "CREATE OPERATOR === (LEFTARG = box, RIGHTARG = box, FUNCTION = area_equal_function, COMMUTATOR = ===, NEGATOR = !==, RESTRICT = area_restriction_function, JOIN = area_join_function, HASHES, MERGES);",
+"valid": true
+},
+{
+"line": 40,
+"section": "synopsis_3.sql",
+"sql": "CREATE OPERATOR - (RIGHTARG = int, PROCEDURE = int4um);",
+"valid": true
+},
+{
+"line": 41,
+"section": "synopsis_3.sql",
+"sql": "CREATE OPERATOR CLASS gist__int_ops DEFAULT FOR TYPE _int4 USING gist AS\n        OPERATOR        3       &&,\n        OPERATOR        6       = (anyarray, anyarray),\n        OPERATOR        7       @>,\n        OPERATOR        8       <@,\n        OPERATOR        20      @@ (_int4, query_int),\n        FUNCTION        1       g_int_consistent (internal, _int4, smallint, oid, internal),\n        FUNCTION        2       g_int_union (internal, internal),\n        FUNCTION        3       g_int_compress (internal),\n        FUNCTION        4       g_int_decompress (internal),\n        FUNCTION        5       g_int_penalty (internal, internal, internal),\n        FUNCTION        6       g_int_picksplit (internal, internal),\n        FUNCTION        7       g_int_same (_int4, _int4, internal);",
+"valid": true
+},
+{
+"line": 42,
+"section": "synopsis_3.sql",
+"sql": "CREATE OPERATOR CLASS c FOR TYPE point USING gist FAMILY f AS OPERATOR 15 <-> (point, point) FOR ORDER BY float_ops, OPERATOR 1 << FOR SEARCH, FUNCTION 1 (point, point) f(internal), STORAGE box;",
+"valid": true
+},
+{
+"line": 43,
+"section": "synopsis_3.sql",
+"sql": "CREATE OPERATOR FAMILY integer_ops USING btree;",
+"valid": true
+},
+{
+"line": 44,
+"section": "synopsis_3.sql",
+"sql": "CREATE POLICY account_managers ON accounts TO managers USING (manager = current_user);",
+"valid": true
+},
+{
+"line": 45,
+"section": "synopsis_3.sql",
+"sql": "CREATE POLICY user_mod ON passwd FOR UPDATE USING (current_user = user_name) WITH CHECK (current_user = user_name AND shell IN ('/bin/bash', '/bin/sh'));",
+"valid": true
+},
+{
+"line": 46,
+"section": "synopsis_3.sql",
+"sql": "CREATE POLICY p ON t AS RESTRICTIVE FOR ALL TO PUBLIC, CURRENT_USER, SESSION_USER USING (true);",
+"valid": true
+},
+{
+"line": 47,
+"section": "synopsis_3.sql",
+"sql": "CREATE POLICY p2 ON t AS PERMISSIVE FOR SELECT USING (a > 0);",
+"valid": true
+},
+{
+"line": 48,
+"section": "synopsis_3.sql",
+"sql": "CREATE POLICY p3 ON t FOR INSERT WITH CHECK (b < 10);",
+"valid": true
+},
+{
+"line": 49,
+"section": "synopsis_3.sql",
+"sql": "CREATE POLICY p4 ON t FOR DELETE TO CURRENT_ROLE USING (owner = current_user);",
+"valid": true
+},
+{
+"line": 50,
+"section": "synopsis_3.sql",
+"sql": "CREATE PROCEDURE insert_data(a integer, b integer) LANGUAGE SQL AS $$\nINSERT INTO tbl VALUES (a);\nINSERT INTO tbl VALUES (b);\n$$;",
+"valid": true
+},
+{
+"line": 51,
+"section": "synopsis_3.sql",
+"sql": "CREATE PROCEDURE insert_data2(a integer, b integer) LANGUAGE SQL BEGIN ATOMIC INSERT INTO tbl VALUES (a); INSERT INTO tbl VALUES (b); END;",
+"valid": true
+},
+{
+"line": 52,
+"section": "synopsis_3.sql",
+"sql": "CREATE OR REPLACE PROCEDURE p(INOUT x int DEFAULT 0, OUT y text) TRANSFORM FOR TYPE hstore EXTERNAL SECURITY DEFINER SET search_path FROM CURRENT LANGUAGE plpgsql AS $$ BEGIN y := 'a'; END $$;",
+"valid": true
+},
+{
+"line": 53,
+"section": "synopsis_3.sql",
+"sql": "CREATE PUBLICATION mypublication FOR TABLE users, departments;",
+"valid": true
+},
+{
+"line": 54,
+"section": "synopsis_3.sql",
+"sql": "CREATE PUBLICATION active_departments FOR TABLE departments WHERE (active IS TRUE);",
+"valid": true
+},
+{
+"line": 55,
+"section": "synopsis_3.sql",
+"sql": "CREATE PUBLICATION alltables FOR ALL TABLES;",
+"valid": true
+},
+{
+"line": 56,
+"section": "synopsis_3.sql",
+"sql": "CREATE PUBLICATION insert_only FOR TABLE mydata WITH (publish = 'insert');",
+"valid": true
+},
+{
+"line": 57,
+"section": "synopsis_3.sql",
+"sql": "CREATE PUBLICATION production_publication FOR TABLE users, departments, TABLES IN SCHEMA production;",
+"valid": true
+},
+{
+"line": 58,
+"section": "synopsis_3.sql",
+"sql": "CREATE PUBLICATION sales_publication FOR TABLES IN SCHEMA marketing, sales;",
+"valid": true
+},
+{
+"line": 59,
+"section": "synopsis_3.sql",
+"sql": "CREATE PUBLICATION users_filtered FOR TABLE users (user_id, firstname);",
+"valid": true
+},
+{
+"line": 60,
+"section": "synopsis_3.sql",
+"sql": "CREATE PUBLICATION p FOR TABLE ONLY t (a, b) WHERE (a > 0), TABLES IN SCHEMA CURRENT_SCHEMA WITH (publish_via_partition_root = true, publish_generated_columns = stored);",
+"valid": true
+},
+{
+"line": 61,
+"section": "synopsis_3.sql",
+"sql": "CREATE PUBLICATION empty;",
+"valid": true
+},
+{
+"line": 62,
+"section": "synopsis_3.sql",
+"sql": "CREATE ROLE jonathan LOGIN;",
+"valid": true
+},
+{
+"line": 63,
+"section": "synopsis_3.sql",
+"sql": "CREATE USER davide WITH PASSWORD 'jw8s0F4';",
+"valid": true
+},
+{
+"line": 64,
+"section": "synopsis_3.sql",
+"sql": "CREATE ROLE miriam WITH LOGIN PASSWORD 'jw8s0F4' VALID UNTIL '2005-01-01';",
+"valid": true
+},
+{
+"line": 65,
+"section": "synopsis_3.sql",
+"sql": "CREATE ROLE admin WITH CREATEDB CREATEROLE;",
+"valid": true
+},
+{
+"line": 66,
+"section": "synopsis_3.sql",
+"sql": "CREATE ROLE r WITH NOSUPERUSER NOCREATEDB NOLOGIN NOREPLICATION NOBYPASSRLS PASSWORD NULL IN ROLE a ROLE b ADMIN c SYSID 5;",
+"valid": true
+},
+{
+"line": 67,
+"section": "synopsis_3.sql",
+"sql": "CREATE RULE \"_RETURN\" AS ON SELECT TO t1 DO INSTEAD SELECT * FROM t2;",
+"valid": true
+},
+{
+"line": 68,
+"section": "synopsis_3.sql",
+"sql": "CREATE RULE notify_me AS ON UPDATE TO mytable DO ALSO NOTIFY mytable;",
+"valid": true
+},
+{
+"line": 69,
+"section": "synopsis_3.sql",
+"sql": "CREATE OR REPLACE RULE r AS ON INSERT TO t WHERE NEW.a > 0 DO INSTEAD NOTHING;",
+"valid": true
+},
+{
+"line": 70,
+"section": "synopsis_3.sql",
+"sql": "CREATE RULE r2 AS ON DELETE TO t DO (DELETE FROM log WHERE id = OLD.id; INSERT INTO audit VALUES (OLD.id));",
+"valid": true
+},
+{
+"line": 71,
+"section": "synopsis_3.sql",
+"sql": "CREATE RULE r3 AS ON UPDATE TO t DO INSTEAD UPDATE t2 SET a = NEW.a WHERE id = OLD.id;",
+"valid": true
+},
+{
+"line": 72,
+"section": "synopsis_3.sql",
+"sql": "CREATE SCHEMA myschema;",
+"valid": true
+},
+{
+"line": 73,
+"section": "synopsis_3.sql",
+"sql": "CREATE SCHEMA AUTHORIZATION joe;",
+"valid": true
+},
+{
+"line": 74,
+"section": "synopsis_3.sql",
+"sql": "CREATE SCHEMA IF NOT EXISTS test AUTHORIZATION joe;",
+"valid": true
+},
+{
+"line": 75,
+"section": "synopsis_3.sql",
+"sql": "CREATE SCHEMA IF NOT EXISTS AUTHORIZATION CURRENT_USER;",
+"valid": true
+},
+{
+"line": 76,
+"section": "synopsis_3.sql",
+"sql": "CREATE SCHEMA hollywood\n    CREATE TABLE films (title text, release date, awards text[])\n    CREATE VIEW winners AS\n        SELECT title, release FROM films WHERE awards IS NOT NULL;",
+"valid": true
+},
+{
+"line": 77,
+"section": "synopsis_3.sql",
+"sql": "CREATE SCHEMA s CREATE SEQUENCE sq CREATE INDEX i ON t (a) CREATE TRIGGER tr AFTER INSERT ON t FOR EACH ROW EXECUTE FUNCTION f() GRANT SELECT ON t TO PUBLIC;",
+"valid": true
+},
+{
+"line": 78,
+"section": "synopsis_3.sql",
+"sql": "CREATE SEQUENCE serial START 101;",
+"valid": true
+},
+{
+"line": 79,
+"section": "synopsis_3.sql",
+"sql": "CREATE TEMPORARY SEQUENCE IF NOT EXISTS s AS smallint INCREMENT BY 1 MINVALUE 1 MAXVALUE 100 CYCLE START WITH 1 CACHE 1 OWNED BY t.c;",
+"valid": true
+},
+{
+"line": 80,
+"section": "synopsis_3.sql",
+"sql": "CREATE UNLOGGED SEQUENCE s2 INCREMENT -1 NO MINVALUE NO MAXVALUE NO CYCLE OWNED BY NONE;",
+"valid": true
+},
+{
+"line": 81,
+"section": "synopsis_3.sql",
+"sql": "CREATE TEMP SEQUENCE s3;",
+"valid": true
+},
+{
+"line": 82,
+"section": "synopsis_3.sql",
+"sql": "CREATE SERVER myserver FOREIGN DATA WRAPPER postgres_fdw OPTIONS (host 'foo', dbname 'foodb', port '5432');",
+"valid": true
+},
+{
+"line": 83,
+"section": "synopsis_3.sql",
+"sql": "CREATE SERVER IF NOT EXISTS s TYPE 'oracle' VERSION '19' FOREIGN DATA WRAPPER w;",
+"valid": true
+},
+{
+"line": 84,
+"section": "synopsis_3.sql",
+"sql": "CREATE STATISTICS s1 (dependencies) ON a, b FROM t1;",
+"valid": true
+},
+{
+"line": 85,
+"section": "synopsis_3.sql",
+"sql": "CREATE STATISTICS m1 (mcv) ON a, b FROM t2;",
+"valid": true
+},
+{
+"line": 86,
+"section": "synopsis_3.sql",
+"sql": "CREATE STATISTICS s3 (ndistinct, dependencies, mcv) ON date_trunc('month', a), date_trunc('day', a) FROM t3;",
+"valid": true
+},
+{
+"line": 87,
+"section": "synopsis_3.sql",
+"sql": "CREATE STATISTICS IF NOT EXISTS s4 ON (a + b) FROM t;",
+"valid": true
+},
+{
+"line": 88,
+"section": "synopsis_3.sql",
+"sql": "CREATE STATISTICS ON a, (b * 2) FROM t;",
+"valid": true
+},
+{
+"line": 89,
+"section": "synopsis_3.sql",
+"sql": "CREATE SUBSCRIPTION mysub CONNECTION 'host=192.168.1.50 port=5432 user=foo dbname=foodb' PUBLICATION mypublication, insert_only;",
+"valid": true
+},
+{
+"line": 90,
+"section": "synopsis_3.sql",
+"sql": "CREATE SUBSCRIPTION mysub2 CONNECTION 'x' PUBLICATION p WITH (enabled = false, create_slot, slot_name = 'mysub', copy_data = true, streaming = parallel, two_phase = on, failover = true, origin = none);",
+"valid": true
+},
+{
+"line": 91,
+"section": "synopsis_3.sql",
+"sql": "CREATE TABLE films (\n    code        char(5) CONSTRAINT firstkey PRIMARY KEY,\n    title       varchar(40) NOT NULL,\n    did         integer NOT NULL,\n    date_prod   date,\n    kind        varchar(10),\n    len         interval hour to minute\n);",
+"valid": true
+},
+{
+"line": 92,
+"section": "synopsis_3.sql",
+"sql": "CREATE TABLE distributors (\n     did    integer PRIMARY KEY GENERATED BY DEFAULT AS IDENTITY,\n     name   varchar(40) NOT NULL CHECK (name <> '')\n);",
+"valid": true
+},
+{
+"line": 93,
+"section": "synopsis_3.sql",
+"sql": "CREATE TABLE array_int (vector  int[][]);",
+"valid": true
+},
+{
+"line": 94,
+"section": "synopsis_3.sql",
+"sql": "CREATE TABLE films2 (\n    code        char(5),\n    title       varchar(40),\n    did         integer,\n    date_prod   date,\n    kind        varchar(10),\n    len         interval hour to minute,\n    CONSTRAINT code_title UNIQUE(code,title)\n);",
+"valid": true
+},
+{
+"line": 95,
+"section": "synopsis_3.sql",
+"sql": "CREATE TABLE distributors2 (\n    did     integer CHECK (did > 100),\n    name    varchar(40),\n    CONSTRAINT con1 CHECK (did > 100 AND name <> '')\n);",
+"valid": true
+},
+{
+"line": 96,
+"section": "synopsis_3.sql",
+"sql": "CREATE TABLE films3 (\n    code        char(5),\n    title       varchar(40),\n    PRIMARY KEY(code,title)\n);",
+"valid": true
+},
+{
+"line": 97,
+"section": "synopsis_3.sql",
+"sql": "CREATE TABLE distributors3 (\n    name      varchar(40) DEFAULT 'Luso Films',\n    did       integer DEFAULT nextval('distributors_serial'),\n    modtime   timestamp DEFAULT current_timestamp\n);",
+"valid": true
+},
+{
+"line": 98,
+"section": "synopsis_3.sql",
+"sql": "CREATE TABLE distributors4 (\n    did     integer,\n    name    varchar(40)\n)\nWITH (fillfactor=70);",
+"valid": true
+},
+{
+"line": 99,
+"section": "synopsis_3.sql",
+"sql": "CREATE TABLE circles (\n    c circle,\n    EXCLUDE USING gist (c WITH &&)\n);",
+"valid": true
+},
+{
+"line": 100,
+"section": "synopsis_3.sql",
+"sql": "CREATE TABLE cinemas (\n        id serial,\n        name text,\n        location text\n) TABLESPACE diskvol1;",
+"valid": true
+},
+{
+"line": 101,
+"section": "synopsis_3.sql",
+"sql": "CREATE TYPE employee_type AS (name text, salary numeric);",
+"valid": true
+},
+{
+"line": 102,
+"section": "synopsis_3.sql",
+"sql": "CREATE TABLE employees OF employee_type (\n    PRIMARY KEY (name),\n    salary WITH OPTIONS DEFAULT 1000\n);",
+"valid": true
+},
+{
+"line": 103,
+"section": "synopsis_3.sql",
+"sql": "CREATE TABLE measurement (\n    logdate         date not null,\n    peaktemp        int,\n    unitsales       int\n) PARTITION BY RANGE (logdate);",
+"valid": true
+},
+{
+"line": 104,
+"section": "synopsis_3.sql",
+"sql": "CREATE TABLE measurement_year_month (\n    logdate         date not null,\n    peaktemp        int,\n    unitsales       int\n) PARTITION BY RANGE (EXTRACT(YEAR FROM logdate), EXTRACT(MONTH FROM logdate));",
+"valid": true
+},
+{
+"line": 105,
+"section": "synopsis_3.sql",
+"sql": "CREATE TABLE cities (\n    city_id      bigserial not null,\n    name         text not null,\n    population   bigint\n) PARTITION BY LIST (left(lower(name), 1));",
+"valid": true
+},
+{
+"line": 106,
+"section": "synopsis_3.sql",
+"sql": "CREATE TABLE orders (\n    order_id     bigint not null,\n    cust_id      bigint not null,\n    status       text\n) PARTITION BY HASH (order_id);",
+"valid": true
+},
+{
+"line": 107,
+"section": "synopsis_3.sql",
+"sql": "CREATE TABLE measurement_y2016m07\n    PARTITION OF measurement (\n    unitsales DEFAULT 0\n) FOR VALUES FROM ('2016-07-01') TO ('2016-08-01');",
+"valid": true
+},
+{
+"line": 108,
+"section": "synopsis_3.sql",
+"sql": "CREATE TABLE measurement_ym_older\n    PARTITION OF measurement_year_month\n    FOR VALUES FROM (MINVALUE, MINVALUE) TO (2016, 11);",
+"valid": true
+},
+{
+"line": 109,
+"section": "synopsis_3.sql",
+"sql": "CREATE TABLE cities_ab\n    PARTITION OF cities (\n    CONSTRAINT city_id_nonzero CHECK (city_id != 0)\n) FOR VALUES IN ('a', 'b') PARTITION BY RANGE (population);",
+"valid": true
+},
+{
+"line": 110,
+"section": "synopsis_3.sql",
+"sql": "CREATE GLOBAL TEMPORARY TABLE IF NOT EXISTS t (\n    a int STORAGE EXTERNAL COMPRESSION lz4 COLLATE \"C\" CONSTRAINT nn NOT NULL NO INHERIT,\n    b int NULL,\n    c int GENERATED ALWAYS AS (a * 2) VIRTUAL,\n    d int GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1),\n    e text UNIQUE NULLS NOT DISTINCT WITH (fillfactor = 70) USING INDEX TABLESPACE ts,\n    f int REFERENCES other (id) MATCH FULL ON DELETE SET NULL ON UPDATE CASCADE DEFERRABLE INITIALLY DEFERRED NOT ENFORCED,\n    g int CHECK (g > 0) NO INHERIT ENFORCED,\n    valid tstzrange,\n    CONSTRAINT pk PRIMARY KEY (a, valid WITHOUT OVERLAPS),\n    CONSTRAINT fk FOREIGN KEY (a, PERIOD valid) REFERENCES p (a, PERIOD valid) ON DELETE NO ACTION,\n    CONSTRAINT ex EXCLUDE USING gist (b WITH =, (c + 1) WITH <>) WHERE (b > 0),\n    NOT NULL b NO INHERIT,\n    LIKE src INCLUDING DEFAULTS INCLUDING CONSTRAINTS EXCLUDING INDEXES INCLUDING STORAGE INCLUDING COMPRESSION INCLUDING IDENTITY INCLUDING GENERATED INCLUDING STATISTICS\n) INHERITS (base) PARTITION BY RANGE (a COLLATE \"C\" int4_ops) USING heap WITH (fillfactor = 80) ON COMMIT PRESERVE ROWS TABLESPACE ts;",
+"valid": true
+},
+{
+"line": 111,
+"section": "synopsis_3.sql",
+"sql": "CREATE LOCAL TEMP TABLE t2 (a int) ON COMMIT DELETE ROWS;",
+"valid": true
+},
+{
+"line": 112,
+"section": "synopsis_3.sql",
+"sql": "CREATE TEMP TABLE t3 (a int) ON COMMIT DROP;",
+"valid": true
+},
+{
+"line": 113,
+"section": "synopsis_3.sql",
+"sql": "CREATE UNLOGGED TABLE t4 (a int) WITHOUT OIDS;",
+"valid": true
+},
+{
+"line": 114,
+"section": "synopsis_3.sql",
+"sql": "CREATE TABLE t5 ();",
+"valid": true
+},
+{
+"line": 115,
+"section": "synopsis_3.sql",
+"sql": "CREATE TABLE t6 (LIKE t5);",
+"valid": true
+},
+{
+"line": 116,
+"section": "synopsis_3.sql",
+"sql": "CREATE TABLE films_recent AS SELECT * FROM films WHERE date_prod >= '2002-01-01';",
+"valid": true
+},
+{
+"line": 117,
+"section": "synopsis_3.sql",
+"sql": "CREATE TABLE films2 AS TABLE films;",
+"valid": true
+},
+{
+"line": 118,
+"section": "synopsis_3.sql",
+"sql": "CREATE TEMP TABLE films_recent2 ON COMMIT DROP AS EXECUTE recentfilms('2002-01-01');",
+"valid": true
+},
+{
+"line": 119,
+"section": "synopsis_3.sql",
+"sql": "CREATE UNLOGGED TABLE IF NOT EXISTS ctas (a, b) USING heap WITH (fillfactor = 70) TABLESPACE ts AS SELECT 1, 2 WITH NO DATA;",
+"valid": true
+},
+{
+"line": 120,
+"section": "synopsis_3.sql",
+"sql": "CREATE TABLE ctas2 AS VALUES (1, 'a'), (2, 'b');",
+"valid": true
+},
+{
+"line": 121,
+"section": "synopsis_3.sql",
+"sql": "CREATE TABLE ctas3 WITHOUT OIDS AS SELECT 1 AS x;",
+"valid": true
+},
+{
+"line": 122,
+"section": "synopsis_3.sql",
+"sql": "CREATE TABLESPACE dbspace LOCATION '/data/dbs';",
+"valid": true
+},
+{
+"line": 123,
+"section": "synopsis_3.sql",
+"sql": "CREATE TABLESPACE indexspace OWNER genevieve LOCATION '/data/indexes' WITH (random_page_cost = 1.1);",
+"valid": true
+},
+{
+"line": 124,
+"section": "synopsis_3.sql",
+"sql": "CREATE TEXT SEARCH CONFIGURATION my_search_config (copy = english);",
+"valid": true
+},
+{
+"line": 125,
+"section": "synopsis_3.sql",
+"sql": "CREATE TEXT SEARCH CONFIGURATION pg (PARSER = default);",
+"valid": true
+},
+{
+"line": 126,
+"section": "synopsis_3.sql",
+"sql": "CREATE TEXT SEARCH DICTIONARY my_russian (template = snowball, language = russian, stopwords = myrussian);",
+"valid": true
+},
+{
+"line": 127,
+"section": "synopsis_3.sql",
+"sql": "CREATE TEXT SEARCH PARSER myparser (START = prsd_start, GETTOKEN = prsd_nexttoken, END = prsd_end, LEXTYPES = prsd_lextype, HEADLINE = prsd_headline);",
+"valid": true
+},
+{
+"line": 128,
+"section": "synopsis_3.sql",
+"sql": "CREATE TEXT SEARCH TEMPLATE mytemplate (INIT = dsimple_init, LEXIZE = dsimple_lexize);",
+"valid": true
+},
+{
+"line": 129,
+"section": "synopsis_3.sql",
+"sql": "CREATE TRANSFORM FOR hstore LANGUAGE plpython3u (FROM SQL WITH FUNCTION hstore_to_plpython(internal), TO SQL WITH FUNCTION plpython_to_hstore(internal));",
+"valid": true
+},
+{
+"line": 130,
+"section": "synopsis_3.sql",
+"sql": "CREATE OR REPLACE TRANSFORM FOR int LANGUAGE plperl (FROM SQL WITH FUNCTION f1, TO SQL WITH FUNCTION f2);",
+"valid": true
+},
+{
+"line": 131,
+"section": "synopsis_3.sql",
+"sql": "CREATE TRIGGER check_update BEFORE UPDATE ON accounts FOR EACH ROW EXECUTE FUNCTION check_account_update();",
+"valid": true
+},
+{
+"line": 132,
+"section": "synopsis_3.sql",
+"sql": "CREATE OR REPLACE TRIGGER check_update BEFORE UPDATE OF balance ON accounts FOR EACH ROW EXECUTE FUNCTION check_account_update();",
+"valid": true
+},
+{
+"line": 133,
+"section": "synopsis_3.sql",
+"sql": "CREATE TRIGGER check_update2 BEFORE UPDATE ON accounts FOR EACH ROW WHEN (OLD.balance IS DISTINCT FROM NEW.balance) EXECUTE FUNCTION check_account_update();",
+"valid": true
+},
+{
+"line": 134,
+"section": "synopsis_3.sql",
+"sql": "CREATE TRIGGER log_update AFTER UPDATE ON accounts FOR EACH ROW WHEN (OLD.* IS DISTINCT FROM NEW.*) EXECUTE FUNCTION log_account_update();",
+"valid": true
+},
+{
+"line": 135,
+"section": "synopsis_3.sql",
+"sql": "CREATE TRIGGER view_insert INSTEAD OF INSERT ON my_view FOR EACH ROW EXECUTE FUNCTION view_insert_row();",
+"valid": true
+},
+{
+"line": 136,
+"section": "synopsis_3.sql",
+"sql": "CREATE TRIGGER transfer_insert AFTER INSERT ON transfer REFERENCING NEW TABLE AS inserted FOR EACH STATEMENT EXECUTE FUNCTION check_transfer_balances_to_zero();",
+"valid": true
+},
+{
+"line": 137,
+"section": "synopsis_3.sql",
+"sql": "CREATE TRIGGER paired_items_update AFTER UPDATE ON paired_items REFERENCING NEW TABLE AS newtab OLD TABLE AS oldtab FOR EACH ROW EXECUTE FUNCTION check_matching_pairs();",
+"valid": true
+},
+{
+"line": 138,
+"section": "synopsis_3.sql",
+"sql": "CREATE CONSTRAINT TRIGGER ct AFTER INSERT OR UPDATE OR DELETE OR TRUNCATE ON t FROM other DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE PROCEDURE f('a', 1);",
+"valid": true
+},
+{
+"line": 139,
+"section": "synopsis_3.sql",
+"sql": "CREATE TRIGGER t2 AFTER TRUNCATE ON t FOR STATEMENT EXECUTE FUNCTION f();",
+"valid": true
+},
+{
+"line": 140,
+"section": "synopsis_3.sql",
+"sql": "CREATE TYPE compfoo AS (f1 int, f2 text COLLATE \"C\");",
+"valid": true
+},
+{
+"line": 141,
+"section": "synopsis_3.sql",
+"sql": "CREATE TYPE bug_status AS ENUM ('new', 'open', 'closed');",
+"valid": true
+},
+{
+"line": 142,
+"section": "synopsis_3.sql",
+"sql": "CREATE TYPE empty_enum AS ENUM ();",
+"valid": true
+},
+{
+"line": 143,
+"section": "synopsis_3.sql",
+"sql": "CREATE TYPE floatrange AS RANGE (subtype = float8, subtype_diff = float8mi);",
+"valid": true
+},
+{
+"line": 144,
+"section": "synopsis_3.sql",
+"sql": "CREATE TYPE r2 AS RANGE (SUBTYPE = int4, SUBTYPE_OPCLASS = int4_ops, COLLATION = \"C\", CANONICAL = c, SUBTYPE_DIFF = d, MULTIRANGE_TYPE_NAME = r2_multi);",
+"valid": true
+},
+{
+"line": 145,
+"section": "synopsis_3.sql",
+"sql": "CREATE TYPE box (INTERNALLENGTH = 16, INPUT = my_box_in_function, OUTPUT = my_box_out_function);",
+"valid": true
+},
+{
+"line": 146,
+"section": "synopsis_3.sql",
+"sql": "CREATE TYPE bigobj (INPUT = lo_filein, OUTPUT = lo_fileout, INTERNALLENGTH = VARIABLE, RECEIVE = r, SEND = s, TYPMOD_IN = ti, TYPMOD_OUT = tout, ANALYZE = a, SUBSCRIPT = sub, PASSEDBYVALUE, ALIGNMENT = double, STORAGE = plain, LIKE = int4, CATEGORY = 'U', PREFERRED = false, DEFAULT = '0', ELEMENT = int4, DELIMITER = ',', COLLATABLE = true);",
+"valid": true
+},
+{
+"line": 147,
+"section": "synopsis_3.sql",
+"sql": "CREATE TYPE shell_type;",
+"valid": true
+},
+{
+"line": 148,
+"section": "synopsis_3.sql",
+"sql": "CREATE USER MAPPING FOR bob SERVER foo OPTIONS (user 'bob', password 'secret');",
+"valid": true
+},
+{
+"line": 149,
+"section": "synopsis_3.sql",
+"sql": "CREATE USER MAPPING IF NOT EXISTS FOR PUBLIC SERVER foo;",
+"valid": true
+},
+{
+"line": 150,
+"section": "synopsis_3.sql",
+"sql": "CREATE USER MAPPING FOR USER SERVER foo OPTIONS (user 'x');",
+"valid": true
+},
+{
+"line": 151,
+"section": "synopsis_3.sql",
+"sql": "CREATE USER MAPPING FOR CURRENT_ROLE SERVER foo;",
+"valid": true
+},
+{
+"line": 152,
+"section": "synopsis_3.sql",
+"sql": "CREATE VIEW vista AS SELECT 'Hello World';",
+"valid": true
+},
+{
+"line": 153,
+"section": "synopsis_3.sql",
+"sql": "CREATE VIEW vista2 AS SELECT text 'Hello World' AS hello;",
+"valid": true
+},
+{
+"line": 154,
+"section": "synopsis_3.sql",
+"sql": "CREATE VIEW comedies AS SELECT * FROM films WHERE kind = 'Comedy';",
+"valid": true
+},
+{
+"line": 155,
+"section": "synopsis_3.sql",
+"sql": "CREATE VIEW universal_comedies AS SELECT * FROM comedies WHERE classification = 'U' WITH LOCAL CHECK OPTION;",
+"valid": true
+},
+{
+"line": 156,
+"section": "synopsis_3.sql",
+"sql": "CREATE VIEW pg_comedies AS SELECT * FROM comedies WHERE classification = 'PG' WITH CASCADED CHECK OPTION;",
+"valid": true
+},
+{
+"line": 157,
+"section": "synopsis_3.sql",
+"sql": "CREATE VIEW comedies2 AS SELECT f.*, country_code_to_name(f.country_code) AS country, (SELECT avg(r.rating) FROM user_ratings r WHERE r.film_id = f.id) AS avg_rating FROM films f WHERE f.kind = 'Comedy';",
+"valid": true
+},
+{
+"line": 158,
+"section": "synopsis_3.sql",
+"sql": "CREATE RECURSIVE VIEW public.nums_1_100 (n) AS VALUES (1) UNION ALL SELECT n+1 FROM nums_1_100 WHERE n < 100;",
+"valid": true
+},
+{
+"line": 159,
+"section": "synopsis_3.sql",
+"sql": "CREATE OR REPLACE TEMP VIEW v (a, b) WITH (security_barrier = true, check_option = cascaded, security_invoker) AS SELECT 1, 2 WITH CHECK OPTION;",
+"valid": true
+},
+{
+"line": 1,
+"section": "synopsis_4.sql",
+"sql": "DEALLOCATE fooplan;",
+"valid": true
+},
+{
+"line": 2,
+"section": "synopsis_4.sql",
+"sql": "DEALLOCATE PREPARE fooplan;",
+"valid": true
+},
+{
+"line": 3,
+"section": "synopsis_4.sql",
+"sql": "DEALLOCATE ALL;",
+"valid": true
+},
+{
+"line": 4,
+"section": "synopsis_4.sql",
+"sql": "DECLARE liahona CURSOR FOR SELECT * FROM films;",
+"valid": true
+},
+{
+"line": 5,
+"section": "synopsis_4.sql",
+"sql": "DECLARE c BINARY INSENSITIVE NO SCROLL CURSOR WITH HOLD FOR SELECT a FROM t WHERE b > 1 ORDER BY a;",
+"valid": true
+},
+{
+"line": 6,
+"section": "synopsis_4.sql",
+"sql": "DECLARE c2 ASENSITIVE SCROLL CURSOR WITHOUT HOLD FOR VALUES (1), (2);",
+"valid": true
+},
+{
+"line": 7,
+"section": "synopsis_4.sql",
+"sql": "DECLARE c3 CURSOR FOR WITH x AS (SELECT 1 AS a) SELECT a FROM x;",
+"valid": true
+},
+{
+"line": 8,
+"section": "synopsis_4.sql",
+"sql": "DELETE FROM films USING producers WHERE producer_id = producers.id AND producers.name = 'foo';",
+"valid": true
+},
+{
+"line": 9,
+"section": "synopsis_4.sql",
+"sql": "DELETE FROM films WHERE producer_id IN (SELECT id FROM producers WHERE name = 'foo');",
+"valid": true
+},
+{
+"line": 10,
+"section": "synopsis_4.sql",
+"sql": "DELETE FROM films WHERE kind <> 'Musical';",
+"valid": true
+},
+{
+"line": 11,
+"section": "synopsis_4.sql",
+"sql": "DELETE FROM films;",
+"valid": true
+},
+{
+"line": 12,
+"section": "synopsis_4.sql",
+"sql": "DELETE FROM tasks WHERE status = 'DONE' RETURNING *;",
+"valid": true
+},
+{
+"line": 13,
+"section": "synopsis_4.sql",
+"sql": "DELETE FROM tasks WHERE CURRENT OF c_tasks;",
+"valid": true
+},
+{
+"line": 14,
+"section": "synopsis_4.sql",
+"sql": "DELETE FROM ONLY films f WHERE f.kind = 'x';",
+"valid": true
+},
+{
+"line": 15,
+"section": "synopsis_4.sql",
+"sql": "DELETE FROM films * AS f WHERE f.kind = 'x';",
+"valid": true
+},
+{
+"line": 16,
+"section": "synopsis_4.sql",
+"sql": "DELETE FROM user_logs AS dl USING delete_batch AS del WHERE dl.ctid = del.ctid;",
+"valid": true
+},
+{
+"line": 17,
+"section": "synopsis_4.sql",
+"sql": "WITH delete_batch AS (\n  SELECT l.ctid FROM user_logs AS l\n    WHERE l.status = 'archived'\n    ORDER BY l.creation_date\n    FOR UPDATE\n    LIMIT 10000\n)\nDELETE FROM user_logs AS dl\n  USING delete_batch AS del\n  WHERE dl.ctid = del.ctid;",
+"valid": true
+},
+{
+"line": 18,
+"section": "synopsis_4.sql",
+"sql": "WITH RECURSIVE x AS (SELECT 1 AS id) DELETE FROM t USING x WHERE t.id = x.id RETURNING t.id AS deleted_id, x.id;",
+"valid": true
+},
+{
+"line": 19,
+"section": "synopsis_4.sql",
+"sql": "DELETE FROM t RETURNING WITH (OLD AS o) o.id, old.a;",
+"valid": true
+},
+{
+"line": 20,
+"section": "synopsis_4.sql",
+"sql": "DELETE FROM t WHERE id = 1 RETURNING old.*, new.*;",
+"valid": true
+},
+{
+"line": 21,
+"section": "synopsis_4.sql",
+"sql": "UPDATE t SET a = a + 1 RETURNING WITH (OLD AS o, NEW AS n) o.a AS before, n.a AS after;",
+"valid": true
+},
+{
+"line": 22,
+"section": "synopsis_4.sql",
+"sql": "INSERT INTO t (a) VALUES (1) ON CONFLICT (a) DO UPDATE SET b = excluded.b RETURNING WITH (NEW AS n, OLD AS o) n.*, o.b;",
+"valid": true
+},
+{
+"line": 23,
+"section": "synopsis_4.sql",
+"sql": "MERGE INTO t USING s ON t.id = s.id WHEN MATCHED THEN DELETE RETURNING merge_action(), old.*, new.*;",
+"valid": true
+},
+{
+"line": 24,
+"section": "synopsis_4.sql",
+"sql": "DISCARD ALL;",
+"valid": true
+},
+{
+"line": 25,
+"section": "synopsis_4.sql",
+"sql": "DISCARD PLANS;",
+"valid": true
+},
+{
+"line": 26,
+"section": "synopsis_4.sql",
+"sql": "DISCARD SEQUENCES;",
+"valid": true
+},
+{
+"line": 27,
+"section": "synopsis_4.sql",
+"sql": "DISCARD TEMPORARY;",
+"valid": true
+},
+{
+"line": 28,
+"section": "synopsis_4.sql",
+"sql": "DISCARD TEMP;",
+"valid": true
+},
+{
+"line": 29,
+"section": "synopsis_4.sql",
+"sql": "DO $$DECLARE r record;\nBEGIN\n    FOR r IN SELECT table_schema, table_name FROM information_schema.tables\n             WHERE table_type = 'VIEW' AND table_schema = 'public'\n    LOOP\n        EXECUTE 'GRANT ALL ON ' || quote_ident(r.table_schema) || '.' || quote_ident(r.table_name) || ' TO webuser';\n    END LOOP;\nEND$$;",
+"valid": true
+},
+{
+"line": 30,
+"section": "synopsis_4.sql",
+"sql": "DO LANGUAGE plpgsql $$ BEGIN RAISE NOTICE 'hi'; END $$;",
+"valid": true
+},
+{
+"line": 31,
+"section": "synopsis_4.sql",
+"sql": "DO $body$ BEGIN PERFORM 1; END $body$ LANGUAGE plpgsql;",
+"valid": true
+},
+{
+"line": 32,
+"section": "synopsis_4.sql",
+"sql": "DO 'BEGIN NULL; END';",
+"valid": true
+},
+{
+"line": 33,
+"section": "synopsis_4.sql",
+"sql": "DROP ACCESS METHOD heptree;",
+"valid": true
+},
+{
+"line": 34,
+"section": "synopsis_4.sql",
+"sql": "DROP ACCESS METHOD IF EXISTS heptree CASCADE;",
+"valid": true
+},
+{
+"line": 35,
+"section": "synopsis_4.sql",
+"sql": "DROP AGGREGATE myavg(integer);",
+"valid": true
+},
+{
+"line": 36,
+"section": "synopsis_4.sql",
+"sql": "DROP AGGREGATE myrank(VARIADIC \"any\" ORDER BY VARIADIC \"any\");",
+"valid": true
+},
+{
+"line": 37,
+"section": "synopsis_4.sql",
+"sql": "DROP AGGREGATE IF EXISTS myavg(integer), myavg(bigint) RESTRICT;",
+"valid": true
+},
+{
+"line": 38,
+"section": "synopsis_4.sql",
+"sql": "DROP AGGREGATE myagg(*);",
+"valid": true
+},
+{
+"line": 39,
+"section": "synopsis_4.sql",
+"sql": "DROP CAST (text AS int);",
+"valid": true
+},
+{
+"line": 40,
+"section": "synopsis_4.sql",
+"sql": "DROP CAST IF EXISTS (text AS int) CASCADE;",
+"valid": true
+},
+{
+"line": 41,
+"section": "synopsis_4.sql",
+"sql": "DROP COLLATION german;",
+"valid": true
+},
+{
+"line": 42,
+"section": "synopsis_4.sql",
+"sql": "DROP COLLATION IF EXISTS german RESTRICT;",
+"valid": true
+},
+{
+"line": 43,
+"section": "synopsis_4.sql",
+"sql": "DROP CONVERSION myname;",
+"valid": true
+},
+{
+"line": 44,
+"section": "synopsis_4.sql",
+"sql": "DROP CONVERSION IF EXISTS myname CASCADE;",
+"valid": true
+},
+{
+"line": 45,
+"section": "synopsis_4.sql",
+"sql": "DROP DATABASE IF EXISTS d;",
+"valid": true
+},
+{
+"line": 46,
+"section": "synopsis_4.sql",
+"sql": "DROP DATABASE d WITH (FORCE);",
+"valid": true
+},
+{
+"line": 47,
+"section": "synopsis_4.sql",
+"sql": "DROP DATABASE d (FORCE);",
+"valid": true
+},
+{
+"line": 48,
+"section": "synopsis_4.sql",
+"sql": "DROP DOMAIN box;",
+"valid": true
+},
+{
+"line": 49,
+"section": "synopsis_4.sql",
+"sql": "DROP DOMAIN IF EXISTS a, b CASCADE;",
+"valid": true
+},
+{
+"line": 50,
+"section": "synopsis_4.sql",
+"sql": "DROP EVENT TRIGGER snitch;",
+"valid": true
+},
+{
+"line": 51,
+"section": "synopsis_4.sql",
+"sql": "DROP EVENT TRIGGER IF EXISTS snitch RESTRICT;",
+"valid": true
+},
+{
+"line": 52,
+"section": "synopsis_4.sql",
+"sql": "DROP EXTENSION hstore;",
+"valid": true
+},
+{
+"line": 53,
+"section": "synopsis_4.sql",
+"sql": "DROP EXTENSION IF EXISTS a, b CASCADE;",
+"valid": true
+},
+{
+"line": 54,
+"section": "synopsis_4.sql",
+"sql": "DROP FOREIGN DATA WRAPPER dbi;",
+"valid": true
+},
+{
+"line": 55,
+"section": "synopsis_4.sql",
+"sql": "DROP FOREIGN DATA WRAPPER IF EXISTS a, b CASCADE;",
+"valid": true
+},
+{
+"line": 56,
+"section": "synopsis_4.sql",
+"sql": "DROP FOREIGN TABLE films, distributors;",
+"valid": true
+},
+{
+"line": 57,
+"section": "synopsis_4.sql",
+"sql": "DROP FOREIGN TABLE IF EXISTS ft RESTRICT;",
+"valid": true
+},
+{
+"line": 58,
+"section": "synopsis_4.sql",
+"sql": "DROP FUNCTION sqrt(integer);",
+"valid": true
+},
+{
+"line": 59,
+"section": "synopsis_4.sql",
+"sql": "DROP FUNCTION sqrt(integer), sqrt(bigint);",
+"valid": true
+},
+{
+"line": 60,
+"section": "synopsis_4.sql",
+"sql": "DROP FUNCTION update_employee_salaries;",
+"valid": true
+},
+{
+"line": 61,
+"section": "synopsis_4.sql",
+"sql": "DROP FUNCTION update_employee_salaries();",
+"valid": true
+},
+{
+"line": 62,
+"section": "synopsis_4.sql",
+"sql": "DROP FUNCTION IF EXISTS f(IN a int, OUT b text, VARIADIC c int[]) CASCADE;",
+"valid": true
+},
+{
+"line": 63,
+"section": "synopsis_4.sql",
+"sql": "DROP GROUP staff;",
+"valid": true
+},
+{
+"line": 64,
+"section": "synopsis_4.sql",
+"sql": "DROP GROUP IF EXISTS a, b;",
+"valid": true
+},
+{
+"line": 65,
+"section": "synopsis_4.sql",
+"sql": "DROP INDEX title_idx;",
+"valid": true
+},
+{
+"line": 66,
+"section": "synopsis_4.sql",
+"sql": "DROP INDEX CONCURRENTLY IF EXISTS a, b CASCADE;",
+"valid": true
+},
+{
+"line": 67,
+"section": "synopsis_4.sql",
+"sql": "DROP LANGUAGE plsample;",
+"valid": true
+},
+{
+"line": 68,
+"section": "synopsis_4.sql",
+"sql": "DROP PROCEDURAL LANGUAGE IF EXISTS plsample CASCADE;",
+"valid": true
+},
+{
+"line": 69,
+"section": "synopsis_4.sql",
+"sql": "DROP MATERIALIZED VIEW order_summary;",
+"valid": true
+},
+{
+"line": 70,
+"section": "synopsis_4.sql",
+"sql": "DROP MATERIALIZED VIEW IF EXISTS a, b RESTRICT;",
+"valid": true
+},
+{
+"line": 71,
+"section": "synopsis_4.sql",
+"sql": "DROP OPERATOR ^ (integer, integer);",
+"valid": true
+},
+{
+"line": 72,
+"section": "synopsis_4.sql",
+"sql": "DROP OPERATOR ~ (none, bit);",
+"valid": true
+},
+{
+"line": 73,
+"section": "synopsis_4.sql",
+"sql": "DROP OPERATOR ~ (none, bit), ^ (integer, integer);",
+"valid": true
+},
+{
+"line": 74,
+"section": "synopsis_4.sql",
+"sql": "DROP OPERATOR IF EXISTS @@ (text, text) CASCADE;",
+"valid": true
+},
+{
+"line": 75,
+"section": "synopsis_4.sql",
+"sql": "DROP OPERATOR CLASS widget_ops USING btree;",
+"valid": true
+},
+{
+"line": 76,
+"section": "synopsis_4.sql",
+"sql": "DROP OPERATOR CLASS IF EXISTS widget_ops USING btree CASCADE;",
+"valid": true
+},
+{
+"line": 77,
+"section": "synopsis_4.sql",
+"sql": "DROP OPERATOR FAMILY float_ops USING btree;",
+"valid": true
+},
+{
+"line": 78,
+"section": "synopsis_4.sql",
+"sql": "DROP OPERATOR FAMILY IF EXISTS float_ops USING btree RESTRICT;",
+"valid": true
+},
+{
+"line": 79,
+"section": "synopsis_4.sql",
+"sql": "DROP OWNED BY doomed_role;",
+"valid": true
+},
+{
+"line": 80,
+"section": "synopsis_4.sql",
+"sql": "DROP OWNED BY CURRENT_USER, a CASCADE;",
+"valid": true
+},
+{
+"line": 81,
+"section": "synopsis_4.sql",
+"sql": "DROP POLICY p1 ON my_table;",
+"valid": true
+},
+{
+"line": 82,
+"section": "synopsis_4.sql",
+"sql": "DROP POLICY IF EXISTS p1 ON my_table CASCADE;",
+"valid": true
+},
+{
+"line": 83,
+"section": "synopsis_4.sql",
+"sql": "DROP PROCEDURE do_db_maintenance();",
+"valid": true
+},
+{
+"line": 84,
+"section": "synopsis_4.sql",
+"sql": "DROP PROCEDURE do_db_maintenance;",
+"valid": true
+},
+{
+"line": 85,
+"section": "synopsis_4.sql",
+"sql": "DROP PROCEDURE IF EXISTS a(int), b(text) CASCADE;",
+"valid": true
+},
+{
+"line": 86,
+"section": "synopsis_4.sql",
+"sql": "DROP PUBLICATION mypublication;",
+"valid": true
+},
+{
+"line": 87,
+"section": "synopsis_4.sql",
+"sql": "DROP PUBLICATION IF EXISTS a, b RESTRICT;",
+"valid": true
+},
+{
+"line": 88,
+"section": "synopsis_4.sql",
+"sql": "DROP ROLE jonathan;",
+"valid": true
+},
+{
+"line": 89,
+"section": "synopsis_4.sql",
+"sql": "DROP ROLE IF EXISTS a, b;",
+"valid": true
+},
+{
+"line": 90,
+"section": "synopsis_4.sql",
+"sql": "DROP ROUTINE foo(integer);",
+"valid": true
+},
+{
+"line": 91,
+"section": "synopsis_4.sql",
+"sql": "DROP ROUTINE IF EXISTS foo(integer), bar CASCADE;",
+"valid": true
+},
+{
+"line": 92,
+"section": "synopsis_4.sql",
+"sql": "DROP RULE newrule ON mytable;",
+"valid": true
+},
+{
+"line": 93,
+"section": "synopsis_4.sql",
+"sql": "DROP RULE IF EXISTS newrule ON mytable CASCADE;",
+"valid": true
+},
+{
+"line": 94,
+"section": "synopsis_4.sql",
+"sql": "DROP SCHEMA mystuff CASCADE;",
+"valid": true
+},
+{
+"line": 95,
+"section": "synopsis_4.sql",
+"sql": "DROP SCHEMA IF EXISTS a, b RESTRICT;",
+"valid": true
+},
+{
+"line": 96,
+"section": "synopsis_4.sql",
+"sql": "DROP SEQUENCE serial;",
+"valid": true
+},
+{
+"line": 97,
+"section": "synopsis_4.sql",
+"sql": "DROP SEQUENCE IF EXISTS a, b CASCADE;",
+"valid": true
+},
+{
+"line": 98,
+"section": "synopsis_4.sql",
+"sql": "DROP SERVER IF EXISTS foo;",
+"valid": true
+},
+{
+"line": 99,
+"section": "synopsis_4.sql",
+"sql": "DROP SERVER a, b CASCADE;",
+"valid": true
+},
+{
+"line": 100,
+"section": "synopsis_4.sql",
+"sql": "DROP STATISTICS IF EXISTS accounting.users_uid_creation, public.grants_user_role;",
+"valid": true
+},
+{
+"line": 101,
+"section": "synopsis_4.sql",
+"sql": "DROP STATISTICS s CASCADE;",
+"valid": true
+},
+{
+"line": 102,
+"section": "synopsis_4.sql",
+"sql": "DROP SUBSCRIPTION mysub;",
+"valid": true
+},
+{
+"line": 103,
+"section": "synopsis_4.sql",
+"sql": "DROP SUBSCRIPTION IF EXISTS mysub RESTRICT;",
+"valid": true
+},
+{
+"line": 104,
+"section": "synopsis_4.sql",
+"sql": "DROP TABLE films, distributors;",
+"valid": true
+},
+{
+"line": 105,
+"section": "synopsis_4.sql",
+"sql": "DROP TABLE IF EXISTS t CASCADE;",
+"valid": true
+},
+{
+"line": 106,
+"section": "synopsis_4.sql",
+"sql": "DROP TABLESPACE mystuff;",
+"valid": true
+},
+{
+"line": 107,
+"section": "synopsis_4.sql",
+"sql": "DROP TABLESPACE IF EXISTS mystuff;",
+"valid": true
+},
+{
+"line": 108,
+"section": "synopsis_4.sql",
+"sql": "DROP TEXT SEARCH CONFIGURATION my_english;",
+"valid": true
+},
+{
+"line": 109,
+"section": "synopsis_4.sql",
+"sql": "DROP TEXT SEARCH CONFIGURATION IF EXISTS my_english CASCADE;",
+"valid": true
+},
+{
+"line": 110,
+"section": "synopsis_4.sql",
+"sql": "DROP TEXT SEARCH DICTIONARY english;",
+"valid": true
+},
+{
+"line": 111,
+"section": "synopsis_4.sql",
+"sql": "DROP TEXT SEARCH DICTIONARY IF EXISTS english RESTRICT;",
+"valid": true
+},
+{
+"line": 112,
+"section": "synopsis_4.sql",
+"sql": "DROP TEXT SEARCH PARSER my_parser;",
+"valid": true
+},
+{
+"line": 113,
+"section": "synopsis_4.sql",
+"sql": "DROP TEXT SEARCH PARSER IF EXISTS my_parser CASCADE;",
+"valid": true
+},
+{
+"line": 114,
+"section": "synopsis_4.sql",
+"sql": "DROP TEXT SEARCH TEMPLATE thesaurus;",
+"valid": true
+},
+{
+"line": 115,
+"section": "synopsis_4.sql",
+"sql": "DROP TEXT SEARCH TEMPLATE IF EXISTS thesaurus CASCADE;",
+"valid": true
+},
+{
+"line": 116,
+"section": "synopsis_4.sql",
+"sql": "DROP TRANSFORM FOR hstore LANGUAGE plpython3u;",
+"valid": true
+},
+{
+"line": 117,
+"section": "synopsis_4.sql",
+"sql": "DROP TRANSFORM IF EXISTS FOR hstore LANGUAGE plpython3u CASCADE;",
+"valid": true
+},
+{
+"line": 118,
+"section": "synopsis_4.sql",
+"sql": "DROP TRIGGER if_dist_exists ON films;",
+"valid": true
+},
+{
+"line": 119,
+"section": "synopsis_4.sql",
+"sql": "DROP TRIGGER IF EXISTS t ON films RESTRICT;",
+"valid": true
+},
+{
+"line": 120,
+"section": "synopsis_4.sql",
+"sql": "DROP TYPE box;",
+"valid": true
+},
+{
+"line": 121,
+"section": "synopsis_4.sql",
+"sql": "DROP TYPE IF EXISTS a, b CASCADE;",
+"valid": true
+},
+{
+"line": 1,
+"section": "synopsis_5.sql",
+"sql": "DROP USER u;",
+"valid": true
+},
+{
+"line": 2,
+"section": "synopsis_5.sql",
+"sql": "DROP USER IF EXISTS a, b;",
+"valid": true
+},
+{
+"line": 3,
+"section": "synopsis_5.sql",
+"sql": "DROP USER MAPPING IF EXISTS FOR bob SERVER foo;",
+"valid": true
+},
+{
+"line": 4,
+"section": "synopsis_5.sql",
+"sql": "DROP USER MAPPING FOR USER SERVER foo;",
+"valid": true
+},
+{
+"line": 5,
+"section": "synopsis_5.sql",
+"sql": "DROP USER MAPPING FOR PUBLIC SERVER foo;",
+"valid": true
+},
+{
+"line": 6,
+"section": "synopsis_5.sql",
+"sql": "DROP VIEW kinds;",
+"valid": true
+},
+{
+"line": 7,
+"section": "synopsis_5.sql",
+"sql": "DROP VIEW IF EXISTS a, b CASCADE;",
+"valid": true
+},
+{
+"line": 8,
+"section": "synopsis_5.sql",
+"sql": "END;",
+"valid": true
+},
+{
+"line": 9,
+"section": "synopsis_5.sql",
+"sql": "END WORK;",
+"valid": true
+},
+{
+"line": 10,
+"section": "synopsis_5.sql",
+"sql": "END TRANSACTION AND CHAIN;",
+"valid": true
+},
+{
+"line": 11,
+"section": "synopsis_5.sql",
+"sql": "EXECUTE fooplan(1, 'Hunter Valley', 't', 200.00);",
+"valid": true
+},
+{
+"line": 12,
+"section": "synopsis_5.sql",
+"sql": "EXECUTE usrrptplan(1, current_date);",
+"valid": true
+},
+{
+"line": 13,
+"section": "synopsis_5.sql",
+"sql": "EXECUTE fooplan;",
+"valid": true
+},
+{
+"line": 14,
+"section": "synopsis_5.sql",
+"sql": "EXPLAIN SELECT * FROM foo;",
+"valid": true
+},
+{
+"line": 15,
+"section": "synopsis_5.sql",
+"sql": "EXPLAIN (FORMAT JSON) SELECT * FROM foo;",
+"valid": true
+},
+{
+"line": 16,
+"section": "synopsis_5.sql",
+"sql": "EXPLAIN SELECT * FROM foo WHERE i = 4;",
+"valid": true
+},
+{
+"line": 17,
+"section": "synopsis_5.sql",
+"sql": "EXPLAIN (FORMAT YAML) SELECT * FROM foo WHERE i='4';",
+"valid": true
+},
+{
+"line": 18,
+"section": "synopsis_5.sql",
+"sql": "EXPLAIN (COSTS FALSE) SELECT * FROM foo WHERE i = 4;",
+"valid": true
+},
+{
+"line": 19,
+"section": "synopsis_5.sql",
+"sql": "EXPLAIN SELECT sum(i) FROM foo WHERE i < 10;",
+"valid": true
+},
+{
+"line": 20,
+"section": "synopsis_5.sql",
+"sql": "EXPLAIN (GENERIC_PLAN) SELECT * FROM foo WHERE i = $1;",
+"valid": true
+},
+{
+"line": 21,
+"section": "synopsis_5.sql",
+"sql": "EXPLAIN (GENERIC_PLAN) SELECT * FROM foo WHERE i = $1::integer;",
+"valid": true
+},
+{
+"line": 22,
+"section": "synopsis_5.sql",
+"sql": "EXPLAIN ANALYZE EXECUTE query(100, 200);",
+"valid": true
+},
+{
+"line": 23,
+"section": "synopsis_5.sql",
+"sql": "EXPLAIN (ANALYZE, VERBOSE, COSTS true, SETTINGS, BUFFERS off, SERIALIZE TEXT, WAL, TIMING false, SUMMARY, MEMORY, FORMAT XML) SELECT 1;",
+"valid": true
+},
+{
+"line": 24,
+"section": "synopsis_5.sql",
+"sql": "EXPLAIN (ANALYZE, SERIALIZE BINARY) SELECT 1;",
+"valid": true
+},
+{
+"line": 25,
+"section": "synopsis_5.sql",
+"sql": "EXPLAIN ANALYZE VERBOSE INSERT INTO t VALUES (1);",
+"valid": true
+},
+{
+"line": 26,
+"section": "synopsis_5.sql",
+"sql": "EXPLAIN UPDATE t SET a = 1 WHERE b = 2;",
+"valid": true
+},
+{
+"line": 27,
+"section": "synopsis_5.sql",
+"sql": "EXPLAIN DELETE FROM t WHERE a = 1;",
+"valid": true
+},
+{
+"line": 28,
+"section": "synopsis_5.sql",
+"sql": "EXPLAIN MERGE INTO t USING s ON t.id = s.id WHEN MATCHED THEN DO NOTHING;",
+"valid": true
+},
+{
+"line": 29,
+"section": "synopsis_5.sql",
+"sql": "EXPLAIN CREATE TABLE x AS SELECT 1;",
+"valid": true
+},
+{
+"line": 30,
+"section": "synopsis_5.sql",
+"sql": "EXPLAIN WITH c AS (SELECT 1) SELECT * FROM c;",
+"valid": true
+},
+{
+"line": 31,
+"section": "synopsis_5.sql",
+"sql": "EXPLAIN VALUES (1);",
+"valid": true
+},
+{
+"line": 32,
+"section": "synopsis_5.sql",
+"sql": "FETCH NEXT FROM c;",
+"valid": true
+},
+{
+"line": 33,
+"section": "synopsis_5.sql",
+"sql": "FETCH PRIOR IN c;",
+"valid": true
+},
+{
+"line": 34,
+"section": "synopsis_5.sql",
+"sql": "FETCH FIRST FROM c;",
+"valid": true
+},
+{
+"line": 35,
+"section": "synopsis_5.sql",
+"sql": "FETCH LAST FROM c;",
+"valid": true
+},
+{
+"line": 36,
+"section": "synopsis_5.sql",
+"sql": "FETCH ABSOLUTE 5 FROM c;",
+"valid": true
+},
+{
+"line": 37,
+"section": "synopsis_5.sql",
+"sql": "FETCH RELATIVE -2 FROM c;",
+"valid": true
+},
+{
+"line": 38,
+"section": "synopsis_5.sql",
+"sql": "FETCH 3 FROM c;",
+"valid": true
+},
+{
+"line": 39,
+"section": "synopsis_5.sql",
+"sql": "FETCH ALL IN c;",
+"valid": true
+},
+{
+"line": 40,
+"section": "synopsis_5.sql",
+"sql": "FETCH FORWARD FROM c;",
+"valid": true
+},
+{
+"line": 41,
+"section": "synopsis_5.sql",
+"sql": "FETCH FORWARD 5 FROM c;",
+"valid": true
+},
+{
+"line": 42,
+"section": "synopsis_5.sql",
+"sql": "FETCH FORWARD ALL FROM c;",
+"valid": true
+},
+{
+"line": 43,
+"section": "synopsis_5.sql",
+"sql": "FETCH BACKWARD FROM c;",
+"valid": true
+},
+{
+"line": 44,
+"section": "synopsis_5.sql",
+"sql": "FETCH BACKWARD 2 IN c;",
+"valid": true
+},
+{
+"line": 45,
+"section": "synopsis_5.sql",
+"sql": "FETCH BACKWARD ALL FROM c;",
+"valid": true
+},
+{
+"line": 46,
+"section": "synopsis_5.sql",
+"sql": "FETCH c;",
+"valid": true
+},
+{
+"line": 47,
+"section": "synopsis_5.sql",
+"sql": "GRANT INSERT ON films TO PUBLIC;",
+"valid": true
+},
+{
+"line": 48,
+"section": "synopsis_5.sql",
+"sql": "GRANT ALL PRIVILEGES ON kinds TO manuel;",
+"valid": true
+},
+{
+"line": 49,
+"section": "synopsis_5.sql",
+"sql": "GRANT admins TO joe;",
+"valid": true
+},
+{
+"line": 50,
+"section": "synopsis_5.sql",
+"sql": "GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER, MAINTAIN ON TABLE a, b TO GROUP g, PUBLIC WITH GRANT OPTION GRANTED BY CURRENT_USER;",
+"valid": true
+},
+{
+"line": 51,
+"section": "synopsis_5.sql",
+"sql": "GRANT ALL ON ALL TABLES IN SCHEMA s1, s2 TO r;",
+"valid": true
+},
+{
+"line": 52,
+"section": "synopsis_5.sql",
+"sql": "GRANT SELECT (a, b), UPDATE (c), INSERT (a), REFERENCES (a) ON t TO r;",
+"valid": true
+},
+{
+"line": 53,
+"section": "synopsis_5.sql",
+"sql": "GRANT ALL PRIVILEGES (a, b) ON TABLE t TO r;",
+"valid": true
+},
+{
+"line": 54,
+"section": "synopsis_5.sql",
+"sql": "GRANT USAGE, SELECT, UPDATE ON SEQUENCE s1, s2 TO r;",
+"valid": true
+},
+{
+"line": 55,
+"section": "synopsis_5.sql",
+"sql": "GRANT ALL ON ALL SEQUENCES IN SCHEMA s TO r;",
+"valid": true
+},
+{
+"line": 56,
+"section": "synopsis_5.sql",
+"sql": "GRANT CREATE, CONNECT, TEMPORARY, TEMP ON DATABASE d TO r;",
+"valid": true
+},
+{
+"line": 57,
+"section": "synopsis_5.sql",
+"sql": "GRANT USAGE ON DOMAIN dom TO r;",
+"valid": true
+},
+{
+"line": 58,
+"section": "synopsis_5.sql",
+"sql": "GRANT USAGE ON FOREIGN DATA WRAPPER w TO r;",
+"valid": true
+},
+{
+"line": 59,
+"section": "synopsis_5.sql",
+"sql": "GRANT USAGE ON FOREIGN SERVER s TO r;",
+"valid": true
+},
+{
+"line": 60,
+"section": "synopsis_5.sql",
+"sql": "GRANT EXECUTE ON FUNCTION f(int, text), g() TO r;",
+"valid": true
+},
+{
+"line": 61,
+"section": "synopsis_5.sql",
+"sql": "GRANT EXECUTE ON PROCEDURE p(IN a int) TO r;",
+"valid": true
+},
+{
+"line": 62,
+"section": "synopsis_5.sql",
+"sql": "GRANT ALL ON ROUTINE r1 TO r;",
+"valid": true
+},
+{
+"line": 63,
+"section": "synopsis_5.sql",
+"sql": "GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA s TO r;",
+"valid": true
+},
+{
+"line": 64,
+"section": "synopsis_5.sql",
+"sql": "GRANT EXECUTE ON ALL PROCEDURES IN SCHEMA s TO r;",
+"valid": true
+},
+{
+"line": 65,
+"section": "synopsis_5.sql",
+"sql": "GRANT EXECUTE ON ALL ROUTINES IN SCHEMA s TO r;",
+"valid": true
+},
+{
+"line": 66,
+"section": "synopsis_5.sql",
+"sql": "GRANT USAGE ON LANGUAGE plpgsql TO r;",
+"valid": true
+},
+{
+"line": 67,
+"section": "synopsis_5.sql",
+"sql": "GRANT SELECT, UPDATE ON LARGE OBJECT 1234, 5678 TO r;",
+"valid": true
+},
+{
+"line": 68,
+"section": "synopsis_5.sql",
+"sql": "GRANT SET, ALTER SYSTEM ON PARAMETER work_mem, shared_buffers TO r;",
+"valid": true
+},
+{
+"line": 69,
+"section": "synopsis_5.sql",
+"sql": "GRANT CREATE, USAGE ON SCHEMA s TO r;",
+"valid": true
+},
+{
+"line": 70,
+"section": "synopsis_5.sql",
+"sql": "GRANT CREATE ON TABLESPACE ts TO r;",
+"valid": true
+},
+{
+"line": 71,
+"section": "synopsis_5.sql",
+"sql": "GRANT USAGE ON TYPE ty TO r;",
+"valid": true
+},
+{
+"line": 72,
+"section": "synopsis_5.sql",
+"sql": "GRANT a, b TO c, d WITH ADMIN OPTION GRANTED BY CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 73,
+"section": "synopsis_5.sql",
+"sql": "GRANT a TO b WITH INHERIT TRUE;",
+"valid": true
+},
+{
+"line": 74,
+"section": "synopsis_5.sql",
+"sql": "GRANT a TO b WITH SET FALSE;",
+"valid": true
+},
+{
+"line": 75,
+"section": "synopsis_5.sql",
+"sql": "IMPORT FOREIGN SCHEMA foreign_films FROM SERVER film_server INTO films;",
+"valid": true
+},
+{
+"line": 76,
+"section": "synopsis_5.sql",
+"sql": "IMPORT FOREIGN SCHEMA foreign_films LIMIT TO (actors, directors) FROM SERVER film_server INTO films;",
+"valid": true
+},
+{
+"line": 77,
+"section": "synopsis_5.sql",
+"sql": "IMPORT FOREIGN SCHEMA s EXCEPT (t1) FROM SERVER srv INTO local OPTIONS (import_default 'true');",
+"valid": true
+},
+{
+"line": 78,
+"section": "synopsis_5.sql",
+"sql": "INSERT INTO films VALUES ('UA502', 'Bananas', 105, '1971-07-13', 'Comedy', '82 minutes');",
+"valid": true
+},
+{
+"line": 79,
+"section": "synopsis_5.sql",
+"sql": "INSERT INTO films (code, title, did, date_prod, kind) VALUES ('T_601', 'Yojimbo', 106, '1961-06-16', 'Drama');",
+"valid": true
+},
+{
+"line": 80,
+"section": "synopsis_5.sql",
+"sql": "INSERT INTO films VALUES ('UA502', 'Bananas', 105, DEFAULT, 'Comedy', '82 minutes');",
+"valid": true
+},
+{
+"line": 81,
+"section": "synopsis_5.sql",
+"sql": "INSERT INTO films DEFAULT VALUES;",
+"valid": true
+},
+{
+"line": 82,
+"section": "synopsis_5.sql",
+"sql": "INSERT INTO films (code, title, did, date_prod, kind) VALUES ('B6717', 'Tampopo', 110, '1985-02-10', 'Comedy'), ('HG120', 'The Dinner Game', 140, DEFAULT, 'Comedy');",
+"valid": true
+},
+{
+"line": 83,
+"section": "synopsis_5.sql",
+"sql": "INSERT INTO films SELECT * FROM tmp_films WHERE date_prod < '2004-05-07';",
+"valid": true
+},
+{
+"line": 84,
+"section": "synopsis_5.sql",
+"sql": "INSERT INTO tictactoe (game, board[1:3][1:3]) VALUES (1, '{{\" \",\" \",\" \"},{\" \",\" \",\" \"},{\" \",\" \",\" \"}}');",
+"valid": true
+},
+{
+"line": 85,
+"section": "synopsis_5.sql",
+"sql": "INSERT INTO distributors (did, dname) VALUES (DEFAULT, 'XYZ Widgets') RETURNING did;",
+"valid": true
+},
+{
+"line": 86,
+"section": "synopsis_5.sql",
+"sql": "WITH upd AS (\n  UPDATE employees SET sales_count = sales_count + 1 WHERE id =\n    (SELECT sales_person FROM accounts WHERE name = 'Acme Corporation')\n    RETURNING *\n)\nINSERT INTO employees_log SELECT *, current_timestamp FROM upd;",
+"valid": true
+},
+{
+"line": 87,
+"section": "synopsis_5.sql",
+"sql": "INSERT INTO distributors (did, dname) VALUES (5, 'Gizmo Transglobal'), (6, 'Associated Computing, Inc') ON CONFLICT (did) DO UPDATE SET dname = EXCLUDED.dname;",
+"valid": true
+},
+{
+"line": 88,
+"section": "synopsis_5.sql",
+"sql": "INSERT INTO distributors (did, dname) VALUES (7, 'Redline GmbH') ON CONFLICT (did) DO NOTHING;",
+"valid": true
+},
+{
+"line": 89,
+"section": "synopsis_5.sql",
+"sql": "INSERT INTO distributors AS d (did, dname) VALUES (8, 'Anvil Distribution') ON CONFLICT (did) DO UPDATE SET dname = EXCLUDED.dname || ' (formerly ' || d.dname || ')' WHERE d.zipcode <> '21201';",
+"valid": true
+},
+{
+"line": 90,
+"section": "synopsis_5.sql",
+"sql": "INSERT INTO distributors (did, dname) VALUES (9, 'Antwerp Design') ON CONFLICT ON CONSTRAINT distributors_pkey DO NOTHING;",
+"valid": true
+},
+{
+"line": 91,
+"section": "synopsis_5.sql",
+"sql": "INSERT INTO distributors (did, dname) VALUES (10, 'Conrad International') ON CONFLICT (did) WHERE is_active DO NOTHING;",
+"valid": true
+},
+{
+"line": 92,
+"section": "synopsis_5.sql",
+"sql": "INSERT INTO t (a, b) VALUES (1, 2) ON CONFLICT ((lower(a)) COLLATE \"C\" text_pattern_ops, b) WHERE b > 0 DO UPDATE SET (a, b) = ROW (excluded.a, excluded.b), c = DEFAULT;",
+"valid": true
+},
+{
+"line": 93,
+"section": "synopsis_5.sql",
+"sql": "INSERT INTO t (a, b) VALUES (1, 2) ON CONFLICT (a) DO UPDATE SET (a, b) = (SELECT x, y FROM s WHERE s.id = t.id);",
+"valid": true
+},
+{
+"line": 94,
+"section": "synopsis_5.sql",
+"sql": "INSERT INTO t OVERRIDING USER VALUE SELECT * FROM s;",
+"valid": true
+},
+{
+"line": 95,
+"section": "synopsis_5.sql",
+"sql": "INSERT INTO t (a) OVERRIDING SYSTEM VALUE VALUES (1);",
+"valid": true
+},
+{
+"line": 96,
+"section": "synopsis_5.sql",
+"sql": "INSERT INTO t (a) VALUES (DEFAULT), (2);",
+"valid": true
+},
+{
+"line": 97,
+"section": "synopsis_5.sql",
+"sql": "LISTEN virtual;",
+"valid": true
+},
+{
+"line": 98,
+"section": "synopsis_5.sql",
+"sql": "LOAD 'auto_explain';",
+"valid": true
+},
+{
+"line": 99,
+"section": "synopsis_5.sql",
+"sql": "LOAD '$libdir/plugins/auto_explain';",
+"valid": true
+},
+{
+"line": 100,
+"section": "synopsis_5.sql",
+"sql": "LOCK TABLE films IN SHARE MODE;",
+"valid": true
+},
+{
+"line": 101,
+"section": "synopsis_5.sql",
+"sql": "LOCK TABLE films IN SHARE ROW EXCLUSIVE MODE;",
+"valid": true
+},
+{
+"line": 102,
+"section": "synopsis_5.sql",
+"sql": "LOCK ONLY t, u * IN ACCESS EXCLUSIVE MODE NOWAIT;",
+"valid": true
+},
+{
+"line": 103,
+"section": "synopsis_5.sql",
+"sql": "LOCK t IN ROW SHARE MODE;",
+"valid": true
+},
+{
+"line": 104,
+"section": "synopsis_5.sql",
+"sql": "LOCK t IN SHARE UPDATE EXCLUSIVE MODE;",
+"valid": true
+},
+{
+"line": 105,
+"section": "synopsis_5.sql",
+"sql": "LOCK t;",
+"valid": true
+},
+{
+"line": 106,
+"section": "synopsis_5.sql",
+"sql": "MERGE INTO customer_account ca\nUSING recent_transactions t\nON t.customer_id = ca.customer_id\nWHEN MATCHED THEN\n  UPDATE SET balance = balance + transaction_value\nWHEN NOT MATCHED THEN\n  INSERT (customer_id, balance)\n  VALUES (t.customer_id, t.transaction_value);",
+"valid": true
+},
+{
+"line": 107,
+"section": "synopsis_5.sql",
+"sql": "MERGE INTO customer_account ca\nUSING (SELECT customer_id, transaction_value FROM recent_transactions) AS t\nON t.customer_id = ca.customer_id\nWHEN MATCHED THEN\n  UPDATE SET balance = balance + transaction_value\nWHEN NOT MATCHED THEN\n  INSERT (customer_id, balance)\n  VALUES (t.customer_id, t.transaction_value);",
+"valid": true
+},
+{
+"line": 108,
+"section": "synopsis_5.sql",
+"sql": "MERGE INTO wines w\nUSING wine_stock_changes s\nON s.winename = w.winename\nWHEN NOT MATCHED AND s.stock_delta > 0 THEN\n  INSERT VALUES(s.winename, s.stock_delta)\nWHEN MATCHED AND w.stock + s.stock_delta > 0 THEN\n  UPDATE SET stock = w.stock + s.stock_delta\nWHEN MATCHED THEN\n  DELETE\nRETURNING merge_action(), w.*;",
+"valid": true
+},
+{
+"line": 109,
+"section": "synopsis_5.sql",
+"sql": "MERGE INTO wines w\nUSING new_wine_list s\nON s.winename = w.winename\nWHEN NOT MATCHED BY TARGET THEN\n  INSERT VALUES(s.winename, s.stock)\nWHEN MATCHED AND w.stock != s.stock THEN\n  UPDATE SET stock = s.stock\nWHEN NOT MATCHED BY SOURCE THEN\n  DELETE;",
+"valid": true
+},
+{
+"line": 110,
+"section": "synopsis_5.sql",
+"sql": "WITH src AS (SELECT 1 AS id) MERGE INTO ONLY t AS tt USING s * AS ss ON tt.id = ss.id WHEN MATCHED AND tt.a > 0 THEN DO NOTHING WHEN NOT MATCHED BY SOURCE AND tt.b IS NULL THEN UPDATE SET (a, b) = ROW (1, 2), c = DEFAULT WHEN NOT MATCHED THEN INSERT (id) OVERRIDING SYSTEM VALUE VALUES (DEFAULT) WHEN NOT MATCHED BY TARGET THEN INSERT DEFAULT VALUES;",
+"valid": true
+},
+{
+"line": 111,
+"section": "synopsis_5.sql",
+"sql": "MOVE FORWARD 5 IN liahona;",
+"valid": true
+},
+{
+"line": 112,
+"section": "synopsis_5.sql",
+"sql": "MOVE LAST FROM c;",
+"valid": true
+},
+{
+"line": 113,
+"section": "synopsis_5.sql",
+"sql": "MOVE c;",
+"valid": true
+},
+{
+"line": 114,
+"section": "synopsis_5.sql",
+"sql": "NOTIFY virtual;",
+"valid": true
+},
+{
+"line": 115,
+"section": "synopsis_5.sql",
+"sql": "NOTIFY virtual, 'This is the payload';",
+"valid": true
+},
+{
+"line": 116,
+"section": "synopsis_5.sql",
+"sql": "PREPARE fooplan (int, text, bool, numeric) AS INSERT INTO foo VALUES($1, $2, $3, $4);",
+"valid": true
+},
+{
+"line": 117,
+"section": "synopsis_5.sql",
+"sql": "PREPARE usrrptplan (int) AS SELECT * FROM users u, logs l WHERE u.usrid=$1 AND u.usrid=l.usrid AND l.date = $2;",
+"valid": true
+},
+{
+"line": 118,
+"section": "synopsis_5.sql",
+"sql": "PREPARE p AS UPDATE t SET a = $1 WHERE b = $2;",
+"valid": true
+},
+{
+"line": 119,
+"section": "synopsis_5.sql",
+"sql": "PREPARE p2 AS DELETE FROM t WHERE a = $1 RETURNING *;",
+"valid": true
+},
+{
+"line": 120,
+"section": "synopsis_5.sql",
+"sql": "PREPARE p3 AS WITH c AS (SELECT $1::int AS a) SELECT a FROM c;",
+"valid": true
+},
+{
+"line": 121,
+"section": "synopsis_5.sql",
+"sql": "PREPARE p4 AS VALUES ($1);",
+"valid": true
+},
+{
+"line": 122,
+"section": "synopsis_5.sql",
+"sql": "PREPARE TRANSACTION 'foobar';",
+"valid": true
+},
+{
+"line": 123,
+"section": "synopsis_5.sql",
+"sql": "REASSIGN OWNED BY old_role, CURRENT_USER TO new_role;",
+"valid": true
+},
+{
+"line": 124,
+"section": "synopsis_5.sql",
+"sql": "REFRESH MATERIALIZED VIEW order_summary;",
+"valid": true
+},
+{
+"line": 125,
+"section": "synopsis_5.sql",
+"sql": "REFRESH MATERIALIZED VIEW CONCURRENTLY annual_statistics_basis WITH DATA;",
+"valid": true
+},
+{
+"line": 126,
+"section": "synopsis_5.sql",
+"sql": "REINDEX INDEX my_index;",
+"valid": true
+},
+{
+"line": 127,
+"section": "synopsis_5.sql",
+"sql": "REINDEX TABLE my_table;",
+"valid": true
+},
+{
+"line": 128,
+"section": "synopsis_5.sql",
+"sql": "REINDEX TABLE CONCURRENTLY my_broken_table;",
+"valid": true
+},
+{
+"line": 129,
+"section": "synopsis_5.sql",
+"sql": "REINDEX DATABASE broken_db;",
+"valid": true
+},
+{
+"line": 130,
+"section": "synopsis_5.sql",
+"sql": "REINDEX (VERBOSE, CONCURRENTLY true, TABLESPACE ts) SCHEMA s;",
+"valid": true
+},
+{
+"line": 131,
+"section": "synopsis_5.sql",
+"sql": "REINDEX SYSTEM;",
+"valid": true
+},
+{
+"line": 132,
+"section": "synopsis_5.sql",
+"sql": "REINDEX DATABASE CONCURRENTLY;",
+"valid": true
+},
+{
+"line": 133,
+"section": "synopsis_5.sql",
+"sql": "RELEASE SAVEPOINT my_savepoint;",
+"valid": true
+},
+{
+"line": 134,
+"section": "synopsis_5.sql",
+"sql": "RELEASE my_savepoint;",
+"valid": true
+},
+{
+"line": 135,
+"section": "synopsis_5.sql",
+"sql": "RESET timezone;",
+"valid": true
+},
+{
+"line": 136,
+"section": "synopsis_5.sql",
+"sql": "RESET ALL;",
+"valid": true
+},
+{
+"line": 137,
+"section": "synopsis_5.sql",
+"sql": "REVOKE INSERT ON films FROM PUBLIC;",
+"valid": true
+},
+{
+"line": 138,
+"section": "synopsis_5.sql",
+"sql": "REVOKE ALL PRIVILEGES ON kinds FROM manuel;",
+"valid": true
+},
+{
+"line": 139,
+"section": "synopsis_5.sql",
+"sql": "REVOKE admins FROM joe;",
+"valid": true
+},
+{
+"line": 140,
+"section": "synopsis_5.sql",
+"sql": "REVOKE GRANT OPTION FOR SELECT, UPDATE ON TABLE a FROM r GRANTED BY CURRENT_USER CASCADE;",
+"valid": true
+},
+{
+"line": 141,
+"section": "synopsis_5.sql",
+"sql": "REVOKE UPDATE (a) ON t FROM r RESTRICT;",
+"valid": true
+},
+{
+"line": 142,
+"section": "synopsis_5.sql",
+"sql": "REVOKE USAGE ON SEQUENCE s FROM r;",
+"valid": true
+},
+{
+"line": 143,
+"section": "synopsis_5.sql",
+"sql": "REVOKE ALL ON ALL SEQUENCES IN SCHEMA s FROM r;",
+"valid": true
+},
+{
+"line": 144,
+"section": "synopsis_5.sql",
+"sql": "REVOKE CONNECT ON DATABASE d FROM r;",
+"valid": true
+},
+{
+"line": 145,
+"section": "synopsis_5.sql",
+"sql": "REVOKE USAGE ON DOMAIN d FROM r;",
+"valid": true
+},
+{
+"line": 146,
+"section": "synopsis_5.sql",
+"sql": "REVOKE USAGE ON FOREIGN DATA WRAPPER w FROM r;",
+"valid": true
+},
+{
+"line": 147,
+"section": "synopsis_5.sql",
+"sql": "REVOKE USAGE ON FOREIGN SERVER s FROM r;",
+"valid": true
+},
+{
+"line": 148,
+"section": "synopsis_5.sql",
+"sql": "REVOKE EXECUTE ON FUNCTION f(int) FROM r;",
+"valid": true
+},
+{
+"line": 149,
+"section": "synopsis_5.sql",
+"sql": "REVOKE EXECUTE ON ALL ROUTINES IN SCHEMA s FROM r;",
+"valid": true
+},
+{
+"line": 150,
+"section": "synopsis_5.sql",
+"sql": "REVOKE USAGE ON LANGUAGE plpgsql FROM r;",
+"valid": true
+},
+{
+"line": 151,
+"section": "synopsis_5.sql",
+"sql": "REVOKE SELECT ON LARGE OBJECT 1234 FROM r;",
+"valid": true
+},
+{
+"line": 152,
+"section": "synopsis_5.sql",
+"sql": "REVOKE SET ON PARAMETER work_mem FROM r;",
+"valid": true
+},
+{
+"line": 153,
+"section": "synopsis_5.sql",
+"sql": "REVOKE CREATE ON SCHEMA s FROM r;",
+"valid": true
+},
+{
+"line": 154,
+"section": "synopsis_5.sql",
+"sql": "REVOKE CREATE ON TABLESPACE ts FROM r;",
+"valid": true
+},
+{
+"line": 155,
+"section": "synopsis_5.sql",
+"sql": "REVOKE USAGE ON TYPE ty FROM r;",
+"valid": true
+},
+{
+"line": 156,
+"section": "synopsis_5.sql",
+"sql": "REVOKE ADMIN OPTION FOR a FROM b GRANTED BY c CASCADE;",
+"valid": true
+},
+{
+"line": 157,
+"section": "synopsis_5.sql",
+"sql": "REVOKE INHERIT OPTION FOR a FROM b;",
+"valid": true
+},
+{
+"line": 158,
+"section": "synopsis_5.sql",
+"sql": "REVOKE SET OPTION FOR a FROM b RESTRICT;",
+"valid": true
+},
+{
+"line": 159,
+"section": "synopsis_5.sql",
+"sql": "ROLLBACK;",
+"valid": true
+},
+{
+"line": 160,
+"section": "synopsis_5.sql",
+"sql": "ROLLBACK WORK AND NO CHAIN;",
+"valid": true
+},
+{
+"line": 161,
+"section": "synopsis_5.sql",
+"sql": "ROLLBACK TRANSACTION AND CHAIN;",
+"valid": true
+},
+{
+"line": 162,
+"section": "synopsis_5.sql",
+"sql": "ROLLBACK PREPARED 'foobar';",
+"valid": true
+},
+{
+"line": 163,
+"section": "synopsis_5.sql",
+"sql": "ROLLBACK TO SAVEPOINT my_savepoint;",
+"valid": true
+},
+{
+"line": 164,
+"section": "synopsis_5.sql",
+"sql": "ROLLBACK WORK TO s;",
+"valid": true
+},
+{
+"line": 165,
+"section": "synopsis_5.sql",
+"sql": "ROLLBACK TRANSACTION TO SAVEPOINT s;",
+"valid": true
+},
+{
+"line": 166,
+"section": "synopsis_5.sql",
+"sql": "SAVEPOINT my_savepoint;",
+"valid": true
+},
+{
+"line": 167,
+"section": "synopsis_5.sql",
+"sql": "SECURITY LABEL FOR selinux ON TABLE mytable IS 'system_u:object_r:sepgsql_table_t:s0';",
+"valid": true
+},
+{
+"line": 168,
+"section": "synopsis_5.sql",
+"sql": "SECURITY LABEL FOR selinux ON TABLE mytable IS NULL;",
+"valid": true
+},
+{
+"line": 169,
+"section": "synopsis_5.sql",
+"sql": "SECURITY LABEL ON COLUMN t.c IS 'x';",
+"valid": true
+},
+{
+"line": 170,
+"section": "synopsis_5.sql",
+"sql": "SECURITY LABEL ON AGGREGATE a(int) IS 'x';",
+"valid": true
+},
+{
+"line": 171,
+"section": "synopsis_5.sql",
+"sql": "SECURITY LABEL ON DATABASE d IS 'x';",
+"valid": true
+},
+{
+"line": 172,
+"section": "synopsis_5.sql",
+"sql": "SECURITY LABEL ON DOMAIN d IS 'x';",
+"valid": true
+},
+{
+"line": 173,
+"section": "synopsis_5.sql",
+"sql": "SECURITY LABEL ON EVENT TRIGGER e IS 'x';",
+"valid": true
+},
+{
+"line": 174,
+"section": "synopsis_5.sql",
+"sql": "SECURITY LABEL ON FOREIGN TABLE ft IS 'x';",
+"valid": true
+},
+{
+"line": 175,
+"section": "synopsis_5.sql",
+"sql": "SECURITY LABEL ON FUNCTION f(int) IS 'x';",
+"valid": true
+},
+{
+"line": 176,
+"section": "synopsis_5.sql",
+"sql": "SECURITY LABEL ON LARGE OBJECT 123 IS 'x';",
+"valid": true
+},
+{
+"line": 177,
+"section": "synopsis_5.sql",
+"sql": "SECURITY LABEL ON MATERIALIZED VIEW mv IS 'x';",
+"valid": true
+},
+{
+"line": 178,
+"section": "synopsis_5.sql",
+"sql": "SECURITY LABEL ON PROCEDURAL LANGUAGE l IS 'x';",
+"valid": true
+},
+{
+"line": 179,
+"section": "synopsis_5.sql",
+"sql": "SECURITY LABEL ON PROCEDURE p(int) IS 'x';",
+"valid": true
+},
+{
+"line": 180,
+"section": "synopsis_5.sql",
+"sql": "SECURITY LABEL ON PUBLICATION p IS 'x';",
+"valid": true
+},
+{
+"line": 181,
+"section": "synopsis_5.sql",
+"sql": "SECURITY LABEL ON ROLE r IS 'x';",
+"valid": true
+},
+{
+"line": 182,
+"section": "synopsis_5.sql",
+"sql": "SECURITY LABEL ON ROUTINE r(int) IS 'x';",
+"valid": true
+},
+{
+"line": 183,
+"section": "synopsis_5.sql",
+"sql": "SECURITY LABEL ON SCHEMA s IS 'x';",
+"valid": true
+},
+{
+"line": 184,
+"section": "synopsis_5.sql",
+"sql": "SECURITY LABEL ON SEQUENCE s IS 'x';",
+"valid": true
+},
+{
+"line": 185,
+"section": "synopsis_5.sql",
+"sql": "SECURITY LABEL ON SUBSCRIPTION s IS 'x';",
+"valid": true
+},
+{
+"line": 186,
+"section": "synopsis_5.sql",
+"sql": "SECURITY LABEL ON TABLESPACE t IS 'x';",
+"valid": true
+},
+{
+"line": 187,
+"section": "synopsis_5.sql",
+"sql": "SECURITY LABEL ON TYPE t IS 'x';",
+"valid": true
+},
+{
+"line": 188,
+"section": "synopsis_5.sql",
+"sql": "SECURITY LABEL ON VIEW v IS 'x';",
+"valid": true
+},
+{
+"line": 189,
+"section": "synopsis_5.sql",
+"sql": "SELECT * INTO films_recent FROM films WHERE date_prod >= '2002-01-01';",
+"valid": true
+},
+{
+"line": 190,
+"section": "synopsis_5.sql",
+"sql": "SELECT DISTINCT ON (a) a, b INTO TEMPORARY TABLE t2 FROM t ORDER BY a, b DESC;",
+"valid": true
+},
+{
+"line": 191,
+"section": "synopsis_5.sql",
+"sql": "SELECT a INTO UNLOGGED t3 FROM t GROUP BY a HAVING count(*) > 1;",
+"valid": true
+},
+{
+"line": 192,
+"section": "synopsis_5.sql",
+"sql": "SELECT a INTO TEMP t4 FROM t UNION SELECT b FROM u;",
+"valid": true
+},
+{
+"line": 193,
+"section": "synopsis_5.sql",
+"sql": "SET search_path TO my_schema, public;",
+"valid": true
+},
+{
+"line": 194,
+"section": "synopsis_5.sql",
+"sql": "SET datestyle TO postgres, dmy;",
+"valid": true
+},
+{
+"line": 195,
+"section": "synopsis_5.sql",
+"sql": "SET TIME ZONE 'PST8PDT';",
+"valid": true
+},
+{
+"line": 196,
+"section": "synopsis_5.sql",
+"sql": "SET TIME ZONE 'Europe/Rome';",
+"valid": true
+},
+{
+"line": 197,
+"section": "synopsis_5.sql",
+"sql": "SET TIME ZONE LOCAL;",
+"valid": true
+},
+{
+"line": 198,
+"section": "synopsis_5.sql",
+"sql": "SET TIME ZONE DEFAULT;",
+"valid": true
+},
+{
+"line": 199,
+"section": "synopsis_5.sql",
+"sql": "SET SESSION work_mem = '64MB';",
+"valid": true
+},
+{
+"line": 200,
+"section": "synopsis_5.sql",
+"sql": "SET LOCAL work_mem TO DEFAULT;",
+"valid": true
+},
+{
+"line": 201,
+"section": "synopsis_5.sql",
+"sql": "SET x.y = 'z';",
+"valid": true
+},
+{
+"line": 202,
+"section": "synopsis_5.sql",
+"sql": "SET CONSTRAINTS ALL DEFERRED;",
+"valid": true
+},
+{
+"line": 203,
+"section": "synopsis_5.sql",
+"sql": "SET CONSTRAINTS a, b IMMEDIATE;",
+"valid": true
+},
+{
+"line": 204,
+"section": "synopsis_5.sql",
+"sql": "SET ROLE 'paul';",
+"valid": true
+},
+{
+"line": 205,
+"section": "synopsis_5.sql",
+"sql": "SET SESSION ROLE paul;",
+"valid": true
+},
+{
+"line": 206,
+"section": "synopsis_5.sql",
+"sql": "SET LOCAL ROLE NONE;",
+"valid": true
+},
+{
+"line": 207,
+"section": "synopsis_5.sql",
+"sql": "RESET ROLE;",
+"valid": true
+},
+{
+"line": 208,
+"section": "synopsis_5.sql",
+"sql": "SET SESSION AUTHORIZATION 'paul';",
+"valid": true
+},
+{
+"line": 209,
+"section": "synopsis_5.sql",
+"sql": "SET LOCAL SESSION AUTHORIZATION DEFAULT;",
+"valid": true
+},
+{
+"line": 210,
+"section": "synopsis_5.sql",
+"sql": "RESET SESSION AUTHORIZATION;",
+"valid": true
+},
+{
+"line": 211,
+"section": "synopsis_5.sql",
+"sql": "SET TRANSACTION SNAPSHOT '00000003-0000001B-1';",
+"valid": true
+},
+{
+"line": 212,
+"section": "synopsis_5.sql",
+"sql": "SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY, NOT DEFERRABLE;",
+"valid": true
+},
+{
+"line": 213,
+"section": "synopsis_5.sql",
+"sql": "SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ COMMITTED;",
+"valid": true
+},
+{
+"line": 214,
+"section": "synopsis_5.sql",
+"sql": "SHOW DateStyle;",
+"valid": true
+},
+{
+"line": 215,
+"section": "synopsis_5.sql",
+"sql": "SHOW geqo;",
+"valid": true
+},
+{
+"line": 216,
+"section": "synopsis_5.sql",
+"sql": "SHOW ALL;",
+"valid": true
+},
+{
+"line": 217,
+"section": "synopsis_5.sql",
+"sql": "START TRANSACTION;",
+"valid": true
+},
+{
+"line": 218,
+"section": "synopsis_5.sql",
+"sql": "START TRANSACTION ISOLATION LEVEL SERIALIZABLE READ ONLY DEFERRABLE;",
+"valid": true
+},
+{
+"line": 219,
+"section": "synopsis_5.sql",
+"sql": "TRUNCATE bigtable, fattable;",
+"valid": true
+},
+{
+"line": 220,
+"section": "synopsis_5.sql",
+"sql": "TRUNCATE bigtable, fattable RESTART IDENTITY;",
+"valid": true
+},
+{
+"line": 221,
+"section": "synopsis_5.sql",
+"sql": "TRUNCATE othertable CASCADE;",
+"valid": true
+},
+{
+"line": 222,
+"section": "synopsis_5.sql",
+"sql": "TRUNCATE TABLE ONLY a, b * CONTINUE IDENTITY RESTRICT;",
+"valid": true
+},
+{
+"line": 223,
+"section": "synopsis_5.sql",
+"sql": "UNLISTEN virtual;",
+"valid": true
+},
+{
+"line": 224,
+"section": "synopsis_5.sql",
+"sql": "UNLISTEN *;",
+"valid": true
+},
+{
+"line": 225,
+"section": "synopsis_5.sql",
+"sql": "UPDATE films SET kind = 'Dramatic' WHERE kind = 'Drama';",
+"valid": true
+},
+{
+"line": 226,
+"section": "synopsis_5.sql",
+"sql": "UPDATE weather SET temp_lo = temp_lo+1, temp_hi = temp_lo+15, prcp = DEFAULT WHERE city = 'San Francisco' AND date = '2003-07-03';",
+"valid": true
+},
+{
+"line": 227,
+"section": "synopsis_5.sql",
+"sql": "UPDATE weather SET temp_lo = temp_lo+1, temp_hi = temp_lo+15, prcp = DEFAULT WHERE city = 'San Francisco' AND date = '2003-07-03' RETURNING temp_lo, temp_hi, prcp;",
+"valid": true
+},
+{
+"line": 228,
+"section": "synopsis_5.sql",
+"sql": "UPDATE weather SET (temp_lo, temp_hi, prcp) = (temp_lo+1, temp_lo+15, DEFAULT) WHERE city = 'San Francisco' AND date = '2003-07-03';",
+"valid": true
+},
+{
+"line": 229,
+"section": "synopsis_5.sql",
+"sql": "UPDATE employees SET sales_count = sales_count + 1 FROM accounts WHERE accounts.name = 'Acme Corporation' AND employees.id = accounts.sales_person;",
+"valid": true
+},
+{
+"line": 230,
+"section": "synopsis_5.sql",
+"sql": "UPDATE employees SET sales_count = sales_count + 1 WHERE id = (SELECT sales_person FROM accounts WHERE name = 'Acme Corporation');",
+"valid": true
+},
+{
+"line": 231,
+"section": "synopsis_5.sql",
+"sql": "UPDATE accounts SET (contact_first_name, contact_last_name) = (SELECT first_name, last_name FROM employees WHERE employees.id = accounts.sales_person);",
+"valid": true
+},
+{
+"line": 232,
+"section": "synopsis_5.sql",
+"sql": "UPDATE accounts SET contact_first_name = first_name, contact_last_name = last_name FROM employees WHERE employees.id = accounts.sales_person;",
+"valid": true
+},
+{
+"line": 233,
+"section": "synopsis_5.sql",
+"sql": "UPDATE summary s SET (sum_x, sum_y, avg_x, avg_y) = (SELECT sum(x), sum(y), avg(x), avg(y) FROM data d WHERE d.group_id = s.group_id);",
+"valid": true
+},
+{
+"line": 234,
+"section": "synopsis_5.sql",
+"sql": "UPDATE wines SET stock = stock + 24 WHERE winename = 'Chateau Lafite 2003';",
+"valid": true
+},
+{
+"line": 235,
+"section": "synopsis_5.sql",
+"sql": "UPDATE employees SET last_closed_year = 2024 WHERE id = 1 RETURNING old.last_closed_year AS old_year, new.last_closed_year AS new_year;",
+"valid": true
+},
+{
+"line": 236,
+"section": "synopsis_5.sql",
+"sql": "UPDATE t AS x SET a[1] = 2, b.f = 3 WHERE x.id = 1;",
+"valid": true
+},
+{
+"line": 237,
+"section": "synopsis_5.sql",
+"sql": "UPDATE t SET (a, b) = ROW (1, 2);",
+"valid": true
+},
+{
+"line": 238,
+"section": "synopsis_5.sql",
+"sql": "WITH exceeded_max_retries AS (\n  SELECT w.ctid FROM work_item AS w\n    WHERE w.status = 'active' AND w.num_retries > 10\n    ORDER BY w.retry_timestamp\n    FOR UPDATE\n    LIMIT 5000\n)\nUPDATE work_item SET status = 'failed'\n  FROM exceeded_max_retries AS emr\n  WHERE work_item.ctid = emr.ctid;",
+"valid": true
+},
+{
+"line": 239,
+"section": "synopsis_5.sql",
+"sql": "VACUUM (VERBOSE, ANALYZE) onek;",
+"valid": true
+},
+{
+"line": 240,
+"section": "synopsis_5.sql",
+"sql": "VACUUM;",
+"valid": true
+},
+{
+"line": 241,
+"section": "synopsis_5.sql",
+"sql": "VACUUM FULL FREEZE VERBOSE ANALYZE t;",
+"valid": true
+},
+{
+"line": 242,
+"section": "synopsis_5.sql",
+"sql": "VACUUM (FULL true, FREEZE false, VERBOSE, ANALYZE, DISABLE_PAGE_SKIPPING, SKIP_LOCKED, INDEX_CLEANUP AUTO, PROCESS_MAIN, PROCESS_TOAST false, TRUNCATE true, PARALLEL 4, SKIP_DATABASE_STATS, ONLY_DATABASE_STATS false, BUFFER_USAGE_LIMIT '256kB') ONLY t (a, b), u *;",
+"valid": true
+},
+{
+"line": 243,
+"section": "synopsis_5.sql",
+"sql": "VACUUM (INDEX_CLEANUP OFF) t;",
+"valid": true
+},
+{
+"line": 244,
+"section": "synopsis_5.sql",
+"sql": "VALUES (1, 'one'), (2, 'two'), (3, 'three');",
+"valid": true
+},
+{
+"line": 245,
+"section": "synopsis_5.sql",
+"sql": "VALUES (1, 'one') ORDER BY 1 USING > OFFSET 0 ROWS FETCH FIRST 1 ROW ONLY;",
+"valid": true
+},
+{
+"line": 246,
+"section": "synopsis_5.sql",
+"sql": "VALUES (2) LIMIT 1 OFFSET 1;",
+"valid": true
+},
+{
+"line": 1,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT ALL a FROM t;",
+"valid": true
+},
+{
+"line": 2,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT DISTINCT a, b FROM t;",
+"valid": true
+},
+{
+"line": 3,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT DISTINCT ON (a, b + 1) a, b, c FROM t ORDER BY a, b + 1, c DESC;",
+"valid": true
+},
+{
+"line": 4,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT;",
+"valid": true
+},
+{
+"line": 5,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT * FROM t WHERE a > 1 GROUP BY ALL a HAVING count(*) > 1;",
+"valid": true
+},
+{
+"line": 6,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a, count(*) FROM t GROUP BY DISTINCT ROLLUP (a, b), CUBE ((a, b), c);",
+"valid": true
+},
+{
+"line": 7,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a, b, sum(c) FROM t GROUP BY GROUPING SETS ((a), (b), (), (a, b));",
+"valid": true
+},
+{
+"line": 8,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a, b, sum(c) FROM t GROUP BY GROUPING SETS (a, ROLLUP (b, c), CUBE (d), GROUPING SETS (e, ()));",
+"valid": true
+},
+{
+"line": 9,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a, GROUPING(a, b) FROM t GROUP BY (), a, (b, c);",
+"valid": true
+},
+{
+"line": 10,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a, rank() OVER w, sum(b) OVER (w ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) FROM t WINDOW w AS (PARTITION BY c ORDER BY d), w2 AS (w);",
+"valid": true
+},
+{
+"line": 11,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT sum(a) OVER (PARTITION BY b ORDER BY c RANGE BETWEEN '1 day'::interval PRECEDING AND '1 day'::interval FOLLOWING EXCLUDE CURRENT ROW) FROM t;",
+"valid": true
+},
+{
+"line": 12,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT sum(a) OVER (ORDER BY c GROUPS BETWEEN 1 PRECEDING AND UNBOUNDED FOLLOWING EXCLUDE GROUP), sum(a) OVER (ROWS 2 PRECEDING EXCLUDE TIES), sum(a) OVER (ROWS UNBOUNDED PRECEDING EXCLUDE NO OTHERS) FROM t;",
+"valid": true
+},
+{
+"line": 13,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT count(*) FILTER (WHERE a > 1) OVER (PARTITION BY b), array_agg(DISTINCT a ORDER BY a DESC NULLS LAST) FILTER (WHERE a IS NOT NULL) FROM t;",
+"valid": true
+},
+{
+"line": 14,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT string_agg(a, ',' ORDER BY b USING >), percentile_cont(0.5) WITHIN GROUP (ORDER BY a), rank(3) WITHIN GROUP (ORDER BY a) FROM t;",
+"valid": true
+},
+{
+"line": 15,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a FROM t UNION SELECT b FROM u;",
+"valid": true
+},
+{
+"line": 16,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a FROM t UNION ALL SELECT b FROM u INTERSECT DISTINCT SELECT c FROM v EXCEPT ALL SELECT d FROM w;",
+"valid": true
+},
+{
+"line": 17,
+"section": "synopsis_6_select.sql",
+"sql": "(SELECT a FROM t ORDER BY a LIMIT 1) UNION (SELECT b FROM u) ORDER BY 1;",
+"valid": true
+},
+{
+"line": 18,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a FROM t ORDER BY a ASC, b DESC NULLS FIRST, c USING ~<~ NULLS LAST;",
+"valid": true
+},
+{
+"line": 19,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a FROM t LIMIT ALL;",
+"valid": true
+},
+{
+"line": 20,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a FROM t LIMIT 10 OFFSET 5;",
+"valid": true
+},
+{
+"line": 21,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a FROM t OFFSET 5 ROWS;",
+"valid": true
+},
+{
+"line": 22,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a FROM t OFFSET 1 ROW FETCH NEXT 3 ROWS ONLY;",
+"valid": true
+},
+{
+"line": 23,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a FROM t ORDER BY a FETCH FIRST ROW WITH TIES;",
+"valid": true
+},
+{
+"line": 24,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a FROM t ORDER BY a FETCH FIRST 5 ROWS WITH TIES;",
+"valid": true
+},
+{
+"line": 25,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a FROM t FOR UPDATE;",
+"valid": true
+},
+{
+"line": 26,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a FROM t FOR NO KEY UPDATE OF t NOWAIT;",
+"valid": true
+},
+{
+"line": 27,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a FROM t, u FOR SHARE OF t, u SKIP LOCKED FOR KEY SHARE OF u;",
+"valid": true
+},
+{
+"line": 28,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT * FROM ONLY t x (a, b);",
+"valid": true
+},
+{
+"line": 29,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT * FROM t AS x (a, b) TABLESAMPLE SYSTEM (10) REPEATABLE (42);",
+"valid": true
+},
+{
+"line": 30,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT * FROM t TABLESAMPLE BERNOULLI (50.5);",
+"valid": true
+},
+{
+"line": 31,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT * FROM LATERAL (SELECT 1) AS s (x);",
+"valid": true
+},
+{
+"line": 32,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT * FROM t, LATERAL (SELECT * FROM u WHERE u.id = t.id) s;",
+"valid": true
+},
+{
+"line": 33,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT * FROM generate_series(1, 10) WITH ORDINALITY AS g (v, n);",
+"valid": true
+},
+{
+"line": 34,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT * FROM LATERAL unnest(ARRAY[1, 2]) u;",
+"valid": true
+},
+{
+"line": 35,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT * FROM unnest(ARRAY[1, 2], ARRAY['a', 'b']) AS x (n, s);",
+"valid": true
+},
+{
+"line": 36,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT * FROM f() AS (a int, b text);",
+"valid": true
+},
+{
+"line": 37,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT * FROM f() AS t (a int, b text);",
+"valid": true
+},
+{
+"line": 38,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT * FROM ROWS FROM (generate_series(1, 3), json_to_recordset('[{\"a\":1}]') AS (a int)) WITH ORDINALITY AS r (x, y, n);",
+"valid": true
+},
+{
+"line": 39,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT * FROM a JOIN b ON a.id = b.id;",
+"valid": true
+},
+{
+"line": 40,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT * FROM a INNER JOIN b USING (id);",
+"valid": true
+},
+{
+"line": 41,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT * FROM a LEFT OUTER JOIN b USING (id, k) AS j;",
+"valid": true
+},
+{
+"line": 42,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT * FROM a RIGHT JOIN b ON true;",
+"valid": true
+},
+{
+"line": 43,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT * FROM a FULL OUTER JOIN b ON a.x = b.x AND a.y = b.y;",
+"valid": true
+},
+{
+"line": 44,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT * FROM a NATURAL JOIN b;",
+"valid": true
+},
+{
+"line": 45,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT * FROM a NATURAL LEFT JOIN b NATURAL FULL JOIN c;",
+"valid": true
+},
+{
+"line": 46,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT * FROM a CROSS JOIN b;",
+"valid": true
+},
+{
+"line": 47,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT * FROM (a JOIN b ON a.id = b.id) LEFT JOIN c ON c.id = a.id;",
+"valid": true
+},
+{
+"line": 48,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT * FROM a JOIN (b JOIN c ON b.id = c.id) ON a.id = b.id;",
+"valid": true
+},
+{
+"line": 49,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT * FROM a LEFT JOIN LATERAL (SELECT * FROM b WHERE b.a = a.id LIMIT 1) bb ON true;",
+"valid": true
+},
+{
+"line": 50,
+"section": "synopsis_6_select.sql",
+"sql": "WITH RECURSIVE t(n) AS (VALUES (1) UNION ALL SELECT n + 1 FROM t WHERE n < 100) SELECT sum(n) FROM t;",
+"valid": true
+},
+{
+"line": 51,
+"section": "synopsis_6_select.sql",
+"sql": "WITH w AS MATERIALIZED (SELECT 1), v AS NOT MATERIALIZED (SELECT 2) SELECT * FROM w, v;",
+"valid": true
+},
+{
+"line": 52,
+"section": "synopsis_6_select.sql",
+"sql": "WITH upd AS (UPDATE t SET a = 1 RETURNING *), del AS (DELETE FROM u RETURNING *), ins AS (INSERT INTO v VALUES (1) RETURNING *), m AS (MERGE INTO x USING y ON x.id = y.id WHEN MATCHED THEN DELETE RETURNING x.*) SELECT * FROM upd, del, ins, m;",
+"valid": true
+},
+{
+"line": 53,
+"section": "synopsis_6_select.sql",
+"sql": "WITH v (a, b) AS (VALUES (1, 2), (3, 4)) SELECT * FROM v;",
+"valid": true
+},
+{
+"line": 54,
+"section": "synopsis_6_select.sql",
+"sql": "TABLE t;",
+"valid": true
+},
+{
+"line": 55,
+"section": "synopsis_6_select.sql",
+"sql": "TABLE ONLY t;",
+"valid": true
+},
+{
+"line": 56,
+"section": "synopsis_6_select.sql",
+"sql": "TABLE t *;",
+"valid": true
+},
+{
+"line": 57,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a = b, a <> b, a != b, a < b, a > b, a <= b, a >= b FROM t;",
+"valid": true
+},
+{
+"line": 58,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a IS NULL, a IS NOT NULL, a ISNULL, a NOTNULL, a IS DISTINCT FROM b, a IS NOT DISTINCT FROM b FROM t;",
+"valid": true
+},
+{
+"line": 59,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a IS TRUE, a IS NOT TRUE, a IS FALSE, a IS NOT FALSE, a IS UNKNOWN, a IS NOT UNKNOWN FROM t;",
+"valid": true
+},
+{
+"line": 60,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a BETWEEN 1 AND 10, a NOT BETWEEN 1 AND 10, a BETWEEN SYMMETRIC 10 AND 1, a NOT BETWEEN SYMMETRIC 10 AND 1 FROM t;",
+"valid": true
+},
+{
+"line": 61,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a IN (1, 2, 3), a NOT IN (SELECT b FROM u), a = ANY (ARRAY[1, 2]), a = SOME (SELECT b FROM u), a > ALL (SELECT b FROM u) FROM t;",
+"valid": true
+},
+{
+"line": 62,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT EXISTS (SELECT 1 FROM u), NOT EXISTS (SELECT 1 FROM v) FROM t;",
+"valid": true
+},
+{
+"line": 63,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT (a, b) = (1, 2), ROW(a, b) < ROW(c, d), (a, b) IS DISTINCT FROM (c, d), ROW(a, b) IN (SELECT c, d FROM u) FROM t;",
+"valid": true
+},
+{
+"line": 64,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT s LIKE 'a%', s NOT LIKE 'a%' ESCAPE '!', s ILIKE 'A%', s NOT ILIKE 'b%', s SIMILAR TO '%(b|d)%', s NOT SIMILAR TO 'x' ESCAPE '#' FROM t;",
+"valid": true
+},
+{
+"line": 65,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT s ~ 'a.*', s ~* 'A', s !~ 'b', s !~* 'B', s ~~ 'x', s !~~* 'y' FROM t;",
+"valid": true
+},
+{
+"line": 66,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT s COLLATE \"C\", s COLLATE pg_catalog.\"default\" < 'b', (s || 't') COLLATE \"de_DE\" FROM t;",
+"valid": true
+},
+{
+"line": 67,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT ts AT TIME ZONE 'UTC', ts AT TIME ZONE INTERVAL '-08:00', ts AT LOCAL, (ts AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Tokyo' FROM t;",
+"valid": true
+},
+{
+"line": 68,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT (DATE '2001-02-16', DATE '2001-12-21') OVERLAPS (DATE '2001-10-30', DATE '2002-10-30');",
+"valid": true
+},
+{
+"line": 69,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a + b, a - b, a * b, a / b, a % b, a ^ b, |/ a, ||/ a, @ a, a & b, a | b, a # b, ~ a, a << 1, a >> 1, - a, + a FROM t;",
+"valid": true
+},
+{
+"line": 70,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT -1, - - 1, -(-1), 2 - -1, 1 - +1, -x.a FROM t x;",
+"valid": true
+},
+{
+"line": 71,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT arr[1], arr[1:2], arr[:2], arr[2:], arr[1][2], (arr)[1], (f(x))[1], (row_col).field, (row_col).*, (SELECT ARRAY[1, 2])[1] FROM t;",
+"valid": true
+},
+{
+"line": 72,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT ARRAY[1, 2, 3], ARRAY[[1, 2], [3, 4]], ARRAY[]::int[], ARRAY(SELECT a FROM t), '{1,2}'::int[], ARRAY[1, 2]::bigint[] AS x;",
+"valid": true
+},
+{
+"line": 73,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT ROW(1, 'a'), ROW(), (1, 'a'), ROW(t.*), ROW(1, 2)::mytype;",
+"valid": true
+},
+{
+"line": 74,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT (SELECT max(a) FROM t), (SELECT a FROM t LIMIT 1) + 1;",
+"valid": true
+},
+{
+"line": 75,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT CASE WHEN a > 0 THEN 'pos' WHEN a < 0 THEN 'neg' ELSE 'zero' END, CASE a WHEN 1 THEN 'one' WHEN 2 THEN 'two' END FROM t;",
+"valid": true
+},
+{
+"line": 76,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT coalesce(a, b, 0), nullif(a, 0), greatest(a, b), least(a, b) FROM t;",
+"valid": true
+},
+{
+"line": 77,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT CAST(a AS text), a::text, a::numeric(10, 2), a::varchar(10)[], a::double precision, a::timestamp with time zone, a::timestamp(3) without time zone, a::interval day to second(3), a::bit varying(8), a::character varying(5), a::\"MyType\", a::pg_catalog.int4, a::public.mytype[] FROM t;",
+"valid": true
+},
+{
+"line": 78,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT int '1', text 'x', date '2020-01-01', time '04:05:06', timestamp '2020-01-01 00:00', timestamptz '2020-01-01 00:00+00', interval '1 day', interval '1' year, interval '2 hours 30 minutes' hour to minute, bool 'true', json '{}', jsonb '[]', uuid 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', inet '127.0.0.1', point '(1,2)', numeric '1.5', bit '101', varchar '1';",
+"valid": true
+},
+{
+"line": 79,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT 42, 3.5, 4., .001, 5e2, 1.925e-3, 0x1F, 0o17, 0b101, 1_000_000, 0x_FF, 1_000.000_5, 'string', E'esc\\'aped\\n', $$dollar$$, $tag$dollar 'with' quotes$tag$, B'1010', X'1F', U&'d\\0061t\\+000061', U&'d!0061t' UESCAPE '!', N'national', 'con'\n'tinued';",
+"valid": true
+},
+{
+"line": 80,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT $1, $2::int, $10 FROM t WHERE a = $1;",
+"valid": true
+},
+{
+"line": 81,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT \"QuotedCol\", \"with \"\"quotes\"\"\", U&\"d\\0061t\", t.\"Col\", \"schema\".\"table\".\"col\" FROM \"schema\".\"table\" t;",
+"valid": true
+},
+{
+"line": 82,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT current_date, current_time, current_time(2), current_timestamp, current_timestamp(0), localtime, localtimestamp(3), current_user, current_role, session_user, user, current_catalog, current_schema, system_user;",
+"valid": true
+},
+{
+"line": 83,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT extract(epoch FROM ts), extract('year' FROM ts), date_part('day', ts), extract(hour FROM INTERVAL '4 hours') FROM t;",
+"valid": true
+},
+{
+"line": 84,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT substring('Thomas' FROM 2 FOR 3), substring('Thomas' FROM 3), substring('Thomas' FOR 2), substring('Thomas' SIMILAR '%#\"o_a#\"_' ESCAPE '#'), substring('Thomas', 2, 3);",
+"valid": true
+},
+{
+"line": 85,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT trim(BOTH 'xyz' FROM 'yxTomxx'), trim(LEADING FROM '  x'), trim(TRAILING 'x' FROM 'axx'), trim('  x  '), trim(BOTH FROM 'yx', 'xyz');",
+"valid": true
+},
+{
+"line": 86,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT position('om' IN 'Thomas'), overlay('Txxxxas' PLACING 'hom' FROM 2 FOR 4), overlay('abc' PLACING 'X' FROM 2);",
+"valid": true
+},
+{
+"line": 87,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT normalize(U&'\\0061\\0308bc', NFC), U&'\\0061\\0308bc' IS NFD NORMALIZED, s IS NOT NORMALIZED, s IS NFKC NORMALIZED FROM t;",
+"valid": true
+},
+{
+"line": 88,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT collation for ('foo'::text), pg_typeof(1);",
+"valid": true
+},
+{
+"line": 89,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a IS JSON, a IS NOT JSON, a IS JSON VALUE, a IS JSON ARRAY, a IS JSON OBJECT WITH UNIQUE KEYS, a IS JSON SCALAR WITHOUT UNIQUE, a IS JSON OBJECT WITH UNIQUE FROM t;",
+"valid": true
+},
+{
+"line": 90,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT j -> 'a', j ->> 'a', j #> '{a,b}', j #>> '{a,b}', j @> '{\"a\":1}', j <@ '{\"a\":1}', j ? 'a', j ?| ARRAY['a', 'b'], j ?& ARRAY['a'], j || '{}', j - 'a', j #- '{a}', j @? '$.a', j @@ '$.a == 1' FROM t;",
+"valid": true
+},
+{
+"line": 91,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT json_object('code' VALUE 'P123', 'title': 'Jaws'), json_object(), json_object('a' VALUE 1 NULL ON NULL WITH UNIQUE KEYS RETURNING jsonb), json_object('a' : 1 ABSENT ON NULL WITHOUT UNIQUE);",
+"valid": true
+},
+{
+"line": 92,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT json_array(1, true, json '{\"a\":null}'), json_array(SELECT * FROM (VALUES (1), (2)) t), json_array(1, NULL ABSENT ON NULL RETURNING text), json_array();",
+"valid": true
+},
+{
+"line": 93,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT json_arrayagg(a ORDER BY b DESC NULL ON NULL RETURNING jsonb), json_objectagg(k : v ABSENT ON NULL WITH UNIQUE KEYS RETURNING json), json_objectagg(k VALUE v) FROM t;",
+"valid": true
+},
+{
+"line": 94,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT json('{\"a\":1}'), json('{\"a\":1}' WITH UNIQUE KEYS), json_scalar(123.45), json_serialize('{\"a\":1}' RETURNING bytea), json('{}' FORMAT JSON);",
+"valid": true
+},
+{
+"line": 95,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT json_exists(jsonb '{\"a\":[1,2]}', 'strict $.a[5]' ERROR ON ERROR), json_exists(j, '$.a ? (@ > $x)' PASSING 1 AS x FALSE ON ERROR) FROM t;",
+"valid": true
+},
+{
+"line": 96,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT json_value(jsonb '\"123.45\"', '$' RETURNING float), json_value(j, '$.a' RETURNING int DEFAULT 0 ON EMPTY DEFAULT -1 ON ERROR), json_value(j, 'lax $.a' NULL ON EMPTY ERROR ON ERROR) FROM t;",
+"valid": true
+},
+{
+"line": 97,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT json_query(jsonb '[1,[2,3],null]', 'lax $[*][$off]' PASSING 1 AS off WITH CONDITIONAL WRAPPER), json_query(j, '$.a' RETURNING text KEEP QUOTES ON SCALAR STRING), json_query(j, '$.a' WITHOUT WRAPPER OMIT QUOTES EMPTY ARRAY ON EMPTY EMPTY OBJECT ON ERROR), json_query(j, '$' WITH UNCONDITIONAL ARRAY WRAPPER) FROM t;",
+"valid": true
+},
+{
+"line": 98,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT jt.* FROM my_films, JSON_TABLE (js, '$.favorites[*]' COLUMNS (id FOR ORDINALITY, kind text PATH '$.kind', title text PATH '$.films[*].title' WITH WRAPPER, director text PATH '$.films[*].director' WITH WRAPPER)) AS jt;",
+"valid": true
+},
+{
+"line": 99,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT * FROM JSON_TABLE (jsonb '{\"a\":[{\"b\":1}]}', '$.a[*]' AS outer_path PASSING 1 AS x COLUMNS (b int PATH '$.b' DEFAULT 0 ON EMPTY ERROR ON ERROR, j jsonb FORMAT JSON PATH '$' OMIT QUOTES, e boolean EXISTS PATH '$.c', NESTED PATH '$.d[*]' AS inner_path COLUMNS (d int PATH '$')) EMPTY ON ERROR) AS jt;",
+"valid": true
+},
+{
+"line": 100,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT xmlelement(name foo, xmlattributes('xyz' AS bar), xmlelement(name abc), xmlcomment('test'), xmlconcat(xml '<a/>', xml '<b/>'), xmlforest('abc' AS foo, 123 AS bar), xmlpi(name php, 'echo 1;'), xmlroot(xml '<a/>', version '1.0', standalone yes), xmlagg(x ORDER BY y)) FROM t;",
+"valid": true
+},
+{
+"line": 101,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT xmlparse(document '<a/>'), xmlparse(content 'abc'), xmlserialize(document x AS text INDENT), xmlserialize(content x AS varchar(100) NO INDENT), xml '<a/>' IS DOCUMENT, x IS NOT DOCUMENT, xmlexists('//a' PASSING BY REF x), xmlexists('//a' PASSING x BY VALUE) FROM t;",
+"valid": true
+},
+{
+"line": 102,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT xmltable.* FROM xmldata, XMLTABLE('//ROWS/ROW' PASSING data COLUMNS id int PATH '@id', ordinality FOR ORDINALITY, \"COUNTRY_NAME\" text, country_id text PATH 'COUNTRY_ID', size_sq_km float PATH 'SIZE[@unit = \"sq_km\"]', size_other text PATH 'concat(SIZE[@unit!=\"sq_km\"], \" \", SIZE[@unit!=\"sq_km\"]/@unit)', premier_name text PATH 'PREMIER_NAME' DEFAULT 'not specified' NOT NULL);",
+"valid": true
+},
+{
+"line": 103,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT * FROM XMLTABLE(XMLNAMESPACES('http://example.com/myns' AS x, 'http://example.com/b' AS \"B\"), '/x:example/x:item' PASSING (SELECT data FROM xmldata) COLUMNS foo int PATH '@foo', bar int PATH '@B:bar');",
+"valid": true
+},
+{
+"line": 104,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a FROM t WHERE (a, b) > (1, 2) AND NOT (c OR d) AND e IS NOT NULL OR f;",
+"valid": true
+},
+{
+"line": 105,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a FROM t WHERE a = (SELECT max(b) FROM u WHERE u.c = t.c) AND EXISTS (SELECT 1 FROM v WHERE v.d = t.d);",
+"valid": true
+},
+{
+"line": 106,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT f(a, b => 1, c := 2), f(VARIADIC ARRAY[1, 2]), f(DISTINCT a), schema.f(), \"F\"(1) FROM t;",
+"valid": true
+},
+{
+"line": 107,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT count(*), count(DISTINCT a), count(ALL a), sum(a ORDER BY b), max(a) FILTER (WHERE b) FROM t;",
+"valid": true
+},
+{
+"line": 108,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT uuidv7(), uuidv4(), casefold('ABC'), array_sort(ARRAY[3, 1, 2]), array_reverse(ARRAY[1, 2]), reverse('\\x1234'::bytea), crc32('abc');",
+"valid": true
+},
+{
+"line": 109,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT 1 AS \"select\", 2 AS from_, 3 \"alias\", 4 alias2, t.a AS \"A\" FROM t;",
+"valid": true
+},
+{
+"line": 110,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT * FROM (VALUES (1, 'a'), (2, 'b')) AS v (n, s);",
+"valid": true
+},
+{
+"line": 111,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT * FROM t WHERE a IN (VALUES (1), (2));",
+"valid": true
+},
+{
+"line": 112,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a FROM t WHERE CURRENT_DATE > d AND now() - interval '1 day' < ts;",
+"valid": true
+},
+{
+"line": 113,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a FROM t GROUP BY a HAVING sum(b) > 10 AND count(DISTINCT c) < 5 ORDER BY sum(b) DESC;",
+"valid": true
+},
+{
+"line": 114,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT * FROM t1 WHERE a = ALL (ARRAY(SELECT b FROM t2));",
+"valid": true
+},
+{
+"line": 115,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT ARRAY[1, 2] && ARRAY[2, 3], ARRAY[1] @> ARRAY[1], int4range(1, 5) * int4range(3, 7), '[1,5)'::int4range -|- '[5,9)'::int4range, box '((0,0),(1,1))' ## point '(2,2)', circle '((0,0),1)' <-> point '(3,0)';",
+"valid": true
+},
+{
+"line": 116,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT to_tsvector('english', 'The Fat Rats') @@ to_tsquery('fat & rat'), 'a b'::tsvector || 'c'::tsvector, 'fat'::tsquery && 'rat'::tsquery, !! 'cat'::tsquery, 'a'::tsquery <-> 'b'::tsquery;",
+"valid": true
+},
+{
+"line": 117,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT inet '192.168.1.5' << inet '192.168.1/24', inet '1.1.1.1' <<= inet '1.1.1.0/24', inet '1.1.1.0/24' >>= inet '1.1.1.1', inet '1.1.1.1' && inet '1.1.1.0/24';",
+"valid": true
+},
+{
+"line": 118,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT 'abc' || 'def', 'abc' || 1, B'10001' || B'011', '\\x12'::bytea || '\\x34'::bytea, ARRAY[1] || 2, 1 || ARRAY[2];",
+"valid": true
+},
+{
+"line": 119,
+"section": "synopsis_6_select.sql",
+"sql": "SELECT a FROM t WHERE b ^@ 'pre' AND c @@ 'x' AND d OPERATOR(pg_catalog.=) e;",
+"valid": true
+}
+]

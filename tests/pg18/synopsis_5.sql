@@ -1,0 +1,291 @@
+DROP USER u;
+DROP USER IF EXISTS a, b;
+DROP USER MAPPING IF EXISTS FOR bob SERVER foo;
+DROP USER MAPPING FOR USER SERVER foo;
+DROP USER MAPPING FOR PUBLIC SERVER foo;
+DROP VIEW kinds;
+DROP VIEW IF EXISTS a, b CASCADE;
+END;
+END WORK;
+END TRANSACTION AND CHAIN;
+EXECUTE fooplan(1, 'Hunter Valley', 't', 200.00);
+EXECUTE usrrptplan(1, current_date);
+EXECUTE fooplan;
+EXPLAIN SELECT * FROM foo;
+EXPLAIN (FORMAT JSON) SELECT * FROM foo;
+EXPLAIN SELECT * FROM foo WHERE i = 4;
+EXPLAIN (FORMAT YAML) SELECT * FROM foo WHERE i='4';
+EXPLAIN (COSTS FALSE) SELECT * FROM foo WHERE i = 4;
+EXPLAIN SELECT sum(i) FROM foo WHERE i < 10;
+EXPLAIN (GENERIC_PLAN) SELECT * FROM foo WHERE i = $1;
+EXPLAIN (GENERIC_PLAN) SELECT * FROM foo WHERE i = $1::integer;
+EXPLAIN ANALYZE EXECUTE query(100, 200);
+EXPLAIN (ANALYZE, VERBOSE, COSTS true, SETTINGS, BUFFERS off, SERIALIZE TEXT, WAL, TIMING false, SUMMARY, MEMORY, FORMAT XML) SELECT 1;
+EXPLAIN (ANALYZE, SERIALIZE BINARY) SELECT 1;
+EXPLAIN ANALYZE VERBOSE INSERT INTO t VALUES (1);
+EXPLAIN UPDATE t SET a = 1 WHERE b = 2;
+EXPLAIN DELETE FROM t WHERE a = 1;
+EXPLAIN MERGE INTO t USING s ON t.id = s.id WHEN MATCHED THEN DO NOTHING;
+EXPLAIN CREATE TABLE x AS SELECT 1;
+EXPLAIN WITH c AS (SELECT 1) SELECT * FROM c;
+EXPLAIN VALUES (1);
+FETCH NEXT FROM c;
+FETCH PRIOR IN c;
+FETCH FIRST FROM c;
+FETCH LAST FROM c;
+FETCH ABSOLUTE 5 FROM c;
+FETCH RELATIVE -2 FROM c;
+FETCH 3 FROM c;
+FETCH ALL IN c;
+FETCH FORWARD FROM c;
+FETCH FORWARD 5 FROM c;
+FETCH FORWARD ALL FROM c;
+FETCH BACKWARD FROM c;
+FETCH BACKWARD 2 IN c;
+FETCH BACKWARD ALL FROM c;
+FETCH c;
+GRANT INSERT ON films TO PUBLIC;
+GRANT ALL PRIVILEGES ON kinds TO manuel;
+GRANT admins TO joe;
+GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER, MAINTAIN ON TABLE a, b TO GROUP g, PUBLIC WITH GRANT OPTION GRANTED BY CURRENT_USER;
+GRANT ALL ON ALL TABLES IN SCHEMA s1, s2 TO r;
+GRANT SELECT (a, b), UPDATE (c), INSERT (a), REFERENCES (a) ON t TO r;
+GRANT ALL PRIVILEGES (a, b) ON TABLE t TO r;
+GRANT USAGE, SELECT, UPDATE ON SEQUENCE s1, s2 TO r;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA s TO r;
+GRANT CREATE, CONNECT, TEMPORARY, TEMP ON DATABASE d TO r;
+GRANT USAGE ON DOMAIN dom TO r;
+GRANT USAGE ON FOREIGN DATA WRAPPER w TO r;
+GRANT USAGE ON FOREIGN SERVER s TO r;
+GRANT EXECUTE ON FUNCTION f(int, text), g() TO r;
+GRANT EXECUTE ON PROCEDURE p(IN a int) TO r;
+GRANT ALL ON ROUTINE r1 TO r;
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA s TO r;
+GRANT EXECUTE ON ALL PROCEDURES IN SCHEMA s TO r;
+GRANT EXECUTE ON ALL ROUTINES IN SCHEMA s TO r;
+GRANT USAGE ON LANGUAGE plpgsql TO r;
+GRANT SELECT, UPDATE ON LARGE OBJECT 1234, 5678 TO r;
+GRANT SET, ALTER SYSTEM ON PARAMETER work_mem, shared_buffers TO r;
+GRANT CREATE, USAGE ON SCHEMA s TO r;
+GRANT CREATE ON TABLESPACE ts TO r;
+GRANT USAGE ON TYPE ty TO r;
+GRANT a, b TO c, d WITH ADMIN OPTION GRANTED BY CURRENT_ROLE;
+GRANT a TO b WITH INHERIT TRUE;
+GRANT a TO b WITH SET FALSE;
+IMPORT FOREIGN SCHEMA foreign_films FROM SERVER film_server INTO films;
+IMPORT FOREIGN SCHEMA foreign_films LIMIT TO (actors, directors) FROM SERVER film_server INTO films;
+IMPORT FOREIGN SCHEMA s EXCEPT (t1) FROM SERVER srv INTO local OPTIONS (import_default 'true');
+INSERT INTO films VALUES ('UA502', 'Bananas', 105, '1971-07-13', 'Comedy', '82 minutes');
+INSERT INTO films (code, title, did, date_prod, kind) VALUES ('T_601', 'Yojimbo', 106, '1961-06-16', 'Drama');
+INSERT INTO films VALUES ('UA502', 'Bananas', 105, DEFAULT, 'Comedy', '82 minutes');
+INSERT INTO films DEFAULT VALUES;
+INSERT INTO films (code, title, did, date_prod, kind) VALUES ('B6717', 'Tampopo', 110, '1985-02-10', 'Comedy'), ('HG120', 'The Dinner Game', 140, DEFAULT, 'Comedy');
+INSERT INTO films SELECT * FROM tmp_films WHERE date_prod < '2004-05-07';
+INSERT INTO tictactoe (game, board[1:3][1:3]) VALUES (1, '{{" "," "," "},{" "," "," "},{" "," "," "}}');
+INSERT INTO distributors (did, dname) VALUES (DEFAULT, 'XYZ Widgets') RETURNING did;
+WITH upd AS (
+  UPDATE employees SET sales_count = sales_count + 1 WHERE id =
+    (SELECT sales_person FROM accounts WHERE name = 'Acme Corporation')
+    RETURNING *
+)
+INSERT INTO employees_log SELECT *, current_timestamp FROM upd;
+INSERT INTO distributors (did, dname) VALUES (5, 'Gizmo Transglobal'), (6, 'Associated Computing, Inc') ON CONFLICT (did) DO UPDATE SET dname = EXCLUDED.dname;
+INSERT INTO distributors (did, dname) VALUES (7, 'Redline GmbH') ON CONFLICT (did) DO NOTHING;
+INSERT INTO distributors AS d (did, dname) VALUES (8, 'Anvil Distribution') ON CONFLICT (did) DO UPDATE SET dname = EXCLUDED.dname || ' (formerly ' || d.dname || ')' WHERE d.zipcode <> '21201';
+INSERT INTO distributors (did, dname) VALUES (9, 'Antwerp Design') ON CONFLICT ON CONSTRAINT distributors_pkey DO NOTHING;
+INSERT INTO distributors (did, dname) VALUES (10, 'Conrad International') ON CONFLICT (did) WHERE is_active DO NOTHING;
+INSERT INTO t (a, b) VALUES (1, 2) ON CONFLICT ((lower(a)) COLLATE "C" text_pattern_ops, b) WHERE b > 0 DO UPDATE SET (a, b) = ROW (excluded.a, excluded.b), c = DEFAULT;
+INSERT INTO t (a, b) VALUES (1, 2) ON CONFLICT (a) DO UPDATE SET (a, b) = (SELECT x, y FROM s WHERE s.id = t.id);
+INSERT INTO t OVERRIDING USER VALUE SELECT * FROM s;
+INSERT INTO t (a) OVERRIDING SYSTEM VALUE VALUES (1);
+INSERT INTO t (a) VALUES (DEFAULT), (2);
+LISTEN virtual;
+LOAD 'auto_explain';
+LOAD '$libdir/plugins/auto_explain';
+LOCK TABLE films IN SHARE MODE;
+LOCK TABLE films IN SHARE ROW EXCLUSIVE MODE;
+LOCK ONLY t, u * IN ACCESS EXCLUSIVE MODE NOWAIT;
+LOCK t IN ROW SHARE MODE;
+LOCK t IN SHARE UPDATE EXCLUSIVE MODE;
+LOCK t;
+MERGE INTO customer_account ca
+USING recent_transactions t
+ON t.customer_id = ca.customer_id
+WHEN MATCHED THEN
+  UPDATE SET balance = balance + transaction_value
+WHEN NOT MATCHED THEN
+  INSERT (customer_id, balance)
+  VALUES (t.customer_id, t.transaction_value);
+MERGE INTO customer_account ca
+USING (SELECT customer_id, transaction_value FROM recent_transactions) AS t
+ON t.customer_id = ca.customer_id
+WHEN MATCHED THEN
+  UPDATE SET balance = balance + transaction_value
+WHEN NOT MATCHED THEN
+  INSERT (customer_id, balance)
+  VALUES (t.customer_id, t.transaction_value);
+MERGE INTO wines w
+USING wine_stock_changes s
+ON s.winename = w.winename
+WHEN NOT MATCHED AND s.stock_delta > 0 THEN
+  INSERT VALUES(s.winename, s.stock_delta)
+WHEN MATCHED AND w.stock + s.stock_delta > 0 THEN
+  UPDATE SET stock = w.stock + s.stock_delta
+WHEN MATCHED THEN
+  DELETE
+RETURNING merge_action(), w.*;
+MERGE INTO wines w
+USING new_wine_list s
+ON s.winename = w.winename
+WHEN NOT MATCHED BY TARGET THEN
+  INSERT VALUES(s.winename, s.stock)
+WHEN MATCHED AND w.stock != s.stock THEN
+  UPDATE SET stock = s.stock
+WHEN NOT MATCHED BY SOURCE THEN
+  DELETE;
+WITH src AS (SELECT 1 AS id) MERGE INTO ONLY t AS tt USING s * AS ss ON tt.id = ss.id WHEN MATCHED AND tt.a > 0 THEN DO NOTHING WHEN NOT MATCHED BY SOURCE AND tt.b IS NULL THEN UPDATE SET (a, b) = ROW (1, 2), c = DEFAULT WHEN NOT MATCHED THEN INSERT (id) OVERRIDING SYSTEM VALUE VALUES (DEFAULT) WHEN NOT MATCHED BY TARGET THEN INSERT DEFAULT VALUES;
+MOVE FORWARD 5 IN liahona;
+MOVE LAST FROM c;
+MOVE c;
+NOTIFY virtual;
+NOTIFY virtual, 'This is the payload';
+PREPARE fooplan (int, text, bool, numeric) AS INSERT INTO foo VALUES($1, $2, $3, $4);
+PREPARE usrrptplan (int) AS SELECT * FROM users u, logs l WHERE u.usrid=$1 AND u.usrid=l.usrid AND l.date = $2;
+PREPARE p AS UPDATE t SET a = $1 WHERE b = $2;
+PREPARE p2 AS DELETE FROM t WHERE a = $1 RETURNING *;
+PREPARE p3 AS WITH c AS (SELECT $1::int AS a) SELECT a FROM c;
+PREPARE p4 AS VALUES ($1);
+PREPARE TRANSACTION 'foobar';
+REASSIGN OWNED BY old_role, CURRENT_USER TO new_role;
+REFRESH MATERIALIZED VIEW order_summary;
+REFRESH MATERIALIZED VIEW CONCURRENTLY annual_statistics_basis WITH DATA;
+REINDEX INDEX my_index;
+REINDEX TABLE my_table;
+REINDEX TABLE CONCURRENTLY my_broken_table;
+REINDEX DATABASE broken_db;
+REINDEX (VERBOSE, CONCURRENTLY true, TABLESPACE ts) SCHEMA s;
+REINDEX SYSTEM;
+REINDEX DATABASE CONCURRENTLY;
+RELEASE SAVEPOINT my_savepoint;
+RELEASE my_savepoint;
+RESET timezone;
+RESET ALL;
+REVOKE INSERT ON films FROM PUBLIC;
+REVOKE ALL PRIVILEGES ON kinds FROM manuel;
+REVOKE admins FROM joe;
+REVOKE GRANT OPTION FOR SELECT, UPDATE ON TABLE a FROM r GRANTED BY CURRENT_USER CASCADE;
+REVOKE UPDATE (a) ON t FROM r RESTRICT;
+REVOKE USAGE ON SEQUENCE s FROM r;
+REVOKE ALL ON ALL SEQUENCES IN SCHEMA s FROM r;
+REVOKE CONNECT ON DATABASE d FROM r;
+REVOKE USAGE ON DOMAIN d FROM r;
+REVOKE USAGE ON FOREIGN DATA WRAPPER w FROM r;
+REVOKE USAGE ON FOREIGN SERVER s FROM r;
+REVOKE EXECUTE ON FUNCTION f(int) FROM r;
+REVOKE EXECUTE ON ALL ROUTINES IN SCHEMA s FROM r;
+REVOKE USAGE ON LANGUAGE plpgsql FROM r;
+REVOKE SELECT ON LARGE OBJECT 1234 FROM r;
+REVOKE SET ON PARAMETER work_mem FROM r;
+REVOKE CREATE ON SCHEMA s FROM r;
+REVOKE CREATE ON TABLESPACE ts FROM r;
+REVOKE USAGE ON TYPE ty FROM r;
+REVOKE ADMIN OPTION FOR a FROM b GRANTED BY c CASCADE;
+REVOKE INHERIT OPTION FOR a FROM b;
+REVOKE SET OPTION FOR a FROM b RESTRICT;
+ROLLBACK;
+ROLLBACK WORK AND NO CHAIN;
+ROLLBACK TRANSACTION AND CHAIN;
+ROLLBACK PREPARED 'foobar';
+ROLLBACK TO SAVEPOINT my_savepoint;
+ROLLBACK WORK TO s;
+ROLLBACK TRANSACTION TO SAVEPOINT s;
+SAVEPOINT my_savepoint;
+SECURITY LABEL FOR selinux ON TABLE mytable IS 'system_u:object_r:sepgsql_table_t:s0';
+SECURITY LABEL FOR selinux ON TABLE mytable IS NULL;
+SECURITY LABEL ON COLUMN t.c IS 'x';
+SECURITY LABEL ON AGGREGATE a(int) IS 'x';
+SECURITY LABEL ON DATABASE d IS 'x';
+SECURITY LABEL ON DOMAIN d IS 'x';
+SECURITY LABEL ON EVENT TRIGGER e IS 'x';
+SECURITY LABEL ON FOREIGN TABLE ft IS 'x';
+SECURITY LABEL ON FUNCTION f(int) IS 'x';
+SECURITY LABEL ON LARGE OBJECT 123 IS 'x';
+SECURITY LABEL ON MATERIALIZED VIEW mv IS 'x';
+SECURITY LABEL ON PROCEDURAL LANGUAGE l IS 'x';
+SECURITY LABEL ON PROCEDURE p(int) IS 'x';
+SECURITY LABEL ON PUBLICATION p IS 'x';
+SECURITY LABEL ON ROLE r IS 'x';
+SECURITY LABEL ON ROUTINE r(int) IS 'x';
+SECURITY LABEL ON SCHEMA s IS 'x';
+SECURITY LABEL ON SEQUENCE s IS 'x';
+SECURITY LABEL ON SUBSCRIPTION s IS 'x';
+SECURITY LABEL ON TABLESPACE t IS 'x';
+SECURITY LABEL ON TYPE t IS 'x';
+SECURITY LABEL ON VIEW v IS 'x';
+SELECT * INTO films_recent FROM films WHERE date_prod >= '2002-01-01';
+SELECT DISTINCT ON (a) a, b INTO TEMPORARY TABLE t2 FROM t ORDER BY a, b DESC;
+SELECT a INTO UNLOGGED t3 FROM t GROUP BY a HAVING count(*) > 1;
+SELECT a INTO TEMP t4 FROM t UNION SELECT b FROM u;
+SET search_path TO my_schema, public;
+SET datestyle TO postgres, dmy;
+SET TIME ZONE 'PST8PDT';
+SET TIME ZONE 'Europe/Rome';
+SET TIME ZONE LOCAL;
+SET TIME ZONE DEFAULT;
+SET SESSION work_mem = '64MB';
+SET LOCAL work_mem TO DEFAULT;
+SET x.y = 'z';
+SET CONSTRAINTS ALL DEFERRED;
+SET CONSTRAINTS a, b IMMEDIATE;
+SET ROLE 'paul';
+SET SESSION ROLE paul;
+SET LOCAL ROLE NONE;
+RESET ROLE;
+SET SESSION AUTHORIZATION 'paul';
+SET LOCAL SESSION AUTHORIZATION DEFAULT;
+RESET SESSION AUTHORIZATION;
+SET TRANSACTION SNAPSHOT '00000003-0000001B-1';
+SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY, NOT DEFERRABLE;
+SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ COMMITTED;
+SHOW DateStyle;
+SHOW geqo;
+SHOW ALL;
+START TRANSACTION;
+START TRANSACTION ISOLATION LEVEL SERIALIZABLE READ ONLY DEFERRABLE;
+TRUNCATE bigtable, fattable;
+TRUNCATE bigtable, fattable RESTART IDENTITY;
+TRUNCATE othertable CASCADE;
+TRUNCATE TABLE ONLY a, b * CONTINUE IDENTITY RESTRICT;
+UNLISTEN virtual;
+UNLISTEN *;
+UPDATE films SET kind = 'Dramatic' WHERE kind = 'Drama';
+UPDATE weather SET temp_lo = temp_lo+1, temp_hi = temp_lo+15, prcp = DEFAULT WHERE city = 'San Francisco' AND date = '2003-07-03';
+UPDATE weather SET temp_lo = temp_lo+1, temp_hi = temp_lo+15, prcp = DEFAULT WHERE city = 'San Francisco' AND date = '2003-07-03' RETURNING temp_lo, temp_hi, prcp;
+UPDATE weather SET (temp_lo, temp_hi, prcp) = (temp_lo+1, temp_lo+15, DEFAULT) WHERE city = 'San Francisco' AND date = '2003-07-03';
+UPDATE employees SET sales_count = sales_count + 1 FROM accounts WHERE accounts.name = 'Acme Corporation' AND employees.id = accounts.sales_person;
+UPDATE employees SET sales_count = sales_count + 1 WHERE id = (SELECT sales_person FROM accounts WHERE name = 'Acme Corporation');
+UPDATE accounts SET (contact_first_name, contact_last_name) = (SELECT first_name, last_name FROM employees WHERE employees.id = accounts.sales_person);
+UPDATE accounts SET contact_first_name = first_name, contact_last_name = last_name FROM employees WHERE employees.id = accounts.sales_person;
+UPDATE summary s SET (sum_x, sum_y, avg_x, avg_y) = (SELECT sum(x), sum(y), avg(x), avg(y) FROM data d WHERE d.group_id = s.group_id);
+UPDATE wines SET stock = stock + 24 WHERE winename = 'Chateau Lafite 2003';
+UPDATE employees SET last_closed_year = 2024 WHERE id = 1 RETURNING old.last_closed_year AS old_year, new.last_closed_year AS new_year;
+UPDATE t AS x SET a[1] = 2, b.f = 3 WHERE x.id = 1;
+UPDATE t SET (a, b) = ROW (1, 2);
+WITH exceeded_max_retries AS (
+  SELECT w.ctid FROM work_item AS w
+    WHERE w.status = 'active' AND w.num_retries > 10
+    ORDER BY w.retry_timestamp
+    FOR UPDATE
+    LIMIT 5000
+)
+UPDATE work_item SET status = 'failed'
+  FROM exceeded_max_retries AS emr
+  WHERE work_item.ctid = emr.ctid;
+VACUUM (VERBOSE, ANALYZE) onek;
+VACUUM;
+VACUUM FULL FREEZE VERBOSE ANALYZE t;
+VACUUM (FULL true, FREEZE false, VERBOSE, ANALYZE, DISABLE_PAGE_SKIPPING, SKIP_LOCKED, INDEX_CLEANUP AUTO, PROCESS_MAIN, PROCESS_TOAST false, TRUNCATE true, PARALLEL 4, SKIP_DATABASE_STATS, ONLY_DATABASE_STATS false, BUFFER_USAGE_LIMIT '256kB') ONLY t (a, b), u *;
+VACUUM (INDEX_CLEANUP OFF) t;
+VALUES (1, 'one'), (2, 'two'), (3, 'three');
+VALUES (1, 'one') ORDER BY 1 USING > OFFSET 0 ROWS FETCH FIRST 1 ROW ONLY;
+VALUES (2) LIMIT 1 OFFSET 1;
