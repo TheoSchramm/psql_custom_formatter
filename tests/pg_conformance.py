@@ -19,7 +19,15 @@ installed, also: input and output parse to the same tree. Statements PostgreSQL
 rejects (pseudo-code in the manual) are only checked for token/comment safety.
 
 Usage: python3 tests/pg_conformance.py [--show CATEGORY] [--limit N] [--regress DIR]
+       python3 tests/pg_conformance.py --inventory [--regress DIR ...]
 pglast is optional and only used here:  pip install pglast   (e.g. in a venv)
+
+--inventory is the feature-by-feature check: every keyword phrase in the Synopsis of
+every SQL command reference page (tests/pg18/synopses.json, from the PDF) must occur in at
+least one statement *of that command* that PostgreSQL accepts and that formats correctly
+(same parse tree, tokens and comments kept, idempotent). The statement pool is the corpora
+above plus any --regress directories. Needs pglast. Phrases PostgreSQL itself rejects are
+listed separately (the manual documents them as not implemented, e.g. MATCH PARTIAL).
 
 --regress DIR runs the same checks over PostgreSQL's own regression-test SQL instead,
 i.e. src/test/regress/sql of a PostgreSQL 18 source tree (~48,700 statements written to
@@ -130,8 +138,93 @@ def check(sql):
     return probs, out
 
 
+_MODS = r'(?: (?:OR REPLACE|GLOBAL|LOCAL|TEMP|TEMPORARY|UNLOGGED|UNIQUE|TRUSTED|PROCEDURAL|DEFAULT|CONSTRAINT|RECURSIVE))*'
+
+
+def _belongs(cmd, v):
+    """Whether normalized statement v (upper case, single spaces) is an instance of `cmd`."""
+    import re
+    w = cmd.split()
+    if cmd == 'SELECT':
+        return (re.match(r'(WITH |TABLE |\(|SELECT )', v) is not None
+                and not re.match(r'WITH .*\b(INSERT|UPDATE|DELETE|MERGE) ', v))
+    if cmd == 'SELECT INTO':
+        return (v.startswith('SELECT ') or v.startswith('WITH ')) and ' INTO ' in v
+    if cmd == 'CREATE TABLE AS':
+        return re.match('CREATE' + _MODS + r' TABLE .* AS ', v) is not None
+    if cmd in ('DELETE', 'INSERT', 'UPDATE', 'MERGE') and v.startswith('WITH '):
+        return re.search(r'\) ' + cmd + r' ', v) is not None
+    if cmd in ('SET ROLE', 'SET SESSION AUTHORIZATION'):
+        return re.match(r'(SET( SESSION| LOCAL)? |RESET )' + ' '.join(w[1:]) + r'\b', v) is not None
+    if cmd == 'SET TRANSACTION':
+        return re.match(r'SET (TRANSACTION|SESSION CHARACTERISTICS)', v) is not None
+    if cmd == 'ROLLBACK TO SAVEPOINT':
+        return re.match(r'ROLLBACK( WORK| TRANSACTION)? TO ', v) is not None
+    if w[0] in ('CREATE', 'ALTER', 'DROP') and len(w) > 1:
+        return re.match(w[0] + _MODS + ' ' + re.escape(' '.join(w[1:])) + r'\b', v) is not None
+    return v == cmd or v.startswith(cmd + ' ') or v.startswith(cmd + ';')
+
+
+def _phrases(text):
+    """Maximal runs of upper-case keywords in a synopsis (placeholders are lower case)."""
+    import re
+    text = re.sub(r"'[^']*'", ' ', text)
+    out = set()
+    for line in text.split('\n'):
+        for run in re.findall(r"(?:\b(?:[A-Z][A-Z_]*[A-Z]|[A-Z])\b(?:[ ]+|$))+", line):
+            if run.split():
+                out.add(' '.join(run.split()))
+    return out
+
+
+def inventory(items):
+    import re
+    syn = json.load(open(os.path.join(HERE, 'pg18', 'synopses.json')))
+    verified = []
+    for it in items:
+        s = it['sql']
+        tree = pg_tree(s)
+        if tree is None:
+            continue
+        probs, out = check(s)
+        if not probs and pg_tree(out) == tree:
+            verified.append(' '.join(re.sub(r"'(?:[^']|'')*'|--[^\n]*|/\*.*?\*/", ' ', s, flags=re.S).upper().split()))
+    total = covered = 0
+    missing = {}
+    for cmd, text in sorted(syn.items()):
+        stm = [v for v in verified if _belongs(cmd, v)]
+        for p in sorted(_phrases(text)):
+            total += 1
+            pat = re.compile(r'(?<![A-Z_])' + re.escape(p) + r'(?![A-Z_])')
+            if any(pat.search(v) for v in stm):
+                covered += 1
+            else:
+                missing.setdefault(cmd, []).append(p)
+    print(f'{len(verified)} verified statements; {len(syn)} commands, {total} synopsis keyword phrases, '
+          f'{covered} covered')
+    not_impl = []
+    for cmd, ps in sorted(missing.items()):
+        for p in ps:
+            try:
+                pgparser.parse_sql(f'CREATE TABLE t (a int REFERENCES p (a) {p})' if p.startswith('MATCH ') else 'SELECT 1')
+                print(f'  NOT COVERED  {cmd}: {p}')
+            except Exception as e:
+                not_impl.append((cmd, p, str(e).split(',')[0]))
+    for cmd, p, why in not_impl:
+        print(f'  rejected by PostgreSQL itself  {cmd}: {p}  ({why})')
+    return total - covered - len(not_impl)
+
+
 def main():
     args = sys.argv[1:]
+    if '--inventory' in args:
+        if pgparser is None:
+            sys.exit('--inventory needs pglast (pip install pglast)')
+        items = load_corpora()
+        for k, a in enumerate(args):
+            if a == '--regress':
+                items += load_regress(args[k + 1])
+        sys.exit(1 if inventory(items) else 0)
     show = args[args.index('--show') + 1] if '--show' in args else None
     limit = int(args[args.index('--limit') + 1]) if '--limit' in args else 10
     items = load_regress(args[args.index('--regress') + 1]) if '--regress' in args else load_corpora()

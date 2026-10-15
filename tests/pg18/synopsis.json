@@ -6610,5 +6610,1403 @@
 "section": "synopsis_6_select.sql",
 "sql": "SELECT a FROM t WHERE b ^@ 'pre' AND c @@ 'x' AND d OPERATOR(pg_catalog.=) e;",
 "valid": true
+},
+{
+"line": 1,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER COLLATION c OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 2,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER COLLATION c OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 3,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER CONVERSION c OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 4,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER CONVERSION c OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 5,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER CONVERSION c OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 6,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER DATABASE d OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 7,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER DATABASE d OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 8,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER DOMAIN d OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 9,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER DOMAIN d OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 10,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER DOMAIN d OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 11,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER EVENT TRIGGER e OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 12,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER EVENT TRIGGER e OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 13,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER EVENT TRIGGER e OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 14,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER EXTENSION e ADD COLLATION c;",
+"valid": true
+},
+{
+"line": 15,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER EXTENSION e ADD CONVERSION c;",
+"valid": true
+},
+{
+"line": 16,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER EXTENSION e ADD DOMAIN d;",
+"valid": true
+},
+{
+"line": 17,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER EXTENSION e ADD EVENT TRIGGER et;",
+"valid": true
+},
+{
+"line": 18,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER EXTENSION e ADD AGGREGATE a(float8 ORDER BY int);",
+"valid": true
+},
+{
+"line": 19,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER EXTENSION e ADD PROCEDURE p(int);",
+"valid": true
+},
+{
+"line": 20,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER EXTENSION e ADD SEQUENCE s;",
+"valid": true
+},
+{
+"line": 21,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER EXTENSION e ADD TEXT SEARCH DICTIONARY d;",
+"valid": true
+},
+{
+"line": 22,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER EXTENSION e ADD TEXT SEARCH PARSER p;",
+"valid": true
+},
+{
+"line": 23,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER EXTENSION e DROP TEXT SEARCH TEMPLATE t;",
+"valid": true
+},
+{
+"line": 24,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER FOREIGN DATA WRAPPER w OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 25,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER FOREIGN DATA WRAPPER w OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 26,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER FOREIGN TABLE ft OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 27,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER FOREIGN TABLE ft OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 28,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER FOREIGN TABLE ft OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 29,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER FOREIGN TABLE ft ALTER COLUMN c SET STORAGE EXTENDED, ALTER COLUMN d SET STORAGE MAIN;",
+"valid": true
+},
+{
+"line": 30,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER FUNCTION f(int) OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 31,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER FUNCTION f(int) OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 32,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER FUNCTION f(int) OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 33,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER GROUP CURRENT_ROLE ADD USER u;",
+"valid": true
+},
+{
+"line": 34,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER GROUP SESSION_USER DROP USER u;",
+"valid": true
+},
+{
+"line": 35,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER LANGUAGE l OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 36,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER LANGUAGE l OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 37,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER LARGE OBJECT 1 OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 38,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER LARGE OBJECT 1 OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 39,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER LARGE OBJECT 1 OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 40,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER MATERIALIZED VIEW mv OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 41,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER MATERIALIZED VIEW mv OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 42,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER MATERIALIZED VIEW mv ALTER COLUMN a SET STORAGE DEFAULT, ALTER COLUMN b SET STORAGE EXTENDED, ALTER COLUMN c SET STORAGE EXTERNAL, ALTER COLUMN d SET STORAGE PLAIN;",
+"valid": true
+},
+{
+"line": 43,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER OPERATOR @@ (text, text) OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 44,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER OPERATOR @@ (text, text) OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 45,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER OPERATOR @@ (text, text) OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 46,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER OPERATOR CLASS c USING btree OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 47,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER OPERATOR CLASS c USING btree OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 48,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER OPERATOR CLASS c USING btree OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 49,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER OPERATOR FAMILY f USING btree OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 50,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER OPERATOR FAMILY f USING btree OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 51,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER OPERATOR FAMILY f USING btree OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 52,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER POLICY p ON t TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 53,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER PROCEDURE p(int) OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 54,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER PROCEDURE p(int) OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 55,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER PROCEDURE p(int) OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 56,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER PROCEDURE p(int) SET work_mem TO DEFAULT;",
+"valid": true
+},
+{
+"line": 57,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER PROCEDURE p(int) SET search_path FROM CURRENT;",
+"valid": true
+},
+{
+"line": 58,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER PROCEDURE p(int) NO DEPENDS ON EXTENSION e;",
+"valid": true
+},
+{
+"line": 59,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER PROCEDURE p(int) SECURITY INVOKER;",
+"valid": true
+},
+{
+"line": 60,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER PUBLICATION p OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 61,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER PUBLICATION p OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 62,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER PUBLICATION p OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 63,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER ROLE r SET work_mem TO DEFAULT;",
+"valid": true
+},
+{
+"line": 64,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER ROUTINE r(int) OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 65,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER ROUTINE r(int) OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 66,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER ROUTINE r(int) OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 67,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER ROUTINE r(int) SET work_mem TO DEFAULT;",
+"valid": true
+},
+{
+"line": 68,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER ROUTINE r(int) SET search_path FROM CURRENT;",
+"valid": true
+},
+{
+"line": 69,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER ROUTINE r(int) EXTERNAL SECURITY DEFINER STABLE PARALLEL RESTRICTED RESTRICT;",
+"valid": true
+},
+{
+"line": 70,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER ROUTINE r(int) VOLATILE PARALLEL UNSAFE;",
+"valid": true
+},
+{
+"line": 71,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER SCHEMA s OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 72,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER SCHEMA s OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 73,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER SEQUENCE s OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 74,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER SEQUENCE s OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 75,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER SEQUENCE s OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 76,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER SERVER s OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 77,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER SERVER s OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 78,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER SERVER s OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 79,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER STATISTICS s OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 80,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER STATISTICS s OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 81,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER STATISTICS s OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 82,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER SUBSCRIPTION s OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 83,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER SUBSCRIPTION s OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 84,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER TABLE t ADD CONSTRAINT ex EXCLUDE USING gist (c DESC WITH &&);",
+"valid": true
+},
+{
+"line": 85,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER TABLESPACE ts OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 86,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER TABLESPACE ts OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 87,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER TABLESPACE ts OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 88,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER TEXT SEARCH CONFIGURATION c OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 89,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER TEXT SEARCH CONFIGURATION c OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 90,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER TEXT SEARCH CONFIGURATION c OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 91,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER TEXT SEARCH DICTIONARY d OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 92,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER TEXT SEARCH DICTIONARY d OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 93,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER TYPE t OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 94,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER TYPE t OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 95,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER TYPE t OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 96,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER USER u WITH BYPASSRLS CONNECTION LIMIT 3 CREATEROLE ENCRYPTED PASSWORD 'x' INHERIT;",
+"valid": true
+},
+{
+"line": 97,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER USER u NOBYPASSRLS NOCREATEDB NOCREATEROLE NOINHERIT PASSWORD NULL;",
+"valid": true
+},
+{
+"line": 98,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER USER u SET work_mem TO DEFAULT;",
+"valid": true
+},
+{
+"line": 99,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER USER u SET search_path FROM CURRENT;",
+"valid": true
+},
+{
+"line": 100,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER VIEW v OWNER TO CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 101,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER VIEW v OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 102,
+"section": "synopsis_7_inventory.sql",
+"sql": "COMMENT ON AGGREGATE a(float8 ORDER BY int) IS 'x';",
+"valid": true
+},
+{
+"line": 103,
+"section": "synopsis_7_inventory.sql",
+"sql": "COMMENT ON PROCEDURAL LANGUAGE l IS 'x';",
+"valid": true
+},
+{
+"line": 104,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE AGGREGATE a (int) (sfunc = f, stype = int, msfunc = mf, minvfunc = mi, mstype = int, mfinalfunc = mff, parallel = restricted);",
+"valid": true
+},
+{
+"line": 105,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE AGGREGATE b (int) (sfunc = f, stype = int, parallel = unsafe);",
+"valid": true
+},
+{
+"line": 106,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE FOREIGN TABLE ft (LIKE src INCLUDING CONSTRAINTS INCLUDING DEFAULTS EXCLUDING STATISTICS) SERVER s;",
+"valid": true
+},
+{
+"line": 107,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE FOREIGN TABLE ftp PARTITION OF p FOR VALUES FROM (MINVALUE) TO (MAXVALUE) SERVER s;",
+"valid": true
+},
+{
+"line": 108,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE FUNCTION f() RETURNS int LANGUAGE sql PARALLEL RESTRICTED RETURN 1;",
+"valid": true
+},
+{
+"line": 109,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE GROUP g WITH CREATEROLE INHERIT NOBYPASSRLS NOCREATEDB NOLOGIN NOREPLICATION NOSUPERUSER PASSWORD NULL;",
+"valid": true
+},
+{
+"line": 110,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE PROCEDURE p() LANGUAGE sql SECURITY INVOKER SET work_mem TO '64MB' AS 'SELECT 1';",
+"valid": true
+},
+{
+"line": 111,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE TABLE t (a int, EXCLUDE USING gist (a ASC WITH =, (a + 1) DESC WITH <>));",
+"valid": true
+},
+{
+"line": 112,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE TABLE t2 (a text STORAGE MAIN, b int REFERENCES p (id) MATCH SIMPLE NOT DEFERRABLE);",
+"valid": true
+},
+{
+"line": 113,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE LOCAL TEMP TABLE ctas AS SELECT 1;",
+"valid": true
+},
+{
+"line": 114,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE TABLESPACE ts OWNER CURRENT_ROLE LOCATION '/x';",
+"valid": true
+},
+{
+"line": 115,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE TABLESPACE ts2 OWNER CURRENT_USER LOCATION '/y';",
+"valid": true
+},
+{
+"line": 116,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE TABLESPACE ts3 OWNER SESSION_USER LOCATION '/z';",
+"valid": true
+},
+{
+"line": 117,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE CONSTRAINT TRIGGER ct AFTER INSERT ON t DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION f();",
+"valid": true
+},
+{
+"line": 118,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE CONSTRAINT TRIGGER ct2 AFTER INSERT ON t NOT DEFERRABLE FOR EACH ROW EXECUTE FUNCTION f();",
+"valid": true
+},
+{
+"line": 119,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE USER u WITH SUPERUSER CREATEDB REPLICATION CONNECTION LIMIT 1 ENCRYPTED PASSWORD 'x' VALID UNTIL '2030-01-01' IN GROUP g INHERIT ADMIN a SYSID 1;",
+"valid": true
+},
+{
+"line": 120,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE USER u2 NOSUPERUSER NOBYPASSRLS NOINHERIT NOREPLICATION PASSWORD NULL;",
+"valid": true
+},
+{
+"line": 121,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP ACCESS METHOD a RESTRICT;",
+"valid": true
+},
+{
+"line": 122,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP AGGREGATE a(int) CASCADE;",
+"valid": true
+},
+{
+"line": 123,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP CAST (text AS int) RESTRICT;",
+"valid": true
+},
+{
+"line": 124,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP CONVERSION c RESTRICT;",
+"valid": true
+},
+{
+"line": 125,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP EVENT TRIGGER e CASCADE;",
+"valid": true
+},
+{
+"line": 126,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP EXTENSION e RESTRICT;",
+"valid": true
+},
+{
+"line": 127,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP FOREIGN DATA WRAPPER w RESTRICT;",
+"valid": true
+},
+{
+"line": 128,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP FUNCTION f(int) RESTRICT;",
+"valid": true
+},
+{
+"line": 129,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP INDEX i RESTRICT;",
+"valid": true
+},
+{
+"line": 130,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP LANGUAGE l RESTRICT;",
+"valid": true
+},
+{
+"line": 131,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP OPERATOR CLASS c USING btree RESTRICT;",
+"valid": true
+},
+{
+"line": 132,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP OPERATOR FAMILY f USING btree CASCADE;",
+"valid": true
+},
+{
+"line": 133,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP OWNED BY SESSION_USER;",
+"valid": true
+},
+{
+"line": 134,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP POLICY p ON t RESTRICT;",
+"valid": true
+},
+{
+"line": 135,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP PROCEDURE p(int) RESTRICT;",
+"valid": true
+},
+{
+"line": 136,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP PUBLICATION p CASCADE;",
+"valid": true
+},
+{
+"line": 137,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP ROUTINE r(int) RESTRICT;",
+"valid": true
+},
+{
+"line": 138,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP RULE r ON t RESTRICT;",
+"valid": true
+},
+{
+"line": 139,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP SEQUENCE s RESTRICT;",
+"valid": true
+},
+{
+"line": 140,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP SERVER s RESTRICT;",
+"valid": true
+},
+{
+"line": 141,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP STATISTICS s RESTRICT;",
+"valid": true
+},
+{
+"line": 142,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP SUBSCRIPTION s CASCADE;",
+"valid": true
+},
+{
+"line": 143,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP TABLE t RESTRICT;",
+"valid": true
+},
+{
+"line": 144,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP TEXT SEARCH CONFIGURATION c RESTRICT;",
+"valid": true
+},
+{
+"line": 145,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP TEXT SEARCH DICTIONARY d CASCADE;",
+"valid": true
+},
+{
+"line": 146,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP TEXT SEARCH PARSER p RESTRICT;",
+"valid": true
+},
+{
+"line": 147,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP TEXT SEARCH TEMPLATE t RESTRICT;",
+"valid": true
+},
+{
+"line": 148,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP TRANSFORM FOR int LANGUAGE l RESTRICT;",
+"valid": true
+},
+{
+"line": 149,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP TRIGGER t ON tbl CASCADE;",
+"valid": true
+},
+{
+"line": 150,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP VIEW v RESTRICT;",
+"valid": true
+},
+{
+"line": 151,
+"section": "synopsis_7_inventory.sql",
+"sql": "END AND NO CHAIN;",
+"valid": true
+},
+{
+"line": 152,
+"section": "synopsis_7_inventory.sql",
+"sql": "EXPLAIN (SERIALIZE NONE) SELECT 1;",
+"valid": true
+},
+{
+"line": 153,
+"section": "synopsis_7_inventory.sql",
+"sql": "WITH RECURSIVE x AS (SELECT 1 AS a) INSERT INTO t SELECT a FROM x;",
+"valid": true
+},
+{
+"line": 154,
+"section": "synopsis_7_inventory.sql",
+"sql": "WITH RECURSIVE x AS (SELECT 1 AS a) UPDATE t SET a = x.a FROM x;",
+"valid": true
+},
+{
+"line": 155,
+"section": "synopsis_7_inventory.sql",
+"sql": "MOVE ABSOLUTE 3 FROM c;",
+"valid": true
+},
+{
+"line": 156,
+"section": "synopsis_7_inventory.sql",
+"sql": "MOVE FIRST IN c;",
+"valid": true
+},
+{
+"line": 157,
+"section": "synopsis_7_inventory.sql",
+"sql": "MOVE NEXT FROM c;",
+"valid": true
+},
+{
+"line": 158,
+"section": "synopsis_7_inventory.sql",
+"sql": "MOVE PRIOR FROM c;",
+"valid": true
+},
+{
+"line": 159,
+"section": "synopsis_7_inventory.sql",
+"sql": "REASSIGN OWNED BY SESSION_USER TO r;",
+"valid": true
+},
+{
+"line": 160,
+"section": "synopsis_7_inventory.sql",
+"sql": "REVOKE EXECUTE ON ROUTINE r(int) FROM u;",
+"valid": true
+},
+{
+"line": 161,
+"section": "synopsis_7_inventory.sql",
+"sql": "REVOKE TEMP, TEMPORARY ON DATABASE d FROM u;",
+"valid": true
+},
+{
+"line": 162,
+"section": "synopsis_7_inventory.sql",
+"sql": "SECURITY LABEL ON AGGREGATE a(float8 ORDER BY int) IS 'x';",
+"valid": true
+},
+{
+"line": 163,
+"section": "synopsis_7_inventory.sql",
+"sql": "SELECT a INTO TEMP t1 FROM t WINDOW w AS (ORDER BY a) ORDER BY a ASC NULLS FIRST, b DESC NULLS LAST OFFSET 1 ROWS FETCH NEXT 2 ROWS ONLY FOR SHARE OF t NOWAIT;",
+"valid": true
+},
+{
+"line": 164,
+"section": "synopsis_7_inventory.sql",
+"sql": "SELECT a INTO t2 FROM t EXCEPT SELECT b FROM u INTERSECT SELECT c FROM v FETCH FIRST 1 ROW ONLY FOR UPDATE;",
+"valid": true
+},
+{
+"line": 165,
+"section": "synopsis_7_inventory.sql",
+"sql": "SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;",
+"valid": true
+},
+{
+"line": 166,
+"section": "synopsis_7_inventory.sql",
+"sql": "START TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;",
+"valid": true
+},
+{
+"line": 167,
+"section": "synopsis_7_inventory.sql",
+"sql": "VALUES (1), (2) ORDER BY 1 ASC FETCH NEXT 1 ROW ONLY;",
+"valid": true
+},
+{
+"line": 168,
+"section": "synopsis_7_inventory.sql",
+"sql": "VALUES (1), (2) ORDER BY 1 DESC;",
+"valid": true
+},
+{
+"line": 169,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER AGGREGATE a(int) OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 170,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER DOMAIN d DROP CONSTRAINT c RESTRICT;",
+"valid": true
+},
+{
+"line": 171,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER EXTENSION e ADD FOREIGN TABLE ft;",
+"valid": true
+},
+{
+"line": 172,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER EXTENSION e ADD SERVER s;",
+"valid": true
+},
+{
+"line": 173,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER EXTENSION e ADD TABLE t;",
+"valid": true
+},
+{
+"line": 174,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER EXTENSION e ADD TYPE ty;",
+"valid": true
+},
+{
+"line": 175,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER FOREIGN DATA WRAPPER w OPTIONS (SET a 'b');",
+"valid": true
+},
+{
+"line": 176,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER FOREIGN TABLE ft ALTER COLUMN c SET STORAGE PLAIN;",
+"valid": true
+},
+{
+"line": 177,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER MATERIALIZED VIEW mv NO DEPENDS ON EXTENSION e;",
+"valid": true
+},
+{
+"line": 178,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER ROLE CURRENT_ROLE NOSUPERUSER;",
+"valid": true
+},
+{
+"line": 179,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER ROLE SESSION_USER RESET ALL;",
+"valid": true
+},
+{
+"line": 180,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER SERVER s OPTIONS (ADD a 'b', DROP c);",
+"valid": true
+},
+{
+"line": 181,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER TABLE t OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 182,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER TABLE t OWNER TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 183,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER TABLE t ALTER COLUMN a SET STORAGE EXTENDED, ALTER COLUMN b SET STORAGE EXTERNAL, ALTER COLUMN c SET STORAGE MAIN;",
+"valid": true
+},
+{
+"line": 184,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER TABLE t ADD CONSTRAINT ex EXCLUDE (a WITH =) , ADD CONSTRAINT ex2 EXCLUDE USING gist (b NULLS FIRST WITH &&);",
+"valid": true
+},
+{
+"line": 185,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER USER CURRENT_USER LOGIN NOREPLICATION;",
+"valid": true
+},
+{
+"line": 186,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER USER u NOLOGIN REPLICATION SUPERUSER;",
+"valid": true
+},
+{
+"line": 187,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER USER MAPPING FOR CURRENT_USER SERVER s OPTIONS (SET a 'b');",
+"valid": true
+},
+{
+"line": 188,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER USER MAPPING FOR SESSION_USER SERVER s OPTIONS (SET a 'b');",
+"valid": true
+},
+{
+"line": 189,
+"section": "synopsis_7_inventory.sql",
+"sql": "ALTER VIEW v OWNER TO CURRENT_USER;",
+"valid": true
+},
+{
+"line": 190,
+"section": "synopsis_7_inventory.sql",
+"sql": "BEGIN ISOLATION LEVEL READ COMMITTED;",
+"valid": true
+},
+{
+"line": 191,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE AGGREGATE c (int) (sfunc = f, stype = int, finalfunc = ff, finalfunc_modify = read_write);",
+"valid": true
+},
+{
+"line": 192,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE FOREIGN TABLE ft1 PARTITION OF p FOR VALUES IN (1) SERVER s;",
+"valid": true
+},
+{
+"line": 193,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE FOREIGN TABLE ft2 PARTITION OF p FOR VALUES WITH (MODULUS 2, REMAINDER 0) SERVER s;",
+"valid": true
+},
+{
+"line": 194,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE FOREIGN TABLE ft3 (a int, b int GENERATED ALWAYS AS (a * 2) VIRTUAL) SERVER s;",
+"valid": true
+},
+{
+"line": 195,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE FUNCTION f2() RETURNS int LANGUAGE sql VOLATILE PARALLEL UNSAFE RETURN 1;",
+"valid": true
+},
+{
+"line": 196,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE ROLE r1 WITH BYPASSRLS CONNECTION LIMIT 2 ENCRYPTED PASSWORD 'x' NOINHERIT REPLICATION;",
+"valid": true
+},
+{
+"line": 197,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE SCHEMA AUTHORIZATION CURRENT_ROLE;",
+"valid": true
+},
+{
+"line": 198,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE SCHEMA s2 AUTHORIZATION SESSION_USER;",
+"valid": true
+},
+{
+"line": 199,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE TABLE t3 (LIKE src INCLUDING ALL EXCLUDING COMMENTS, a int, b text STORAGE EXTENDED, c text STORAGE PLAIN, d int GENERATED ALWAYS AS (a + 1) STORED, CONSTRAINT u UNIQUE (a) INCLUDE (d), CONSTRAINT ex EXCLUDE (a WITH =, b NULLS LAST WITH =, c NULLS FIRST WITH =), CONSTRAINT fk FOREIGN KEY (a) REFERENCES p ON DELETE RESTRICT ON UPDATE SET DEFAULT DEFERRABLE INITIALLY IMMEDIATE) PARTITION BY RANGE (a);",
+"valid": true
+},
+{
+"line": 200,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE TABLE t4 PARTITION OF t3 FOR VALUES FROM (1) TO (MAXVALUE);",
+"valid": true
+},
+{
+"line": 201,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE TEMP TABLE ctas2 ON COMMIT DELETE ROWS AS SELECT 1;",
+"valid": true
+},
+{
+"line": 202,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE USER u3 BYPASSRLS CREATEROLE NOCREATEDB NOCREATEROLE NOLOGIN IN ROLE r ROLE m;",
+"valid": true
+},
+{
+"line": 203,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE USER MAPPING FOR CURRENT_USER SERVER s;",
+"valid": true
+},
+{
+"line": 204,
+"section": "synopsis_7_inventory.sql",
+"sql": "CREATE TEMPORARY VIEW tv AS SELECT 1;",
+"valid": true
+},
+{
+"line": 205,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP COLLATION c CASCADE;",
+"valid": true
+},
+{
+"line": 206,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP DOMAIN d RESTRICT;",
+"valid": true
+},
+{
+"line": 207,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP FOREIGN TABLE ft CASCADE;",
+"valid": true
+},
+{
+"line": 208,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP MATERIALIZED VIEW mv CASCADE;",
+"valid": true
+},
+{
+"line": 209,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP OWNED BY CURRENT_ROLE RESTRICT;",
+"valid": true
+},
+{
+"line": 210,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP TYPE t RESTRICT;",
+"valid": true
+},
+{
+"line": 211,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP USER MAPPING FOR CURRENT_ROLE SERVER s;",
+"valid": true
+},
+{
+"line": 212,
+"section": "synopsis_7_inventory.sql",
+"sql": "DROP USER MAPPING FOR CURRENT_USER SERVER s;",
+"valid": true
+},
+{
+"line": 213,
+"section": "synopsis_7_inventory.sql",
+"sql": "GRANT SELECT ON t TO SESSION_USER;",
+"valid": true
+},
+{
+"line": 214,
+"section": "synopsis_7_inventory.sql",
+"sql": "LOCK TABLE t IN ACCESS SHARE MODE;",
+"valid": true
+},
+{
+"line": 215,
+"section": "synopsis_7_inventory.sql",
+"sql": "MERGE INTO t USING s ON t.id = s.id WHEN NOT MATCHED THEN INSERT (id) OVERRIDING USER VALUE VALUES (s.id);",
+"valid": true
+},
+{
+"line": 216,
+"section": "synopsis_7_inventory.sql",
+"sql": "MOVE ALL IN c;",
+"valid": true
+},
+{
+"line": 217,
+"section": "synopsis_7_inventory.sql",
+"sql": "MOVE BACKWARD FROM c;",
+"valid": true
+},
+{
+"line": 218,
+"section": "synopsis_7_inventory.sql",
+"sql": "MOVE BACKWARD ALL FROM c;",
+"valid": true
+},
+{
+"line": 219,
+"section": "synopsis_7_inventory.sql",
+"sql": "MOVE FORWARD ALL FROM c;",
+"valid": true
+},
+{
+"line": 220,
+"section": "synopsis_7_inventory.sql",
+"sql": "REASSIGN OWNED BY CURRENT_ROLE TO r;",
+"valid": true
+},
+{
+"line": 221,
+"section": "synopsis_7_inventory.sql",
+"sql": "REVOKE DELETE, MAINTAIN, REFERENCES, TRIGGER, TRUNCATE ON ALL TABLES IN SCHEMA s FROM GROUP g, CURRENT_ROLE, SESSION_USER;",
+"valid": true
+},
+{
+"line": 222,
+"section": "synopsis_7_inventory.sql",
+"sql": "REVOKE ALTER SYSTEM ON PARAMETER work_mem FROM u;",
+"valid": true
+},
+{
+"line": 223,
+"section": "synopsis_7_inventory.sql",
+"sql": "REVOKE EXECUTE ON ALL FUNCTIONS IN SCHEMA s FROM u;",
+"valid": true
+},
+{
+"line": 224,
+"section": "synopsis_7_inventory.sql",
+"sql": "REVOKE EXECUTE ON PROCEDURE p(int) FROM u;",
+"valid": true
+},
+{
+"line": 225,
+"section": "synopsis_7_inventory.sql",
+"sql": "REVOKE EXECUTE ON ALL PROCEDURES IN SCHEMA s FROM u;",
+"valid": true
+},
+{
+"line": 226,
+"section": "synopsis_7_inventory.sql",
+"sql": "WITH RECURSIVE g (id) AS (SELECT 1 UNION ALL SELECT id FROM g) CYCLE id SET is_cycle TO 'Y' DEFAULT 'N' USING path SELECT * FROM g;",
+"valid": true
+},
+{
+"line": 227,
+"section": "synopsis_7_inventory.sql",
+"sql": "SELECT ALL a INTO t5 FROM t LIMIT 1;",
+"valid": true
+},
+{
+"line": 228,
+"section": "synopsis_7_inventory.sql",
+"sql": "SET TRANSACTION READ WRITE, ISOLATION LEVEL SERIALIZABLE;",
+"valid": true
+},
+{
+"line": 229,
+"section": "synopsis_7_inventory.sql",
+"sql": "START TRANSACTION ISOLATION LEVEL READ COMMITTED, READ WRITE, NOT DEFERRABLE;",
+"valid": true
+},
+{
+"line": 230,
+"section": "synopsis_7_inventory.sql",
+"sql": "START TRANSACTION ISOLATION LEVEL REPEATABLE READ;",
+"valid": true
+},
+{
+"line": 231,
+"section": "synopsis_7_inventory.sql",
+"sql": "UPDATE ONLY t SET a = 1;",
+"valid": true
+},
+{
+"line": 232,
+"section": "synopsis_7_inventory.sql",
+"sql": "VACUUM (INDEX_CLEANUP ON) t;",
+"valid": true
+},
+{
+"line": 233,
+"section": "synopsis_7_inventory.sql",
+"sql": "VALUES (1) LIMIT ALL;",
+"valid": true
 }
 ]

@@ -249,6 +249,15 @@ Statements PostgreSQL rejects (manual pseudo-code) are only checked for content 
 PostgreSQL developers to exercise every feature): an independent check that nothing in the
 manual was missed. Last run: 48,721 statements, 48,150 valid, all pass.
 
+Feature inventory (`--inventory`): `tests/pg18/synopses.json` holds the Synopsis of all
+183 SQL command reference pages from the PDF. Every maximal run of upper-case keywords in
+a synopsis (2,263 phrases: `IF NOT EXISTS`, `SET STATISTICS`, `NULLS NOT DISTINCT`,
+`OWNER TO`, `CURRENT_ROLE`, ...) must occur in at least one statement *of that command*
+that PostgreSQL 18 accepts and that formats correctly. Result: 2,261 covered; the other 2
+are `MATCH PARTIAL`, which PostgreSQL rejects and the manual documents as "not yet
+implemented". `tests/pg18/synopsis_7_inventory.sql` holds the statements written to close
+the gaps the inventory found.
+
 Held-out check: the same runner over every other test SQL file of the PostgreSQL 18 source
 (contrib/, src/pl/, src/test/modules/, src/test/mb/, ... — 325 files, 15,118 statements),
 which was never used while fixing. First run: 98.8% passed, 0 meaning changes; the failures

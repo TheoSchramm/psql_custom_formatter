@@ -28,6 +28,9 @@ python3 tests/pg_conformance.py
 # Same checks over PostgreSQL's own regression suite (~48,700 statements; needs pglast and a
 # PG 18 source tree: postgresql-18.x/src/test/regress/sql)
 python3 tests/pg_conformance.py --regress /path/to/postgresql-18.0/src/test/regress/sql
+# Feature inventory: every keyword phrase of every SQL command Synopsis in the manual must
+# occur in a verified statement of that command (needs pglast)
+python3 tests/pg_conformance.py --inventory
 ```
 
 ## Where Things Live

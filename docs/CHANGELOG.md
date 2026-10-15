@@ -5,6 +5,22 @@ Entries are in reverse chronological order.
 
 ---
 
+## 2026-10-15 (7) — Feature-by-feature inventory of the SQL reference
+
+`tests/pg_conformance.py --inventory`: for each of the 183 SQL command reference pages,
+every keyword phrase of its Synopsis (2,263 in total) must occur in a statement of that
+command that PostgreSQL 18 accepts and that formats correctly (same parse tree, tokens and
+comments kept, idempotent). First run against the whole statement pool (manual corpora +
+PostgreSQL's regression and other test SQL, 66,178 verified statements): 2,034 covered.
+The gaps were mostly role specifications (`OWNER TO CURRENT_ROLE / SESSION_USER`),
+`RESTRICT` / `CASCADE` variants and role options; `tests/pg18/synopsis_7_inventory.sql`
+adds 223 statements for them, all accepted by PostgreSQL and formatted correctly. Now
+2,261 / 2,263 covered by the repository's own corpus alone; the remaining 2 are
+`MATCH PARTIAL`, which PostgreSQL rejects ("not yet implemented", as the CREATE TABLE
+page states). The formatter still formats it. No formatter change was needed.
+
+---
+
 ## 2026-10-15 (6) — Held-out check: identifier lexing and case folding
 
 Ran the conformance runner over the PostgreSQL 18 test SQL **not** used during the earlier
